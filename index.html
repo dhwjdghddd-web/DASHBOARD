@@ -93,16 +93,6 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
 .cal-ev.task-ev{background:transparent!important;color:var(--t1);padding-left:2px;display:flex;align-items:center;gap:3px}
 .task-dot{width:8px;height:8px;border-radius:50%;background:#4285F4;flex-shrink:0;display:inline-block}
 .cal-more{font-size:10px;color:var(--t3)}
-/* ── CALENDAR FILTER ── */
-.cal-filter-wrap{position:relative}
-.cal-filter-panel{display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--panel);border:1px solid var(--bd);border-radius:10px;box-shadow:0 4px 16px var(--shadow);z-index:400;min-width:220px;padding:8px 0;max-height:320px;overflow-y:auto}
-.cal-filter-panel.on{display:block}
-.cal-filter-hd{font-size:11px;font-weight:700;color:var(--t3);padding:4px 14px 8px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd);margin-bottom:4px}
-.cal-filter-item{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .15s}
-.cal-filter-item:hover{background:var(--hover)}
-.cal-fi-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
-.cal-fi-name{flex:1;font-size:13px;color:var(--t1)}
-.cal-fi-chk{width:16px;height:16px;cursor:pointer;accent-color:var(--blue);flex-shrink:0}
 /* ── EVENT PANEL ── */
 .ev-panel{position:fixed;right:0;top:var(--hd);bottom:0;width:300px;background:var(--panel);border-left:1px solid var(--bd);box-shadow:-4px 0 16px var(--shadow);z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s}
 .ev-panel.on{transform:none}
@@ -231,10 +221,10 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
 /* ════ MOBILE <768px ════ */
 @media(max-width:767px){
   :root{--hd:48px}
-  .view.on{flex:1}
   .sidebar{display:none}
   .sp-v,.sp-h{display:none}
   .bnav{display:block}
+  .view.on{flex:1}
   .hd-date{display:none}
   .g-labels{width:100%;height:auto;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:1px solid var(--bd);padding:4px 6px;gap:3px;display:flex}
   .glbl{border-radius:16px;margin-right:0;white-space:nowrap;padding:5px 10px}
@@ -249,6 +239,17 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
   .ev-panel{width:100%;top:var(--hd);bottom:var(--bnav)}
   .btn-col{display:none}
 }
+
+/* ── CALENDAR FILTER ── */
+.cal-filter-wrap{position:relative}
+.cal-filter-panel{display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--panel);border:1px solid var(--bd);border-radius:10px;box-shadow:0 4px 16px var(--shadow);z-index:400;min-width:220px;padding:8px 0;max-height:320px;overflow-y:auto}
+.cal-filter-panel.on{display:block}
+.cal-filter-hd{font-size:11px;font-weight:700;color:var(--t3);padding:4px 14px 8px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd);margin-bottom:4px}
+.cal-filter-item{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .15s}
+.cal-filter-item:hover{background:var(--hover)}
+.cal-fi-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.cal-fi-name{flex:1;font-size:13px;color:var(--t1)}
+.cal-fi-chk{width:16px;height:16px;cursor:pointer;accent-color:var(--blue);flex-shrink:0}
 </style>
 </head>
 
@@ -411,7 +412,7 @@ const ECOLS=[
 ];
 let TC=null,AT=null,TLid=null,allT=[],calEvs=[],calList=[],calCM={};
 let calY=new Date().getFullYear(),calM=new Date().getMonth();
-let calFilter={}; // {calendarId: false} = 숨김, 없거나 true = 표시
+let calFilter={};
 let gLabel='INBOX',gMsgs=[],selMsg=null,selIds=new Set();
 let pDay='',pEvs=[];
 let _efi=-1,_efCal='primary',_efEvId=null,_efColor='';
@@ -652,24 +653,38 @@ function saveCalFilter(){
 function toggleCalFilterPanel(){
   const panel=document.getElementById('cal-filter-panel');
   if(!panel)return;
-  const isOn=panel.classList.toggle('on');
-  // 열릴 때 목록 최신화
-  if(isOn)renderCalFilterList();
+  panel.classList.toggle('on');
+  if(panel.classList.contains('on'))renderCalFilterList();
 }
 function renderCalFilterList(){
   const list=document.getElementById('cal-filter-list');
-  if(!list||!calList.length)return;
-  list.innerHTML=calList.map(cal=>{
+  if(!list){return;}
+  if(!calList.length){
+    list.innerHTML='<div style="padding:10px 14px;font-size:12px;color:var(--t3)">로그인 후 이용 가능해요</div>';
+    return;
+  }
+  list.innerHTML='';
+  calList.forEach(function(cal){
     const enabled=calFilter[cal.id]!==false;
     const color=cal.backgroundColor||'#4285F4';
-    return`<label class="cal-filter-item">
-      <span class="cal-fi-dot" style="background:${color}"></span>
-      <span class="cal-fi-name">${esc(cal.summary||cal.id)}</span>
-      <input type="checkbox" class="cal-fi-chk" ${enabled?'checked':''}
-        onchange="setCalFilter('${cal.id.replace(/'/g,"\\'")
-}',this.checked)"/>
-    </label>`;
-  }).join('');
+    const label=document.createElement('label');
+    label.className='cal-filter-item';
+    const dot=document.createElement('span');
+    dot.className='cal-fi-dot';
+    dot.style.background=color;
+    const name=document.createElement('span');
+    name.className='cal-fi-name';
+    name.textContent=cal.summary||cal.id;
+    const chk=document.createElement('input');
+    chk.type='checkbox';
+    chk.className='cal-fi-chk';
+    chk.checked=enabled;
+    chk.addEventListener('change',function(){setCalFilter(cal.id,this.checked);});
+    label.appendChild(dot);
+    label.appendChild(name);
+    label.appendChild(chk);
+    list.appendChild(label);
+  });
 }
 function setCalFilter(calId,enabled){
   if(enabled){ delete calFilter[calId]; }
@@ -677,10 +692,9 @@ function setCalFilter(calId,enabled){
   saveCalFilter();
   loadCalendar();
 }
-// 필터 패널 외부 클릭 시 닫기
-document.addEventListener('click',e=>{
-  const panel=document.getElementById('cal-filter-panel');
-  const btn=document.getElementById('btn-cal-filter');
+document.addEventListener('click',function(e){
+  var panel=document.getElementById('cal-filter-panel');
+  var btn=document.getElementById('btn-cal-filter');
   if(panel&&panel.classList.contains('on')&&!panel.contains(e.target)&&e.target!==btn){
     panel.classList.remove('on');
   }
@@ -727,7 +741,7 @@ async function loadCalendar(){
     calEvs=calEvs.filter(e=>e._isT);
     const src=calList.length?calList:[{id:'primary',backgroundColor:'#4285F4',summary:''}];
     for(const cal of src){
-      if(calFilter[cal.id]===false)continue; // 숨김 처리된 캘린더 건너뜀
+      if(calFilter[cal.id]===false)continue;
       try{
         const data=await req(`https://www.googleapis.com/calendar/v3/calendars/${enc(cal.id)}/events?timeMin=${enc(from)}&timeMax=${enc(to)}&singleEvents=true&orderBy=startTime&maxResults=100`);
         (data.items||[]).forEach(e=>{
@@ -742,16 +756,6 @@ async function loadCalendar(){
   }catch(e){console.error(e);}
 }
 
-/* ── CALENDAR FILTER ── */
-.cal-filter-wrap{position:relative}
-.cal-filter-panel{display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--panel);border:1px solid var(--bd);border-radius:10px;box-shadow:0 4px 16px var(--shadow);z-index:400;min-width:220px;padding:8px 0;max-height:320px;overflow-y:auto}
-.cal-filter-panel.on{display:block}
-.cal-filter-hd{font-size:11px;font-weight:700;color:var(--t3);padding:4px 14px 8px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd);margin-bottom:4px}
-.cal-filter-item{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .15s}
-.cal-filter-item:hover{background:var(--hover)}
-.cal-fi-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
-.cal-fi-name{flex:1;font-size:13px;color:var(--t1)}
-.cal-fi-chk{width:16px;height:16px;cursor:pointer;accent-color:var(--blue);flex-shrink:0}
 /* ── EVENT PANEL ── */
 function showDay(ds){
   pDay=ds;pEvs=calEvs.filter(e=>(e.start?.dateTime||e.start?.date||'').split('T')[0]===ds&&!e._isT);
@@ -1039,28 +1043,17 @@ async function openMsg(i){
     const from=hd.find(h=>h.name==='From')?.value||'',to=hd.find(h=>h.name==='To')?.value||'',date=hd.find(h=>h.name==='Date')?.value||'';
     document.getElementById('r-from').innerHTML=`<b>보낸사람:</b> ${esc(from)}<br><b>받는사람:</b> ${esc(to)}<br><b>날짜:</b> ${esc(date)}`;
     const _body=getBody(full.payload)||'<p style="padding:16px;color:#999">본문 없음</p>';
-    const _wrapped=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="only light"><style>
-      :root{color-scheme:only light;}
-      html,body{margin:0;padding:0;background:#ffffff!important;color:#202124!important;-webkit-text-size-adjust:100%;}
-      body{padding:14px;font-family:'Google Sans',system-ui,sans-serif;font-size:14px;line-height:1.6;word-break:break-word;}
-      *{max-width:100%;box-sizing:border-box;}
-      img{max-width:100%;height:auto;display:block;}
-      a{color:#1a73e8;}
-      pre{white-space:pre-wrap;font-family:inherit;}
-    </style></head><body>${_body}</body></html>`;
+    const _wrapped='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="color-scheme" content="only light"><style>:root{color-scheme:only light;}html,body{margin:0;padding:0;background:#fff!important;color:#202124!important;}body{padding:14px;font-family:sans-serif;font-size:14px;line-height:1.6;word-break:break-word;}*{max-width:100%;box-sizing:border-box;}img{max-width:100%;height:auto;}a{color:#1a73e8;}pre{white-space:pre-wrap;font-family:inherit;}</style></head><body>'+_body+'</body></html>';
     document.getElementById('r-frame').srcdoc=_wrapped;
     document.getElementById('r-ph').style.display='none';
     const rc=document.getElementById('r-content');rc.style.display='flex';rc.style.flexDirection='column';rc.style.overflow='hidden';
     document.getElementById('g-reader').classList.add('on');
-    // 스팸함 여부에 따라 버튼 전환
     const spamBtn=document.getElementById('btn-spam-act');
     if(spamBtn){
       if(full.labelIds?.includes('SPAM')){
-        spamBtn.textContent='✅ 스팸 해제';
-        spamBtn.onclick=unmarkSpam;
+        spamBtn.textContent='✅ 스팸 해제';spamBtn.onclick=unmarkSpam;
       } else {
-        spamBtn.textContent='🚫 스팸';
-        spamBtn.onclick=markSpam;
+        spamBtn.textContent='🚫 스팸';spamBtn.onclick=markSpam;
       }
     }
     if(full.labelIds?.includes('UNREAD')){
@@ -1086,18 +1079,17 @@ async function deleteMsg(){
     }catch(e){alert('삭제 실패: '+e.message);}
   }
 }
-async function markSpam(){if(!selMsg)return;try{await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`,{method:'POST',headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},body:JSON.stringify({addLabelIds:['SPAM'],removeLabelIds:['INBOX']})});closeReader();loadGmail();loadLabelCounts();}catch{}}
 async function unmarkSpam(){
   if(!selMsg)return;
   try{
     await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`,{
-      method:'POST',
-      headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},
+      method:'POST',headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},
       body:JSON.stringify({removeLabelIds:['SPAM'],addLabelIds:['INBOX']})
     });
     closeReader();loadGmail();loadLabelCounts();
   }catch(e){alert('스팸 해제 실패: '+e.message);}
 }
+async function markSpam(){if(!selMsg)return;try{await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`,{method:'POST',headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},body:JSON.stringify({addLabelIds:['SPAM'],removeLabelIds:['INBOX']})});closeReader();loadGmail();loadLabelCounts();}catch{}}
 async function markRead(){if(!selMsg)return;try{await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`,{method:'POST',headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},body:JSON.stringify({removeLabelIds:['UNREAD']})});loadGmail();loadLabelCounts();}catch{}}
 async function toggleStar(){if(!selMsg)return;const on=selMsg.labelIds?.includes('STARRED');try{await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`,{method:'POST',headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},body:JSON.stringify(on?{removeLabelIds:['STARRED']}:{addLabelIds:['STARRED']})});selMsg={...selMsg,labelIds:on?selMsg.labelIds.filter(l=>l!=='STARRED'):[...(selMsg.labelIds||[]),'STARRED']};}catch{}}
 
