@@ -472,7 +472,14 @@ function onLogin(){
   loadAll();
 }
 
-async function loadAll(){await loadCalColors();loadTasks();loadCalendar();loadGmail();loadLabelCounts();}
+async function loadAll(){
+  await loadCalColors();
+  loadTasks();
+  loadCalendar();
+  loadGmail();
+  loadLabelCounts();
+  startPoll();
+}
 
 async function req(url,opt={}){
   const r=await fetch(url,{...opt,headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json',...(opt.headers||{})}});
@@ -931,7 +938,18 @@ async function permDeleteMsg(){
 }
 async function loadLabelCounts(){
   for(const lbl of ['INBOX','STARRED','SENT','SPAM','TRASH']){
-    try{const d=await req(`https://gmail.googleapis.com/gmail/v1/users/me/labels/${lbl}`);const u=d.messagesUnread||0;const el=document.getElementById('lcnt-'+lbl);if(el){el.textContent=u>99?'99+':u;el.style.display=u>0?'':'none';}}catch{}
+    try{
+      const d=await req(`https://gmail.googleapis.com/gmail/v1/users/me/labels/${lbl}`);
+      const u=d.messagesUnread||0;
+      if(lbl==='INBOX' && _lastInboxUnread===0){
+        _lastInboxUnread=u;
+      }
+      const el=document.getElementById('lcnt-'+lbl);
+      if(el){
+        el.textContent=u>99?'99+':u;
+        el.style.display=u>0?'':'none';
+      }
+    }catch{}
   }
 }
 async function openMsg(i){
