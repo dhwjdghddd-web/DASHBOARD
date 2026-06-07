@@ -221,6 +221,7 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
 /* ════ MOBILE <768px ════ */
 @media(max-width:767px){
   :root{--hd:48px}
+  .view.on{flex:1}
   .sidebar{display:none}
   .sp-v,.sp-h{display:none}
   .bnav{display:block}
@@ -351,7 +352,7 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
                 <div class="r-from" id="r-from"></div>
                 <div class="r-acts">
                   <button class="btn-act danger" onclick="deleteMsg()">🗑️ 삭제</button>
-                  <button class="btn-act" onclick="markSpam()">🚫 스팸</button>
+                  <button class="btn-act" id="btn-spam-act" onclick="markSpam()">🚫 스팸</button>
                   <button class="btn-act" onclick="markRead()">✅ 읽음</button>
                   <button class="btn-act" onclick="toggleStar()">⭐ 중요</button>
                 </div>
@@ -966,6 +967,17 @@ async function openMsg(i){
     document.getElementById('r-ph').style.display='none';
     const rc=document.getElementById('r-content');rc.style.display='flex';rc.style.flexDirection='column';rc.style.overflow='hidden';
     document.getElementById('g-reader').classList.add('on');
+    // 스팸함 여부에 따라 버튼 전환
+    const spamBtn=document.getElementById('btn-spam-act');
+    if(spamBtn){
+      if(full.labelIds?.includes('SPAM')){
+        spamBtn.textContent='✅ 스팸 해제';
+        spamBtn.onclick=unmarkSpam;
+      } else {
+        spamBtn.textContent='🚫 스팸';
+        spamBtn.onclick=markSpam;
+      }
+    }
     if(full.labelIds?.includes('UNREAD')){
       await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${full.id}/modify`,{method:'POST',headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},body:JSON.stringify({removeLabelIds:['UNREAD']})});
       gMsgs[i]={...gMsgs[i],labelIds:(gMsgs[i].labelIds||[]).filter(l=>l!=='UNREAD')};
@@ -990,6 +1002,17 @@ async function deleteMsg(){
   }
 }
 async function markSpam(){if(!selMsg)return;try{await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`,{method:'POST',headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},body:JSON.stringify({addLabelIds:['SPAM'],removeLabelIds:['INBOX']})});closeReader();loadGmail();loadLabelCounts();}catch{}}
+async function unmarkSpam(){
+  if(!selMsg)return;
+  try{
+    await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`,{
+      method:'POST',
+      headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},
+      body:JSON.stringify({removeLabelIds:['SPAM'],addLabelIds:['INBOX']})
+    });
+    closeReader();loadGmail();loadLabelCounts();
+  }catch(e){alert('스팸 해제 실패: '+e.message);}
+}
 async function markRead(){if(!selMsg)return;try{await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`,{method:'POST',headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},body:JSON.stringify({removeLabelIds:['UNREAD']})});loadGmail();loadLabelCounts();}catch{}}
 async function toggleStar(){if(!selMsg)return;const on=selMsg.labelIds?.includes('STARRED');try{await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`,{method:'POST',headers:{Authorization:`Bearer ${AT}`,'Content-Type':'application/json'},body:JSON.stringify(on?{removeLabelIds:['STARRED']}:{addLabelIds:['STARRED']})});selMsg={...selMsg,labelIds:on?selMsg.labelIds.filter(l=>l!=='STARRED'):[...(selMsg.labelIds||[]),'STARRED']};}catch{}}
 
