@@ -964,8 +964,9 @@ async function openMsg(i){
     const from=hd.find(h=>h.name==='From')?.value||'',to=hd.find(h=>h.name==='To')?.value||'',date=hd.find(h=>h.name==='Date')?.value||'';
     document.getElementById('r-from').innerHTML=`<b>보낸사람:</b> ${esc(from)}<br><b>받는사람:</b> ${esc(to)}<br><b>날짜:</b> ${esc(date)}`;
     const _body=getBody(full.payload)||'<p style="padding:16px;color:#999">본문 없음</p>';
-    const _wrapped=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-      html,body{margin:0;padding:0;background:#ffffff!important;color:#202124!important;}
+    const _wrapped=`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="only light"><style>
+      :root{color-scheme:only light;}
+      html,body{margin:0;padding:0;background:#ffffff!important;color:#202124!important;-webkit-text-size-adjust:100%;}
       body{padding:14px;font-family:'Google Sans',system-ui,sans-serif;font-size:14px;line-height:1.6;word-break:break-word;}
       *{max-width:100%;box-sizing:border-box;}
       img{max-width:100%;height:auto;display:block;}
