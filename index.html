@@ -93,6 +93,16 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
 .cal-ev.task-ev{background:transparent!important;color:var(--t1);padding-left:2px;display:flex;align-items:center;gap:3px}
 .task-dot{width:8px;height:8px;border-radius:50%;background:#4285F4;flex-shrink:0;display:inline-block}
 .cal-more{font-size:10px;color:var(--t3)}
+/* ── CALENDAR FILTER ── */
+.cal-filter-wrap{position:relative}
+.cal-filter-panel{display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--panel);border:1px solid var(--bd);border-radius:10px;box-shadow:0 4px 16px var(--shadow);z-index:400;min-width:220px;padding:8px 0;max-height:320px;overflow-y:auto}
+.cal-filter-panel.on{display:block}
+.cal-filter-hd{font-size:11px;font-weight:700;color:var(--t3);padding:4px 14px 8px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd);margin-bottom:4px}
+.cal-filter-item{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .15s}
+.cal-filter-item:hover{background:var(--hover)}
+.cal-fi-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.cal-fi-name{flex:1;font-size:13px;color:var(--t1)}
+.cal-fi-chk{width:16px;height:16px;cursor:pointer;accent-color:var(--blue);flex-shrink:0}
 /* ── EVENT PANEL ── */
 .ev-panel{position:fixed;right:0;top:var(--hd);bottom:0;width:300px;background:var(--panel);border-left:1px solid var(--bd);box-shadow:-4px 0 16px var(--shadow);z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s}
 .ev-panel.on{transform:none}
@@ -299,6 +309,13 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
           <button style="background:none;border:1px solid var(--bd);border-radius:5px;width:26px;height:26px;cursor:pointer;font-size:14px;color:var(--t1)" onclick="calNav(1)">›</button>
           <button style="background:var(--blue);color:#fff;border:none;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:700" onclick="calToday()">오늘</button>
           <button class="btn-ghost" style="padding:3px 8px;font-size:12px" onclick="loadCalendar()">↻</button>
+          <div class="cal-filter-wrap">
+            <button class="btn-ghost" id="btn-cal-filter" style="padding:3px 8px;font-size:12px" onclick="event.stopPropagation();toggleCalFilterPanel()" title="캘린더 필터">☰</button>
+            <div class="cal-filter-panel" id="cal-filter-panel">
+              <div class="cal-filter-hd">캘린더 표시 설정</div>
+              <div id="cal-filter-list"></div>
+            </div>
+          </div>
         </span>
       </div>
       <div class="cal-grid-wrap">
@@ -394,6 +411,7 @@ const ECOLS=[
 ];
 let TC=null,AT=null,TLid=null,allT=[],calEvs=[],calList=[],calCM={};
 let calY=new Date().getFullYear(),calM=new Date().getMonth();
+let calFilter={}; // {calendarId: false} = 숨김, 없거나 true = 표시
 let gLabel='INBOX',gMsgs=[],selMsg=null,selIds=new Set();
 let pDay='',pEvs=[];
 let _efi=-1,_efCal='primary',_efEvId=null,_efColor='';
@@ -621,7 +639,53 @@ async function loadCalColors(){
     Object.entries(cols.event||{}).forEach(([id,c])=>{const ec=ECOLS.find(e=>e.id===id);if(ec)ec.hex=c.background;});
     calList=list.items||[];calCM={};calList.forEach(c=>{calCM[c.id]=c.backgroundColor||'#4285F4';});
   }catch(e){console.warn('colors',e);}
+  loadCalFilter();
+  renderCalFilterList();
 }
+/* ── CALENDAR FILTER ── */
+function loadCalFilter(){
+  try{ calFilter=JSON.parse(localStorage.getItem('g-cal-filter')||'{}'); }catch{ calFilter={}; }
+}
+function saveCalFilter(){
+  localStorage.setItem('g-cal-filter',JSON.stringify(calFilter));
+}
+function toggleCalFilterPanel(){
+  const panel=document.getElementById('cal-filter-panel');
+  if(!panel)return;
+  const isOn=panel.classList.toggle('on');
+  // 열릴 때 목록 최신화
+  if(isOn)renderCalFilterList();
+}
+function renderCalFilterList(){
+  const list=document.getElementById('cal-filter-list');
+  if(!list||!calList.length)return;
+  list.innerHTML=calList.map(cal=>{
+    const enabled=calFilter[cal.id]!==false;
+    const color=cal.backgroundColor||'#4285F4';
+    return`<label class="cal-filter-item">
+      <span class="cal-fi-dot" style="background:${color}"></span>
+      <span class="cal-fi-name">${esc(cal.summary||cal.id)}</span>
+      <input type="checkbox" class="cal-fi-chk" ${enabled?'checked':''}
+        onchange="setCalFilter('${cal.id.replace(/'/g,"\\'")
+}',this.checked)"/>
+    </label>`;
+  }).join('');
+}
+function setCalFilter(calId,enabled){
+  if(enabled){ delete calFilter[calId]; }
+  else { calFilter[calId]=false; }
+  saveCalFilter();
+  loadCalendar();
+}
+// 필터 패널 외부 클릭 시 닫기
+document.addEventListener('click',e=>{
+  const panel=document.getElementById('cal-filter-panel');
+  const btn=document.getElementById('btn-cal-filter');
+  if(panel&&panel.classList.contains('on')&&!panel.contains(e.target)&&e.target!==btn){
+    panel.classList.remove('on');
+  }
+});
+
 function calNav(d){calM+=d;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--;}renderCalGrid();loadCalendar();}
 function calToday(){calY=new Date().getFullYear();calM=new Date().getMonth();renderCalGrid();loadCalendar();}
 
@@ -663,6 +727,7 @@ async function loadCalendar(){
     calEvs=calEvs.filter(e=>e._isT);
     const src=calList.length?calList:[{id:'primary',backgroundColor:'#4285F4',summary:''}];
     for(const cal of src){
+      if(calFilter[cal.id]===false)continue; // 숨김 처리된 캘린더 건너뜀
       try{
         const data=await req(`https://www.googleapis.com/calendar/v3/calendars/${enc(cal.id)}/events?timeMin=${enc(from)}&timeMax=${enc(to)}&singleEvents=true&orderBy=startTime&maxResults=100`);
         (data.items||[]).forEach(e=>{
@@ -677,6 +742,16 @@ async function loadCalendar(){
   }catch(e){console.error(e);}
 }
 
+/* ── CALENDAR FILTER ── */
+.cal-filter-wrap{position:relative}
+.cal-filter-panel{display:none;position:absolute;right:0;top:calc(100% + 4px);background:var(--panel);border:1px solid var(--bd);border-radius:10px;box-shadow:0 4px 16px var(--shadow);z-index:400;min-width:220px;padding:8px 0;max-height:320px;overflow-y:auto}
+.cal-filter-panel.on{display:block}
+.cal-filter-hd{font-size:11px;font-weight:700;color:var(--t3);padding:4px 14px 8px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--bd);margin-bottom:4px}
+.cal-filter-item{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;transition:background .15s}
+.cal-filter-item:hover{background:var(--hover)}
+.cal-fi-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
+.cal-fi-name{flex:1;font-size:13px;color:var(--t1)}
+.cal-fi-chk{width:16px;height:16px;cursor:pointer;accent-color:var(--blue);flex-shrink:0}
 /* ── EVENT PANEL ── */
 function showDay(ds){
   pDay=ds;pEvs=calEvs.filter(e=>(e.start?.dateTime||e.start?.date||'').split('T')[0]===ds&&!e._isT);
