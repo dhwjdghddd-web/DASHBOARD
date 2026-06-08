@@ -192,9 +192,12 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
 .sp-h::after{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:2px;width:36px;border-radius:2px;background:rgba(128,128,128,.25)}
 /* ── COLLAPSE ── */
 #view-calendar.col .cal-grid-wrap{display:none}
-#view-calendar.col{flex:none!important;height:auto!important}
 #view-gmail.col .gmail-wrap{display:none}
-#view-gmail.col{height:auto!important;flex:none!important}
+/* 모바일: height 기반 접기 */
+@media(max-width:767px){
+  #view-calendar.col{flex:none!important;height:auto!important}
+  #view-gmail.col{height:auto!important;flex:none!important}
+}
 /* ── STATES ── */
 .state{padding:36px 16px;text-align:center;color:var(--t3)}
 .state-ic{font-size:30px;margin-bottom:10px}
@@ -213,10 +216,18 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
   .sp-v{display:block}
   .bnav{display:none}
   #view-tasks{display:none!important}
-  #view-calendar{display:flex!important;flex:1;min-height:80px}
-  #view-gmail{display:flex!important;flex:none;height:260px}
-  .g-list-col{width:320px}
+  /* 메인 영역을 가로 분할 (캘린더|Gmail 나란히) */
+  .main{flex-direction:row}
+  #view-calendar{display:flex!important;flex:1;min-width:280px;height:100%;border-right:none}
+  /* sp-h가 캘린더|Gmail 사이 수직선 역할 */
+  #sp-h{width:5px!important;height:auto!important;cursor:col-resize!important}
+  #sp-h::after{width:2px!important;height:36px!important}
+  #view-gmail{display:flex!important;flex:none;width:400px;height:100%;border-top:none;border-left:none}
+  .g-list-col{width:300px}
   .r-back{display:none!important}
+  /* 접기: 데스크탑은 width 기반 */
+  #view-calendar.col{flex:none!important;width:auto!important;min-width:unset!important;height:100%!important}
+  #view-gmail.col{flex:none!important;width:auto!important;height:100%!important}
 }
 /* ════ MOBILE <768px ════ */
 @media(max-width:767px){
@@ -559,18 +570,19 @@ function initSplitters(){
   }
   const sph=document.getElementById('sp-h'),cal=document.getElementById('view-calendar'),gm=document.getElementById('view-gmail');
   if(sph&&cal&&gm){
-    const sc=localStorage.getItem('sp-ch'),sg=localStorage.getItem('sp-gh');
-    if(sc&&sg&&window.innerWidth>=768){cal.style.height=sc+'px';cal.style.flex='none';gm.style.height=sg+'px';gm.style.flex='none';}
-    let drag=false,sy=0,ch0=0,gh0=0;
-    sph.addEventListener('mousedown',e=>{if(window.innerWidth<768)return;e.preventDefault();drag=true;sy=e.clientY;ch0=cal.offsetHeight;gh0=gm.offsetHeight;sph.classList.add('on');document.body.style.cursor='row-resize';document.body.style.userSelect='none';});
+    const sc=localStorage.getItem('sp-cw'),sg=localStorage.getItem('sp-gw');
+    if(sc&&sg&&window.innerWidth>=768){cal.style.width=sc+'px';cal.style.flex='none';gm.style.width=sg+'px';gm.style.flex='none';}
+    let drag=false,sx2=0,cw0=0,gw0=0;
+    const MINSZ=240;
+    sph.addEventListener('mousedown',e=>{if(window.innerWidth<768)return;e.preventDefault();drag=true;sx2=e.clientX;cw0=cal.offsetWidth;gw0=gm.offsetWidth;sph.classList.add('on');document.body.style.cursor='col-resize';document.body.style.userSelect='none';});
     document.addEventListener('mousemove',e=>{
       if(!drag)return;
-      const d=e.clientY-sy;
-      cal.style.height=Math.max(80,ch0+d)+'px';cal.style.flex='none';
-      gm.style.height=Math.max(80,gh0-d)+'px';gm.style.flex='none';
+      const d=e.clientX-sx2;
+      cal.style.width=Math.max(MINSZ,cw0+d)+'px';cal.style.flex='none';
+      gm.style.width=Math.max(MINSZ,gw0-d)+'px';gm.style.flex='none';
       fitCal();
     });
-    document.addEventListener('mouseup',()=>{if(!drag)return;drag=false;sph.classList.remove('on');document.body.style.cursor='';document.body.style.userSelect='';localStorage.setItem('sp-ch',cal.offsetHeight);localStorage.setItem('sp-gh',gm.offsetHeight);});
+    document.addEventListener('mouseup',()=>{if(!drag)return;drag=false;sph.classList.remove('on');document.body.style.cursor='';document.body.style.userSelect='';localStorage.setItem('sp-cw',cal.offsetWidth);localStorage.setItem('sp-gw',gm.offsetWidth);});
   }
   window.addEventListener('resize',()=>setTimeout(fitCal,50));
 }
