@@ -224,7 +224,7 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
   #sp-h::after{width:2px!important;height:36px!important}
   #view-gmail{display:flex!important;flex:none;width:400px;height:100%;border-top:none;border-left:none}
   .g-list-col{width:300px}
-  .r-back{display:none!important}
+  /* r-back: reading mode에서 JS로 제어 */
   /* 접기: 데스크탑은 width 기반 */
   #view-calendar.col{flex:none!important;width:auto!important;min-width:unset!important;height:100%!important}
   #view-gmail.col{flex:none!important;width:auto!important;height:100%!important}
@@ -261,6 +261,15 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
 .cal-fi-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0}
 .cal-fi-name{flex:1;font-size:13px;color:var(--t1)}
 .cal-fi-chk{width:16px;height:16px;cursor:pointer;accent-color:var(--blue);flex-shrink:0}
+
+/* ── READING MODE ── */
+.gmail-wrap.reading .g-list-col{display:none!important}
+.gmail-wrap.reading .g-reader{flex:1;transform:none!important}
+.gmail-wrap.reading .r-back{display:flex!important}
+.r-back{cursor:pointer;font-size:13px;font-weight:600;color:var(--blue);
+  flex-shrink:0;padding:9px 14px;border-bottom:1px solid var(--bd);
+  background:var(--panel);align-items:center;gap:7px}
+.r-back:hover{background:var(--hover)}
 </style>
 </head>
 
@@ -1055,11 +1064,12 @@ async function openMsg(i){
     const from=hd.find(h=>h.name==='From')?.value||'',to=hd.find(h=>h.name==='To')?.value||'',date=hd.find(h=>h.name==='Date')?.value||'';
     document.getElementById('r-from').innerHTML=`<b>보낸사람:</b> ${esc(from)}<br><b>받는사람:</b> ${esc(to)}<br><b>날짜:</b> ${esc(date)}`;
     const _body=getBody(full.payload)||'<p style="padding:16px;color:#999">본문 없음</p>';
-    const _wrapped='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="color-scheme" content="only light"><style>:root{color-scheme:only light;}html,body{margin:0;padding:0;background:#fff!important;color:#202124!important;}body{padding:14px;font-family:sans-serif;font-size:14px;line-height:1.6;word-break:break-word;}*{max-width:100%;box-sizing:border-box;}img{max-width:100%;height:auto;}a{color:#1a73e8;}pre{white-space:pre-wrap;font-family:inherit;}</style></head><body>'+_body+'</body></html>';
+    const _wrapped='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="only light"><style>:root{color-scheme:only light;}html{overflow-x:hidden!important;}html,body{margin:0;padding:0;background:#fff!important;color:#202124!important;max-width:100%!important;overflow-x:hidden!important;}body{padding:14px;font-family:sans-serif;font-size:14px;line-height:1.6;word-break:break-word;}*{max-width:100%!important;box-sizing:border-box!important;}img{max-width:100%!important;height:auto!important;display:block;}a{color:#1a73e8;}pre{white-space:pre-wrap;font-family:inherit;}table{max-width:100%!important;width:100%!important;table-layout:fixed!important;border-collapse:collapse;}td,th{word-break:break-word!important;overflow-wrap:break-word!important;}div,p,span{max-width:100%!important;}[width]{width:auto!important;max-width:100%!important;}[style*="width"]{max-width:100%!important;}</style></head><body>'+_body+'</body></html>';
     document.getElementById('r-frame').srcdoc=_wrapped;
     document.getElementById('r-ph').style.display='none';
     const rc=document.getElementById('r-content');rc.style.display='flex';rc.style.flexDirection='column';rc.style.overflow='hidden';
     document.getElementById('g-reader').classList.add('on');
+    document.querySelector('.gmail-wrap')?.classList.add('reading');
     const spamBtn=document.getElementById('btn-spam-act');
     if(spamBtn){
       if(full.labelIds?.includes('SPAM')){
@@ -1077,7 +1087,13 @@ async function openMsg(i){
 }
 function getBody(p){if(!p)return null;if(p.body?.data)return decB(p.body.data);if(p.parts){const h=p.parts.find(x=>x.mimeType==='text/html');if(h?.body?.data)return decB(h.body.data);const t=p.parts.find(x=>x.mimeType==='text/plain');if(t?.body?.data)return`<pre style="white-space:pre-wrap;font:14px/1.5 sans-serif;padding:14px">${esc(decB(t.body.data))}</pre>`;for(const x of p.parts){const b=getBody(x);if(b)return b;}}return null;}
 function decB(s){try{return decodeURIComponent(atob(s.replace(/-/g,'+').replace(/_/g,'/')).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));}catch{return atob(s.replace(/-/g,'+').replace(/_/g,'/'));}}
-function closeReader(){selMsg=null;document.getElementById('g-reader').classList.remove('on');document.getElementById('r-ph').style.display='';document.getElementById('r-content').style.display='none';}
+function closeReader(){
+  selMsg=null;
+  document.getElementById('g-reader').classList.remove('on');
+  document.getElementById('r-ph').style.display='';
+  document.getElementById('r-content').style.display='none';
+  document.querySelector('.gmail-wrap')?.classList.remove('reading');
+}
 async function deleteMsg(){
   if(!selMsg)return;
   if(gLabel==='TRASH'){
