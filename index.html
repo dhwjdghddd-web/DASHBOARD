@@ -10,8 +10,1973 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
   
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="style.css">
+  <style>
+  /* ==========================================================================
+     PREMIUM DESIGN SYSTEM - GOOGLE DASHBOARD
+     ========================================================================== */
+
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    /* Colors */
+    --blue: #2563eb;
+    --blue-hover: #1d4ed8;
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --bd: #e2e8f0;
+    
+    /* Text colors */
+    --t1: #0f172a;
+    --t2: #475569;
+    --t3: #94a3b8;
+    
+    --hover: #f1f5f9;
+    --inp: #ffffff;
+    --shadow: rgba(15, 23, 42, 0.05);
+    --shadow-lg: rgba(15, 23, 42, 0.1);
+    
+    /* Category indicator pastels (light theme) */
+    --th-t: rgba(245, 158, 11, 0.08);
+    --th-c: rgba(16, 185, 129, 0.08);
+    --th-g: rgba(239, 68, 68, 0.08);
+    
+    --cal-o: #f8fafc;
+    --cal-td: #eff6ff;
+    
+    /* Dimensions */
+    --hd: 56px;
+    --bnav: 64px;
+    --sidebar-w: 280px;
+  }
+
+  body.dark {
+    --bg: #090d16;
+    --panel: #111827;
+    --bd: #1f2937;
+    
+    --t1: #f3f4f6;
+    --t2: #9ca3af;
+    --t3: #6b7280;
+    
+    --hover: #1f2937;
+    --inp: #1f2937;
+    --shadow: rgba(0, 0, 0, 0.2);
+    --shadow-lg: rgba(0, 0, 0, 0.4);
+    
+    /* Category indicator pastels (dark theme) */
+    --th-t: rgba(245, 158, 11, 0.15);
+    --th-c: rgba(16, 185, 129, 0.15);
+    --th-g: rgba(239, 68, 68, 0.15);
+    
+    --cal-o: #0b0f19;
+    --cal-td: #1e293b;
+  }
+
+  /* ==========================================================================
+     BASE & RESET
+     ========================================================================== */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--t1);
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  /* Scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--bd);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--t3);
+  }
+
+  /* Icons styling */
+  .lucide, i[data-lucide] {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  /* ==========================================================================
+     HEADER
+     ========================================================================== */
+  .hd {
+    height: var(--hd);
+    background: var(--panel);
+    border-bottom: 1px solid var(--bd);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px var(--shadow);
+    z-index: 300;
+    flex-shrink: 0;
+  }
+
+  .hd-l {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hd-icon {
+    color: var(--blue);
+    width: 24px;
+    height: 24px;
+  }
+
+  .hd-title {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .hd-date {
+    font-size: 12px;
+    color: var(--t2);
+    font-weight: 500;
+    background: var(--hover);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .hd-r {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Buttons & Elements */
+  .btn-login {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  .btn-login:hover {
+    background: var(--blue-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--t2);
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-ghost:hover {
+    background: var(--hover);
+    color: var(--t1);
+    border-color: var(--t3);
+  }
+
+  .btn-ghost-icon {
+    background: transparent;
+    color: var(--t2);
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-ghost-icon:hover {
+    background: var(--hover);
+    color: var(--t1);
+  }
+
+  .btn-ghost-icon.danger-icon:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--red);
+  }
+
+  .tag-connection {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 4px 10px;
+    border-radius: 99px;
+  }
+
+  .conn-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.5; }
+  }
+
+  /* ==========================================================================
+     LAYOUT
+     ========================================================================== */
+  .body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 1px 0 0 var(--bd);
+  }
+
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--panel);
+  }
+
+  /* ==========================================================================
+     PANEL HEADER
+     ========================================================================== */
+  .ph {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--bd);
+    flex-shrink: 0;
+  }
+
+  .ph-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ph-title .lbl {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--t1);
+  }
+
+  .ph-title i {
+    width: 20px;
+    height: 20px;
+  }
+
+  .ph .r {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .badge {
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* Header colors */
+  .th-t { background: var(--th-t); border-color: rgba(245, 158, 11, 0.2); }
+  .th-c { background: var(--th-c); border-color: rgba(16, 185, 129, 0.2); }
+  .th-g { background: var(--th-g); border-color: rgba(239, 68, 68, 0.2); }
+
+  .col-t { color: var(--yellow); }
+  .col-c { color: var(--green); }
+  .col-g { color: var(--red); }
+
+  .btn-col {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--t3);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .btn-col:hover {
+    background: var(--hover);
+    color: var(--t1);
+  }
+
+  /* ==========================================================================
+     TASKS
+     ========================================================================== */
+  .t-row {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--bd);
+    display: flex;
+    gap: 8px;
+    background: var(--panel);
+    flex-shrink: 0;
+  }
+
+  .t-inp {
+    flex: 1;
+    border: 1.5px solid var(--bd);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    outline: none;
+    background: var(--inp);
+    color: var(--t1);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .t-inp::placeholder {
+    color: var(--t3);
+  }
+
+  .t-inp:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  .btn-add {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-add:hover {
+    background: var(--blue-hover);
+    transform: scale(1.03);
+  }
+
+  .btn-exp {
+    background: transparent;
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--t2);
+    transition: all 0.2s;
+  }
+
+  .btn-exp:hover {
+    background: var(--hover);
+    border-color: var(--t3);
+  }
+
+  .t-detail {
+    max-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 16px;
+    background: var(--hover);
+    border-bottom: 0 solid var(--bd);
+    flex-shrink: 0;
+    transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s, border-width 0.1s;
+  }
+
+  .t-detail.on {
+    max-height: 100px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--bd);
+  }
+
+  .t-det-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .t-det-lbl {
+    font-size: 11px;
+    color: var(--t3);
+    font-weight: 600;
+    min-width: 50px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .t-det-lbl i {
+    width: 14px;
+    height: 14px;
+  }
+
+  .t-det-inp {
+    flex: 1;
+    border: 1.5px solid var(--bd);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    background: var(--inp);
+    color: var(--t1);
+    outline: none;
+  }
+
+  .t-det-inp:focus {
+    border-color: var(--blue);
+  }
+
+  .t-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .t-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+
+  .t-item:hover {
+    background: var(--hover);
+  }
+
+  .t-item input[type=checkbox] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--green);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .t-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .t-txt {
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--t1);
+    font-weight: 500;
+  }
+
+  .t-txt.done {
+    text-decoration: line-through;
+    color: var(--t3);
+  }
+
+  .t-meta {
+    font-size: 11px;
+    color: var(--t3);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .t-del {
+    opacity: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--red);
+    padding: 2px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: opacity 0.2s, background 0.2s;
+  }
+
+  .t-item:hover .t-del {
+    opacity: 1;
+  }
+
+  .t-del:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .sec-lbl {
+    font-size: 10px;
+    color: var(--t3);
+    font-weight: 800;
+    padding: 16px 10px 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ==========================================================================
+     CALENDAR
+     ========================================================================= */
+  #view-calendar {
+    border-right: 1px solid var(--bd);
+    min-width: 320px;
+  }
+
+  .cal-date-label {
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 100px;
+    text-align: center;
+    color: var(--t1);
+  }
+
+  .btn-cal-nav {
+    background: transparent;
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--t2);
+    transition: all 0.15s;
+  }
+
+  .btn-cal-nav:hover {
+    background: var(--hover);
+    border-color: var(--t3);
+  }
+
+  .btn-cal-today {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0 12px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: background 0.2s;
+  }
+
+  .btn-cal-today:hover {
+    background: var(--blue-hover);
+  }
+
+  .cal-grid-wrap {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cal-dow-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    flex-shrink: 0;
+    background: var(--panel);
+    border-bottom: 1px solid var(--bd);
+  }
+
+  .cal-dow-cell {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--t3);
+    padding: 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .cal-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    flex: 1;
+    overflow: hidden;
+    align-content: start;
+  }
+
+  .cal-day {
+    border-right: 1px solid var(--bd);
+    border-bottom: 1px solid var(--bd);
+    padding: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+    background: var(--panel);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 48px;
+  }
+
+  .cal-day:hover {
+    background: var(--hover);
+  }
+
+  .cal-day:nth-child(7n) {
+    border-right: none;
+  }
+
+  .cal-day.other {
+    background: var(--cal-o);
+  }
+
+  .cal-day.other .cal-dn {
+    color: var(--t3);
+    opacity: 0.4;
+  }
+
+  .cal-day.today-c {
+    background: var(--cal-td);
+  }
+
+  .cal-dn {
+    font-size: 11px;
+    font-weight: 600;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-bottom: 4px;
+    color: var(--t1);
+  }
+
+  .today-c .cal-dn {
+    background: var(--blue);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .cal-ev {
+    font-size: 10px;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #fff;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .cal-ev.task-ev {
+    background: transparent !important;
+    color: var(--t1);
+    padding-left: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .task-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+    flex-shrink: 0;
+  }
+
+  .cal-more {
+    font-size: 9px;
+    color: var(--t3);
+    font-weight: 700;
+    padding-left: 4px;
+  }
+
+  /* ==========================================================================
+     AGENDA VIEW PANEL
+     ========================================================================== */
+  .cal-agenda-panel {
+    height: 180px;
+    border-top: 2px solid var(--bd);
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .agenda-hd {
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--bd);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--hover);
+    color: var(--t1);
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  .agenda-hd i {
+    color: var(--blue);
+  }
+
+  .agenda-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .agenda-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 4px solid var(--blue);
+    background: var(--hover);
+    transition: transform 0.15s ease;
+  }
+
+  .agenda-card:hover {
+    transform: translateX(2px);
+  }
+
+  .agenda-time {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--t2);
+    min-width: 80px;
+  }
+
+  .agenda-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--t1);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .agenda-calname {
+    font-size: 10px;
+    color: var(--t3);
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  body.dark .agenda-calname {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .state-mini {
+    text-align: center;
+    padding: 20px;
+    color: var(--t3);
+    font-size: 12px;
+  }
+
+  /* ==========================================================================
+     CALENDAR FILTER PANEL
+     ========================================================================== */
+  .cal-filter-wrap {
+    position: relative;
+  }
+
+  .cal-filter-panel {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: var(--panel);
+    border: 1px solid var(--bd);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px var(--shadow-lg);
+    z-index: 400;
+    min-width: 240px;
+    padding: 8px 0;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .cal-filter-panel.on {
+    display: block;
+    animation: fadeIn 0.15s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .cal-filter-hd {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--t3);
+    padding: 6px 16px 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--bd);
+    margin-bottom: 6px;
+  }
+
+  .cal-filter-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .cal-filter-item:hover {
+    background: var(--hover);
+  }
+
+  .cal-fi-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .cal-fi-name {
+    flex: 1;
+    font-size: 13px;
+    color: var(--t1);
+    font-weight: 500;
+  }
+
+  .cal-fi-chk {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--blue);
+    flex-shrink: 0;
+  }
+
+  /* ==========================================================================
+     EVENT PANEL / DRAWER
+     ========================================================================== */
+  .ev-panel {
+    position: fixed;
+    right: 0;
+    top: var(--hd);
+    bottom: 0;
+    width: 340px;
+    background: var(--panel);
+    border-left: 1px solid var(--bd);
+    box-shadow: -10px 0 30px var(--shadow-lg);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ev-panel.on {
+    transform: translateX(0);
+  }
+
+  .ev-ph {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--bd);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .ev-ph-ttl {
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--t1);
+    letter-spacing: -0.2px;
+  }
+
+  .ev-ph-r {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-new-ev {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-new-ev:hover {
+    background: var(--blue-hover);
+  }
+
+  .btn-x {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--t3);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+
+  .btn-x:hover {
+    background: var(--hover);
+    color: var(--t1);
+  }
+
+  .ev-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .ev-card {
+    border-left: 4px solid;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px var(--shadow);
+    background: var(--panel);
+  }
+
+  .ev-card-title {
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--t1);
+    margin-bottom: 4px;
+  }
+
+  .ev-card-sub {
+    font-size: 11px;
+    color: var(--t2);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ev-card-acts {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .btn-ev {
+    background: transparent;
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--t2);
+    transition: all 0.15s;
+  }
+
+  .btn-ev:hover {
+    background: var(--hover);
+    border-color: var(--t3);
+    color: var(--t1);
+  }
+
+  .btn-ev.del:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--red);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .ev-none {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--t3);
+    font-size: 13px;
+  }
+
+  /* EVENT FORM */
+  .ev-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ef-sect {
+    background: var(--hover);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ef-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ef-lbl {
+    font-size: 11px;
+    color: var(--t3);
+    min-width: 54px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .ef-inp, .ef-sel {
+    flex: 1;
+    border: 1.5px solid var(--bd);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12.5px;
+    background: var(--inp);
+    color: var(--t1);
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 0;
+  }
+
+  .ef-inp:focus, .ef-sel:focus {
+    border-color: var(--blue);
+  }
+
+  .ef-chk {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--blue);
+  }
+
+  .ev-cal-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1.5px solid var(--bd);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    background: var(--inp);
+  }
+
+  .ev-cal-list {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 4px);
+    background: var(--panel);
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px var(--shadow-lg);
+    z-index: 500;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  .ev-cal-opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12.5px;
+    color: var(--t1);
+  }
+
+  .ev-cal-opt:hover {
+    background: var(--hover);
+  }
+
+  .ev-cdot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ev-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .ev-chip {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ev-chip.sel, .ev-chip:hover {
+    border-color: var(--t1) !important;
+  }
+
+  .btn-ev-save {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .btn-ev-cancel {
+    background: transparent;
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--t2);
+  }
+
+  .btn-ev-cancel:hover {
+    background: var(--hover);
+  }
+
+  /* ==========================================================================
+     GMAIL
+     ========================================================================== */
+  #view-gmail {
+    min-width: 360px;
+  }
+
+  .gmail-wrap {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .g-labels {
+    width: 160px;
+    flex-shrink: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--bd);
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+
+  .glbl {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-radius: 0 99px 99px 0;
+    margin-right: 10px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--t2);
+    transition: all 0.15s;
+  }
+
+  .glbl:hover {
+    background: var(--hover);
+    color: var(--t1);
+  }
+
+  .glbl.on {
+    background: var(--cal-td);
+    color: var(--blue);
+    font-weight: 700;
+  }
+
+  .glbl .ico {
+    color: var(--t3);
+    transition: color 0.15s;
+  }
+
+  .glbl.on .ico {
+    color: var(--blue);
+  }
+
+  .glbl .cnt {
+    margin-left: auto;
+    font-size: 10px;
+    background: var(--red);
+    color: #fff;
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-weight: 700;
+  }
+
+  .g-main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .g-list-col {
+    width: 340px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid var(--bd);
+    background: var(--panel);
+  }
+
+  .g-srch-row {
+    padding: 12px;
+    border-bottom: 1px solid var(--bd);
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .g-srch-inp {
+    flex: 1;
+    border: 1.5px solid var(--bd);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    outline: none;
+    background: var(--inp);
+    color: var(--t1);
+    transition: border-color 0.2s;
+  }
+
+  .g-srch-inp:focus {
+    border-color: var(--blue);
+  }
+
+  .btn-srch {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .g-selall {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--bd);
+    background: var(--panel);
+    flex-shrink: 0;
+  }
+
+  .g-selall label {
+    font-size: 12px;
+    color: var(--t2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .g-selall input[type=checkbox] {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: var(--blue);
+  }
+
+  .g-sel-cnt {
+    font-size: 11px;
+    color: var(--t3);
+  }
+
+  .sel-bar {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--cal-td);
+    border-bottom: 1px solid var(--bd);
+    flex-shrink: 0;
+  }
+
+  .sel-bar.on {
+    display: flex;
+    animation: slideDown 0.2s ease;
+  }
+
+  @keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+  }
+
+  .sel-cnt {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--blue);
+  }
+
+  .btn-sdel {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-sread {
+    background: var(--panel);
+    color: var(--t2);
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-sx {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--t3);
+    font-size: 16px;
+    margin-left: auto;
+  }
+
+  .g-list {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--panel);
+  }
+
+  .erow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: background 0.15s;
+    background: var(--panel);
+  }
+
+  body.dark .erow {
+    border-bottom-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .erow:hover {
+    background: var(--hover);
+  }
+
+  .erow.unread {
+    background: var(--cal-td);
+  }
+
+  .erow.sel-row {
+    background: rgba(37, 99, 235, 0.06);
+  }
+
+  .e-chk {
+    width: 18px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .e-chk input {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: var(--blue);
+  }
+
+  .av {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .e-meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .e-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  .e-from {
+    font-size: 12.5px;
+    color: var(--t1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 160px;
+  }
+
+  .e-from.fw {
+    font-weight: 750;
+  }
+
+  .e-date {
+    font-size: 11px;
+    color: var(--t3);
+    flex-shrink: 0;
+  }
+
+  .e-subj {
+    font-size: 12.5px;
+    color: var(--t1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .e-subj.fw {
+    font-weight: 700;
+  }
+
+  .e-snip {
+    font-size: 11px;
+    color: var(--t3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .udot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--blue);
+    flex-shrink: 0;
+  }
+
+  .btn-empty-trash {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--red);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-empty-trash:hover {
+    background: var(--red);
+    color: #fff;
+  }
+
+  /* GMAIL READER */
+  .g-reader {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--panel);
+  }
+
+  .r-ph {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: var(--t3);
+    gap: 12px;
+    padding: 40px;
+  }
+
+  .r-ph-icon {
+    width: 48px;
+    height: 48px;
+    stroke-width: 1.5px;
+  }
+
+  .r-back {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--bd);
+    background: var(--panel);
+    cursor: pointer;
+    color: var(--blue);
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .r-content-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .r-hd {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--bd);
+    flex-shrink: 0;
+    background: var(--panel);
+  }
+
+  .r-subj {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: var(--t1);
+    line-height: 1.4;
+    letter-spacing: -0.3px;
+  }
+
+  .r-from {
+    font-size: 12px;
+    color: var(--t2);
+    line-height: 1.7;
+  }
+
+  .r-acts {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-act {
+    background: transparent;
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--t2);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+  }
+
+  .btn-act:hover {
+    background: var(--hover);
+    border-color: var(--t3);
+    color: var(--t1);
+  }
+
+  .btn-act.danger:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--red);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+
+  .r-body {
+    flex: 1;
+    overflow: auto;
+    background: #fff;
+  }
+
+  .r-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* ==========================================================================
+     SPLITTERS & COLLAPSIBLE PANELS
+     ========================================================================== */
+  .sp-v {
+    width: 4px;
+    flex-shrink: 0;
+    cursor: col-resize;
+    background: var(--bd);
+    position: relative;
+    transition: background 0.15s;
+    z-index: 100;
+  }
+
+  .sp-h {
+    width: 4px;
+    flex-shrink: 0;
+    cursor: col-resize;
+    background: var(--bd);
+    position: relative;
+    transition: background 0.15s;
+    z-index: 100;
+  }
+
+  .sp-v:hover, .sp-v.on, .sp-h:hover, .sp-h.on {
+    background: var(--blue);
+  }
+
+  .sp-v::after, .sp-h::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 24px;
+    border-radius: 2px;
+    background: rgba(128, 128, 128, 0.25);
+  }
+
+  /* Collapsible Panel Behaviors */
+  #view-calendar.col .cal-grid-wrap { display: none !important; }
+  #view-gmail.col .gmail-wrap { display: none !important; }
+
+  /* ==========================================================================
+     STATE SCREENS
+     ========================================================================== */
+  .state {
+    padding: 48px 16px;
+    text-align: center;
+    color: var(--t3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .state-ic {
+    font-size: 32px;
+    color: var(--t3);
+  }
+
+  .state-ic i {
+    width: 40px;
+    height: 40px;
+    stroke-width: 1.5px;
+  }
+
+  .state-tx {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .btn-retry {
+    margin-top: 12px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .spin {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+
+  /* ==========================================================================
+     MOBILE BOTTOM NAVIGATION
+     ========================================================================== */
+  .bnav {
+    display: none;
+    height: var(--bnav);
+    background: var(--panel);
+    border-top: 1px solid var(--bd);
+    flex-shrink: 0;
+    z-index: 200;
+    box-shadow: 0 -2px 10px var(--shadow);
+  }
+
+  .bnav-inner {
+    display: flex;
+    height: 100%;
+  }
+
+  .bnav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--t3);
+    font-size: 11px;
+    font-weight: 600;
+    transition: color 0.15s;
+  }
+
+  .bnav-btn.on {
+    color: var(--blue);
+  }
+
+  .bnav-ic {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* ==========================================================================
+     DESKTOP RESPONSIVE BEHAVIOR (>=768px)
+     ========================================================================== */
+  @media (min-width: 768px) {
+    .sp-v { display: block; }
+    .sp-h { display: block; }
+    .bnav { display: none; }
+    #view-tasks { display: none !important; }
+    
+    /* Desktop split layout settings */
+    #view-calendar {
+      display: flex !important;
+      flex: 1;
+      height: 100%;
+    }
+    
+    #view-gmail {
+      display: flex !important;
+      flex: 1;
+      height: 100%;
+    }
+
+    /* Handle custom collapse states on desktop */
+    #view-calendar.col {
+      flex: none !important;
+      width: 60px !important;
+      min-width: 60px !important;
+    }
+    #view-calendar.col .r, 
+    #view-calendar.col .cal-date-label {
+      display: none !important;
+    }
+
+    #view-gmail.col {
+      flex: none !important;
+      width: 60px !important;
+      min-width: 60px !important;
+    }
+    #view-gmail.col .r {
+      display: none !important;
+    }
+  }
+
+  /* ==========================================================================
+     MOBILE RESPONSIVE BEHAVIOR (<767px)
+     ========================================================================== */
+  @media (max-width: 767px) {
+    :root {
+      --hd: 52px;
+    }
+    
+    .sidebar { display: none !important; }
+    .sp-v, .sp-h { display: none !important; }
+    .bnav { display: block; }
+    
+    /* Switch views cleanly */
+    .view { display: none; }
+    .view.on { display: flex; flex: 1; }
+    
+    .hd-date { display: none; }
+    
+    /* Gmail Mobile overrides */
+    .gmail-wrap {
+      flex-direction: column;
+    }
+    
+    .g-labels {
+      width: 100%;
+      height: auto;
+      flex-direction: row;
+      overflow-x: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--bd);
+      padding: 6px;
+      gap: 4px;
+      display: flex;
+    }
+    
+    .glbl {
+      border-radius: 20px;
+      margin-right: 0;
+      white-space: nowrap;
+      padding: 6px 12px;
+    }
+    
+    .g-main {
+      flex-direction: column;
+      flex: 1;
+    }
+    
+    .g-list-col {
+      width: 100%;
+      flex: 1;
+      border-right: none;
+    }
+    
+    /* Slide-in gmail reader for mobile */
+    .g-reader {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 250;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .g-reader.on {
+      transform: translateX(0);
+    }
+    
+    .r-back {
+      display: flex !important;
+    }
+    
+    #view-gmail .gmail-wrap {
+      position: relative;
+    }
+    
+    .cal-day {
+      min-height: 52px;
+    }
+    
+    /* Agenda container height on mobile */
+    .cal-agenda-panel {
+      height: 140px;
+    }
+    
+    /* Detail drawer on mobile overlay */
+    .ev-panel {
+      width: 100%;
+      top: var(--hd);
+      bottom: var(--bnav);
+    }
+    
+    .btn-col {
+      display: none !important;
+    }
+  }
+  </style>
 </head>
 <body>
 
@@ -157,7 +2122,7 @@
           <div id="cal-dow" class="cal-dow-row"></div>
           <div class="cal-days" id="cal-grid"></div>
           
-          <!-- Modern Agenda/Schedule List (User Requested) -->
+          <!-- Modern Agenda/Schedule List -->
           <div class="cal-agenda-panel" id="cal-agenda-panel">
             <div class="agenda-hd">
               <i data-lucide="list-todo"></i>
@@ -260,7 +2225,7 @@
     </main>
   </div>
 
-  <!-- BOTTOM NAVIGATION (Mobile only) -->
+  <!-- BOTTOM NAVIGATION -->
   <nav class="bnav">
     <div class="bnav-inner">
       <button class="bnav-btn" onclick="mNav('tasks',this)"><i data-lucide="check-square" class="bnav-ic"></i><span>태스크</span></button>
@@ -269,7 +2234,7 @@
     </div>
   </nav>
 
-  <!-- EVENT SLIDING DRAWER (Modern Agenda Detail) -->
+  <!-- EVENT SLIDING DRAWER -->
   <div class="ev-panel" id="ev-panel">
     <div class="ev-ph">
       <span class="ev-ph-ttl" id="ev-ph-ttl">일정</span>
@@ -283,12 +2248,1847 @@
     <div class="ev-body" id="ev-body"></div>
   </div>
 
-  <!-- Javascript Modules Loading Sequence -->
-  <script src="js/app.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/tasks.js"></script>
-  <script src="js/calendar.js"></script>
-  <script src="js/gmail.js"></script>
+  <!-- Javascript Modules Combined Inline -->
+  <script>
+  /* ==========================================================================
+     APP.JS - GLOBAL STATE & LAYOUT COORDINATOR
+     ========================================================================== */
+
+  // Google OAuth Constants
+  const CID = '809713924882-6h063f11qhltjkv3n4l209caa53eoim8.apps.googleusercontent.com';
+  const SCOPES = 'https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/calendar.events https://mail.google.com/';
+
+  // Style Colors
+  const AVCOLS = ['#EA4335', '#4285F4', '#34A853', '#FBBC04', '#9C27B0', '#FF6D00'];
+  const ECOLS = [
+    { id: '', name: '캘린더 색상', hex: '' },
+    { id: '1', hex: '#7986cb' }, { id: '2', hex: '#33b679' }, { id: '3', hex: '#8e24aa' },
+    { id: '4', hex: '#e67c73' }, { id: '5', hex: '#f6c026' }, { id: '6', hex: '#f5511d' },
+    { id: '7', hex: '#039be5' }, { id: '8', hex: '#616161' }, { id: '9', hex: '#3f51b5' },
+    { id: '10', hex: '#0b8043' }, { id: '11', hex: '#d50000' }
+  ];
+
+  // Global Shared State
+  let TC = null;
+  let AT = null;
+  let TLid = null;
+  let allT = [];
+  let calEvs = [];
+  let calList = [];
+  let calCM = {};
+  let calY = new Date().getFullYear();
+  let calM = new Date().getMonth();
+  let calFilter = {};
+  let gLabel = 'INBOX';
+  let gMsgs = [];
+  let selMsg = null;
+  let selIds = new Set();
+  let pDay = '';
+  let pEvs = [];
+  let _efi = -1;
+  let _efCal = 'primary';
+  let _efEvId = null;
+  let _efColor = '';
+  let _pollTimer = null;
+  let _lastInboxUnread = 0;
+
+  // Initialize on Load
+  window.addEventListener('load', () => {
+    initDark();
+    initSplitters();
+    renderCalGrid();
+    
+    // Set date in header
+    document.getElementById('hdate').textContent = new Date().toLocaleDateString('ko-KR', {
+      year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+    });
+    
+    // Session Recovery
+    const cachedToken = sessionStorage.getItem('g_access_token');
+    const tokenExpires = sessionStorage.getItem('g_token_expires');
+    
+    if (cachedToken && tokenExpires && Date.now() < parseInt(tokenExpires)) {
+      AT = cachedToken;
+      
+      // Set auto timeout notifier
+      const timeLeft = parseInt(tokenExpires) - Date.now();
+      setTimeout(() => {
+        showToast('⚠️ Google 인증 세션이 만료되었습니다. 다시 로그인해주세요.');
+        const btnReauth = document.getElementById('btn-reauth');
+        if (btnReauth) btnReauth.style.display = '';
+      }, timeLeft);
+      
+      tryGoogle(); // init GSI client in background
+      onLogin();
+    } else {
+      tryGoogle();
+    }
+    
+    // Layout Init
+    if (window.innerWidth >= 768) {
+      document.getElementById('view-calendar').classList.add('on');
+      document.getElementById('view-gmail').classList.add('on');
+    } else {
+      document.getElementById('view-calendar').classList.add('on');
+    }
+    
+    // Lucide Icons Render
+    lucide.createIcons();
+  });
+
+  // Window Resize adjustment
+  window.addEventListener('resize', () => {
+    setTimeout(fitCal, 50);
+  });
+
+  /* ── DARK MODE ── */
+  function initDark() {
+    const theme = localStorage.getItem('g-theme');
+    const sysTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDark(theme === 'dark' || (theme === null && sysTheme));
+    
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (!localStorage.getItem('g-theme')) setDark(e.matches);
+    });
+  }
+
+  function setDark(on) {
+    document.body.classList.toggle('dark', on);
+    const icon = document.getElementById('theme-icon');
+    if (icon) {
+      icon.setAttribute('data-lucide', on ? 'sun' : 'moon');
+      lucide.createIcons();
+    }
+  }
+
+  function toggleDark() {
+    const on = document.body.classList.toggle('dark');
+    localStorage.setItem('g-theme', on ? 'dark' : 'light');
+    const icon = document.getElementById('theme-icon');
+    if (icon) {
+      icon.setAttribute('data-lucide', on ? 'sun' : 'moon');
+      lucide.createIcons();
+    }
+  }
+
+  /* ── MOBILE NAVIGATION ── */
+  function mNav(viewName, element) {
+    document.querySelectorAll('.bnav-btn').forEach(btn => btn.classList.remove('on'));
+    element.classList.add('on');
+    
+    document.querySelectorAll('.view').forEach(view => view.classList.remove('on'));
+    const targetView = document.getElementById('view-' + viewName);
+    if (targetView) targetView.classList.add('on');
+    
+    if (viewName === 'calendar') setTimeout(fitCal, 50);
+  }
+
+  /* ── PANEL COLLAPSE ── */
+  function colToggle(viewName) {
+    const view = document.getElementById('view-' + viewName);
+    const btn = document.getElementById('btn-col-' + viewName);
+    const collapsed = view.classList.toggle('col');
+    
+    if (btn) {
+      const icon = btn.querySelector('i');
+      if (icon) {
+        icon.setAttribute('data-lucide', collapsed ? 'chevron-right' : 'chevron-down');
+        lucide.createIcons();
+      }
+    }
+    
+    if (!collapsed && viewName === 'calendar') {
+      setTimeout(fitCal, 50);
+    }
+  }
+
+  /* ── SPLITTERS RESIZING ── */
+  function initSplitters() {
+    const spv = document.getElementById('sp-v');
+    const sb = document.querySelector('.sidebar');
+    
+    if (spv && sb) {
+      const sw = localStorage.getItem('sp-sw');
+      if (sw) sb.style.width = sw + 'px';
+      
+      let drag = false, sx = 0, sw0 = 0;
+      
+      spv.addEventListener('mousedown', e => {
+        e.preventDefault();
+        drag = true;
+        sx = e.clientX;
+        sw0 = sb.offsetWidth;
+        spv.classList.add('on');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+      });
+      
+      document.addEventListener('mousemove', e => {
+        if (!drag) return;
+        sb.style.width = Math.max(160, Math.min(480, sw0 + (e.clientX - sx))) + 'px';
+      });
+      
+      document.addEventListener('mouseup', () => {
+        if (!drag) return;
+        drag = false;
+        spv.classList.remove('on');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        localStorage.setItem('sp-sw', sb.offsetWidth);
+      });
+    }
+    
+    const sph = document.getElementById('sp-h');
+    const cal = document.getElementById('view-calendar');
+    const gm = document.getElementById('view-gmail');
+    
+    if (sph && cal && gm) {
+      const sc = localStorage.getItem('sp-cw');
+      const sg = localStorage.getItem('sp-gw');
+      
+      if (sc && sg && window.innerWidth >= 768) {
+        cal.style.width = sc + 'px';
+        cal.style.flex = 'none';
+        gm.style.width = sg + 'px';
+        gm.style.flex = 'none';
+      }
+      
+      let drag = false, sx2 = 0, cw0 = 0, gw0 = 0;
+      const MINSZ = 240;
+      
+      sph.addEventListener('mousedown', e => {
+        if (window.innerWidth < 768) return;
+        e.preventDefault();
+        drag = true;
+        sx2 = e.clientX;
+        cw0 = cal.offsetWidth;
+        gw0 = gm.offsetWidth;
+        sph.classList.add('on');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+      });
+      
+      document.addEventListener('mousemove', e => {
+        if (!drag) return;
+        const d = e.clientX - sx2;
+        cal.style.width = Math.max(MINSZ, cw0 + d) + 'px';
+        cal.style.flex = 'none';
+        gm.style.width = Math.max(MINSZ, gw0 - d) + 'px';
+        gm.style.flex = 'none';
+        fitCal();
+      });
+      
+      document.addEventListener('mouseup', () => {
+        if (!drag) return;
+        drag = false;
+        sph.classList.remove('on');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        localStorage.setItem('sp-cw', cal.offsetWidth);
+        localStorage.setItem('sp-gw', gm.offsetWidth);
+      });
+    }
+  }
+
+  /* ── SHARED UTILITIES ── */
+  async function req(url, opt = {}) {
+    const r = await fetch(url, {
+      ...opt,
+      headers: {
+        Authorization: `Bearer ${AT}`,
+        'Content-Type': 'application/json',
+        ...(opt.headers || {})
+      }
+    });
+    if (r.status === 204) return {};
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function loading(id, text) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.innerHTML = `
+        <div class="state">
+          <div class="state-ic"><i data-lucide="loader-2" class="spin"></i></div>
+          <div class="state-tx">${text}</div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+  }
+
+  function setEmpty(id, iconName, text) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.innerHTML = `
+        <div class="state">
+          <div class="state-ic"><i data-lucide="${iconName}"></i></div>
+          <div class="state-tx">${text}</div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+  }
+
+  function setErr(id, text, retryCallback) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.innerHTML = `
+        <div class="state">
+          <div class="state-ic" style="color:var(--red)"><i data-lucide="alert-triangle"></i></div>
+          <div class="state-tx" style="color:var(--red)">${text}</div>
+          <button class="btn-retry" onclick="${retryCallback.name}()">다시 시도</button>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+  }
+
+  function showToast(msg) {
+    let t = document.getElementById('g-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'g-toast';
+      t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,#1a73e8,#0d47a1);color:#fff;padding:12px 20px;border-radius:24px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(26,115,232,0.45);z-index:9999;opacity:0;transition:all 0.3s;white-space:nowrap;pointer-events:none';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(t._hide);
+    t._hide = setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(20px)';
+    }, 4000);
+  }
+
+  /* ==========================================================================
+     AUTH.JS - GOOGLE IDENTITY SERVICES OAUTH & SESSION PERSISTENCE
+     ========================================================================== */
+
+  function tryGoogle() {
+    if (typeof google !== 'undefined' && google.accounts) {
+      TC = google.accounts.oauth2.initTokenClient({
+        client_id: CID,
+        scope: SCOPES,
+        callback: response => {
+          if (!response.error) {
+            AT = response.access_token;
+            
+            // Cache to sessionStorage for 1 hour
+            sessionStorage.setItem('g_access_token', AT);
+            sessionStorage.setItem('g_token_expires', String(Date.now() + 3600 * 1000));
+            
+            onLogin();
+          } else {
+            showToast('❌ 로그인 오류: ' + response.error);
+          }
+        }
+      });
+    } else {
+      setTimeout(tryGoogle, 150);
+    }
+  }
+
+  function signIn() {
+    if (TC) {
+      TC.requestAccessToken({ prompt: 'consent' });
+    } else {
+      showToast('⚠️ Google SDK가 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+    }
+  }
+
+  function onLogin() {
+    const btnLogin = document.getElementById('btn-login');
+    if (btnLogin) btnLogin.style.display = 'none';
+    
+    const tagConn = document.getElementById('tag-conn');
+    if (tagConn) tagConn.style.display = 'flex';
+    
+    const btnRef = document.getElementById('btn-ref');
+    if (btnRef) btnRef.style.display = 'flex';
+    
+    const btnReauth = document.getElementById('btn-reauth');
+    if (btnReauth) btnReauth.style.display = 'none';
+    
+    loadAll();
+  }
+
+  async function loadAll() {
+    try {
+      await loadCalColors();
+      loadTasks();
+      loadCalendar();
+      loadGmail();
+      loadLabelCounts();
+      startPoll();
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      showToast('⚠️ 일부 데이터를 불러오는데 실패했습니다.');
+    }
+  }
+
+  function startPoll() {
+    if (_pollTimer) clearInterval(_pollTimer);
+    _pollTimer = setInterval(pollMail, 60000);
+  }
+
+  function stopPoll() {
+    if (_pollTimer) {
+      clearInterval(_pollTimer);
+      _pollTimer = null;
+    }
+  }
+
+  async function pollMail() {
+    if (!AT) return;
+    try {
+      const data = await req('https://gmail.googleapis.com/gmail/v1/users/me/labels/INBOX');
+      const newUnread = data.messagesUnread || 0;
+      
+      if (newUnread > _lastInboxUnread) {
+        const diff = newUnread - _lastInboxUnread;
+        showToast(`📬 새 메일 ${diff}개가 도착했습니다!`);
+        if (gLabel === 'INBOX') loadGmail();
+        loadLabelCounts();
+      } else {
+        loadLabelCounts();
+      }
+      _lastInboxUnread = newUnread;
+    } catch (err) {
+      console.warn('Poller failed:', err);
+    }
+  }
+
+  /* ==========================================================================
+     TASKS.JS - GOOGLE TASKS API MANAGEMENT
+     ========================================================================== */
+
+  function togTForm(s) {
+    const form = document.getElementById('t-form-' + s);
+    if (form) {
+      form.classList.toggle('on');
+    }
+  }
+
+  async function loadTasks() {
+    loading('t-list-d', '태스크 불러오는 중...');
+    loading('t-list-m', '태스크 불러오는 중...');
+    
+    try {
+      const lists = await req('https://tasks.googleapis.com/tasks/v1/users/@me/lists');
+      if (!lists.items || lists.items.length === 0) {
+        setEmpty('t-list-d', 'check-square', '등록된 태스크가 없습니다.');
+        setEmpty('t-list-m', 'check-square', '등록된 태스크가 없습니다.');
+        return;
+      }
+      
+      TLid = lists.items[0].id;
+      const r = await req(`https://tasks.googleapis.com/tasks/v1/lists/${TLid}/tasks?showCompleted=true&maxResults=100`);
+      allT = r.items || [];
+      
+      renderTasks();
+      addTasksToCal();
+    } catch (err) {
+      console.error(err);
+      setErr('t-list-d', '태스크를 불러올 수 없습니다.', loadTasks);
+      setErr('t-list-m', '태스크를 불러올 수 없습니다.', loadTasks);
+    }
+  }
+
+  function renderTasks() {
+    const activeTasks = allT.filter(t => t.status !== 'completed');
+    const doneTasks = allT.filter(t => t.status === 'completed');
+    const activeCount = activeTasks.length;
+    
+    ['t-badge', 't-badge-m'].forEach(id => {
+      const badge = document.getElementById(id);
+      if (badge) {
+        badge.textContent = activeCount;
+        badge.style.background = activeCount ? 'var(--yellow)' : 'var(--t3)';
+      }
+    });
+    
+    let html = '';
+    
+    if (activeTasks.length === 0 && doneTasks.length === 0) {
+      html = `
+        <div class="state">
+          <div class="state-ic"><i data-lucide="party-popper"></i></div>
+          <div class="state-tx">모든 할 일을 완료했습니다!</div>
+        </div>
+      `;
+    } else {
+      activeTasks.forEach(t => { html += tHtml(t, false); });
+      
+      if (doneTasks.length > 0) {
+        html += `<div class="sec-lbl">완료됨 (${doneTasks.length})</div>`;
+        doneTasks.forEach(t => { html += tHtml(t, true); });
+      }
+    }
+    
+    ['t-list-d', 't-list-m'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.innerHTML = html;
+      }
+    });
+    
+    lucide.createIcons();
+  }
+
+  function tHtml(t, done) {
+    const due = t.due ? new Date(t.due).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '';
+    const over = t.due && !done && new Date(t.due) < new Date().setHours(0, 0, 0, 0);
+    
+    return `
+      <div class="t-item">
+        <input type="checkbox" ${done ? 'checked' : ''} onchange="${done ? `unco('${t.id}')` : `co('${t.id}')`}" title="완료 처리"/>
+        <div class="t-info">
+          <div class="t-txt${done ? ' done' : ''}">${esc(t.title)}</div>
+          ${due ? `
+            <div class="t-meta" style="color:${over ? 'var(--red)' : 'var(--t3)'}">
+              <i data-lucide="calendar"></i> 
+              <span>${due}${over ? ' (기한 초과)' : ''}</span>
+            </div>
+          ` : ''}
+          ${t.notes ? `
+            <div class="t-meta">
+              <i data-lucide="align-left"></i> 
+              <span>${esc(t.notes)}</span>
+            </div>
+          ` : ''}
+        </div>
+        <button class="t-del" onclick="delT('${t.id}')" title="삭제"><i data-lucide="trash-2"></i></button>
+      </div>
+    `;
+  }
+
+  async function addTask(s) {
+    const inputEl = document.getElementById('t-inp-' + s);
+    const title = inputEl.value.trim();
+    if (!title || !TLid) return;
+    
+    const due = document.getElementById('t-due-' + s)?.value;
+    const notes = document.getElementById('t-note-' + s)?.value?.trim();
+    
+    const body = { title: title };
+    if (due) body.due = new Date(due + 'T00:00:00').toISOString();
+    if (notes) body.notes = notes;
+    
+    inputEl.value = '';
+    const form = document.getElementById('t-form-' + s);
+    if (form) {
+      form.classList.remove('on');
+      const dueInp = document.getElementById('t-due-' + s);
+      const noteInp = document.getElementById('t-note-' + s);
+      if (dueInp) dueInp.value = '';
+      if (noteInp) noteInp.value = '';
+    }
+    
+    try {
+      const newTask = await req(`https://tasks.googleapis.com/tasks/v1/lists/${TLid}/tasks`, {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+      allT.unshift(newTask);
+      renderTasks();
+      addTasksToCal();
+    } catch (err) {
+      console.error(err);
+      showToast('⚠️ 태스크 추가에 실패했습니다.');
+    }
+  }
+
+  async function co(id) {
+    try {
+      await req(`https://tasks.googleapis.com/tasks/v1/lists/${TLid}/tasks/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'completed' })
+      });
+      allT = allT.map(t => t.id === id ? { ...t, status: 'completed' } : t);
+      renderTasks();
+      addTasksToCal();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function unco(id) {
+    try {
+      await req(`https://tasks.googleapis.com/tasks/v1/lists/${TLid}/tasks/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'needsAction', completed: null })
+      });
+      allT = allT.map(t => t.id === id ? { ...t, status: 'needsAction' } : t);
+      renderTasks();
+      addTasksToCal();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function delT(id) {
+    try {
+      await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${TLid}/tasks/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${AT}` }
+      });
+      allT = allT.filter(t => t.id !== id);
+      renderTasks();
+      addTasksToCal();
+    } catch (err) {
+      console.error(err);
+      showToast('⚠️ 태스크 삭제에 실패했습니다.');
+    }
+  }
+
+  function addTasksToCal() {
+    calEvs = calEvs.filter(e => !e._isT);
+    allT.filter(t => t.due && t.status !== 'completed').forEach(t => {
+      const ds = t.due.split('T')[0];
+      calEvs.push({
+        id: 't-' + t.id,
+        summary: t.title,
+        start: { date: ds },
+        end: { date: ds },
+        _col: '#2563eb',
+        _cal: '태스크',
+        _isT: true
+      });
+    });
+    renderCalGrid();
+  }
+
+  /* ==========================================================================
+     CALENDAR.JS - GOOGLE CALENDAR & AGENDA VIEW
+     ========================================================================== */
+
+  async function loadCalColors() {
+    try {
+      const [cols, list] = await Promise.all([
+        req('https://www.googleapis.com/calendar/v3/colors'),
+        req('https://www.googleapis.com/calendar/v3/users/me/calendarList')
+      ]);
+      
+      Object.entries(cols.event || {}).forEach(([id, c]) => {
+        const ec = ECOLS.find(e => e.id === id);
+        if (ec) ec.hex = c.background;
+      });
+      
+      calList = list.items || [];
+      calCM = {};
+      calList.forEach(c => {
+        calCM[c.id] = c.backgroundColor || '#2563eb';
+      });
+    } catch (err) {
+      console.warn('Colors loading failed, falling back:', err);
+    }
+    loadCalFilter();
+    renderCalFilterList();
+  }
+
+  function loadCalFilter() {
+    try {
+      calFilter = JSON.parse(localStorage.getItem('g-cal-filter') || '{}');
+    } catch {
+      calFilter = {};
+    }
+  }
+
+  function saveCalFilter() {
+    localStorage.setItem('g-cal-filter', JSON.stringify(calFilter));
+  }
+
+  function toggleCalFilterPanel() {
+    const panel = document.getElementById('cal-filter-panel');
+    if (!panel) return;
+    panel.classList.toggle('on');
+    if (panel.classList.contains('on')) renderCalFilterList();
+  }
+
+  function renderCalFilterList() {
+    const list = document.getElementById('cal-filter-list');
+    if (!list) return;
+    
+    if (!calList.length) {
+      list.innerHTML = '<div style="padding:10px 16px;font-size:12px;color:var(--t3)">로그인 후 필터가 표시됩니다.</div>';
+      return;
+    }
+    
+    list.innerHTML = '';
+    calList.forEach(cal => {
+      const enabled = calFilter[cal.id] !== false;
+      const color = cal.backgroundColor || '#2563eb';
+      
+      const label = document.createElement('label');
+      label.className = 'cal-filter-item';
+      
+      const dot = document.createElement('span');
+      dot.className = 'cal-fi-dot';
+      dot.style.background = color;
+      
+      const name = document.createElement('span');
+      name.className = 'cal-fi-name';
+      name.textContent = cal.summary || cal.id;
+      
+      const chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.className = 'cal-fi-chk';
+      chk.checked = enabled;
+      chk.addEventListener('change', function () {
+        setCalFilter(cal.id, this.checked);
+      });
+      
+      label.appendChild(dot);
+      label.appendChild(name);
+      label.appendChild(chk);
+      list.appendChild(label);
+    });
+  }
+
+  function setCalFilter(calId, enabled) {
+    if (enabled) {
+      delete calFilter[calId];
+    } else {
+      calFilter[calId] = false;
+    }
+    saveCalFilter();
+    loadCalendar();
+  }
+
+  document.addEventListener('click', e => {
+    const panel = document.getElementById('cal-filter-panel');
+    const btn = document.getElementById('btn-cal-filter');
+    if (panel && panel.classList.contains('on') && !panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+      panel.classList.remove('on');
+    }
+  });
+
+  function calNav(d) {
+    calM += d;
+    if (calM > 11) { calM = 0; calY++; }
+    if (calM < 0) { calM = 11; calY--; }
+    renderCalGrid();
+    loadCalendar();
+  }
+
+  function calToday() {
+    calY = new Date().getFullYear();
+    calM = new Date().getMonth();
+    renderCalGrid();
+    loadCalendar();
+  }
+
+  function renderCalGrid() {
+    const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+    const today = new Date();
+    const first = new Date(calY, calM, 1);
+    const last = new Date(calY, calM + 1, 0);
+    
+    document.getElementById('cal-lbl').textContent = `${calY}년 ${calM + 1}월`;
+    document.getElementById('cal-dow').innerHTML = DAYS.map(d => `<div class="cal-dow-cell">${d}</div>`).join('');
+    
+    let html = '';
+    
+    for (let i = 0; i < first.getDay(); i++) {
+      const d = new Date(calY, calM, 1 - first.getDay() + i);
+      html += `
+        <div class="cal-day other">
+          <div class="cal-dn">${d.getDate()}</div>
+        </div>
+      `;
+    }
+    
+    for (let d = 1; d <= last.getDate(); d++) {
+      const ds = `${calY}-${String(calM + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const isToday = d === today.getDate() && calM === today.getMonth() && calY === today.getFullYear();
+      const dayEvs = calEvs.filter(e => (e.start?.dateTime || e.start?.date || '').split('T')[0] === ds);
+      
+      let evHtml = dayEvs.slice(0, 3).map(e => {
+        if (e._isT) {
+          return `<div class="cal-ev task-ev"><span class="task-dot"></span>${esc(e.summary || '')}</div>`;
+        } else {
+          return `<div class="cal-ev" style="background:${e._col || '#2563eb'}">${esc(e.summary || '일정')}</div>`;
+        }
+      }).join('');
+      
+      if (dayEvs.length > 3) {
+        evHtml += `<div class="cal-more">+${dayEvs.length - 3}</div>`;
+      }
+      
+      html += `
+        <div class="cal-day${isToday ? ' today-c' : ''}" onclick="showDay('${ds}')">
+          <div class="cal-dn">${d}</div>
+          ${evHtml}
+        </div>
+      `;
+    }
+    
+    const rem = (first.getDay() + last.getDate()) % 7;
+    if (rem > 0) {
+      for (let i = 1; i <= 7 - rem; i++) {
+        html += `
+          <div class="cal-day other">
+            <div class="cal-dn">${i}</div>
+          </div>
+        `;
+      }
+    }
+    
+    document.getElementById('cal-grid').innerHTML = html;
+    fitCal();
+    renderAgenda();
+  }
+
+  function fitCal() {
+    if (window.innerWidth < 768) return;
+    const grid = document.getElementById('cal-grid');
+    if (!grid) return;
+    
+    const h = grid.offsetHeight;
+    if (!h) return;
+    
+    const cells = grid.querySelectorAll('.cal-day');
+    if (!cells.length) return;
+    
+    const rows = Math.ceil(cells.length / 7);
+    grid.style.gridTemplateRows = `repeat(${rows}, ${Math.max(38, Math.floor(h / rows))}px)`;
+  }
+
+  async function loadCalendar() {
+    try {
+      const from = new Date(calY, calM, 1).toISOString();
+      const to = new Date(calY, calM + 1, 0, 23, 59, 59).toISOString();
+      
+      calEvs = calEvs.filter(e => e._isT);
+      
+      const src = calList.length ? calList : [{ id: 'primary', backgroundColor: '#2563eb', summary: '기본 캘린더' }];
+      
+      for (const cal of src) {
+        if (calFilter[cal.id] === false) continue;
+        try {
+          const data = await req(`https://www.googleapis.com/calendar/v3/calendars/${enc(cal.id)}/events?timeMin=${enc(from)}&timeMax=${enc(to)}&singleEvents=true&orderBy=startTime&maxResults=100`);
+          
+          (data.items || []).forEach(e => {
+            let col = calCM[cal.id] || '#2563eb';
+            if (e.colorId) {
+              const ec = ECOLS.find(x => x.id === e.colorId);
+              if (ec?.hex) col = ec.hex;
+            }
+            calEvs.push({ ...e, _col: col, _cal: cal.summary, _calId: cal.id });
+          });
+        } catch (err) {
+          console.warn(`Failed loading events for calendar ${cal.id}:`, err);
+        }
+      }
+      
+      calEvs.sort((a, b) => (a.start?.dateTime || a.start?.date || '').localeCompare(b.start?.dateTime || b.start?.date || ''));
+      renderCalGrid();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function renderAgenda() {
+    const agendaListEl = document.getElementById('agenda-list');
+    if (!agendaListEl) return;
+    
+    if (!AT) {
+      agendaListEl.innerHTML = `
+        <div class="state-mini">
+          <i data-lucide="lock"></i>
+          <span>로그인 후 일정이 표시됩니다.</span>
+        </div>
+      `;
+      lucide.createIcons();
+      return;
+    }
+    
+    const todayStr = new Date().toISOString().split('T')[0];
+    const upcoming = calEvs.filter(e => {
+      const dateStr = (e.start?.dateTime || e.start?.date || '').split('T')[0];
+      return dateStr >= todayStr;
+    });
+    
+    upcoming.sort((a, b) => (a.start?.dateTime || a.start?.date || '').localeCompare(b.start?.dateTime || b.start?.date || ''));
+    
+    if (upcoming.length === 0) {
+      agendaListEl.innerHTML = `
+        <div class="state-mini">
+          <i data-lucide="calendar-heart"></i>
+          <span>다가오는 일정이 없습니다.</span>
+        </div>
+      `;
+      lucide.createIcons();
+      return;
+    }
+    
+    let html = '';
+    upcoming.slice(0, 10).forEach(e => {
+      const isAllDay = !e.start?.dateTime;
+      const timeVal = isAllDay ? '종일' : ft(e.start.dateTime);
+      const dateVal = new Date(e.start.dateTime || e.start.date).toLocaleDateString('ko-KR', {
+        month: 'short', day: 'numeric', weekday: 'short'
+      });
+      const color = e._col || '#2563eb';
+      
+      html += `
+        <div class="agenda-card" style="border-left-color: ${color}">
+          <div class="agenda-time">
+            <div>${dateVal}</div>
+            <div style="opacity: 0.8; font-weight: 500;">${timeVal}</div>
+          </div>
+          <div class="agenda-title">${esc(e.summary || '(제목 없음)')}</div>
+          ${e._cal ? `<span class="agenda-calname">${esc(e._cal)}</span>` : ''}
+        </div>
+      `;
+    });
+    
+    agendaListEl.innerHTML = html;
+    lucide.createIcons();
+  }
+
+  function showDay(ds) {
+    pDay = ds;
+    pEvs = calEvs.filter(e => (e.start?.dateTime || e.start?.date || '').split('T')[0] === ds && !e._isT);
+    
+    document.getElementById('ev-ph-ttl').textContent = new Date(ds + 'T00:00:00').toLocaleDateString('ko-KR', {
+      month: 'long', day: 'numeric', weekday: 'long'
+    });
+    
+    renderEP();
+    document.getElementById('ev-panel').classList.add('on');
+  }
+
+  function renderEP() {
+    const evBody = document.getElementById('ev-body');
+    if (!evBody) return;
+    
+    if (pEvs.length === 0) {
+      evBody.innerHTML = `<div class="ev-none">이 날은 일정이 없습니다.</div>`;
+      return;
+    }
+    
+    evBody.innerHTML = pEvs.map((e, i) => `
+      <div class="ev-card" id="evc${i}" style="background:${e._col}10; border-color:${e._col}">
+        <div class="ev-card-title">${esc(e.summary || '(제목 없음)')}</div>
+        <div class="ev-card-sub">
+          <i data-lucide="clock"></i>
+          <span>${!e.start?.dateTime ? '종일' : `${ft(e.start.dateTime)} — ${ft(e.end.dateTime)}`}${e._cal ? ` · ${esc(e._cal)}` : ''}</span>
+        </div>
+        ${e.location ? `
+          <div class="ev-card-sub">
+            <i data-lucide="map-pin"></i>
+            <span>${esc(e.location)}</span>
+          </div>
+        ` : ''}
+        ${e.description ? `
+          <div class="ev-card-sub" style="align-items:flex-start">
+            <i data-lucide="align-left" style="margin-top:2px"></i>
+            <span style="font-size:11.5px; line-height:1.4">${esc(e.description.slice(0, 80))}${e.description.length > 80 ? '...' : ''}</span>
+          </div>
+        ` : ''}
+        <div class="ev-card-acts">
+          <button class="btn-ev" onclick="event.stopPropagation();showEF(${i})">
+            <i data-lucide="edit-3"></i><span>수정</span>
+          </button>
+          <button class="btn-ev del" onclick="event.stopPropagation();delEv(${i})">
+            <i data-lucide="trash-2"></i><span>삭제</span>
+          </button>
+        </div>
+      </div>
+    `).join('');
+    
+    lucide.createIcons();
+  }
+
+  function closeEP() {
+    document.getElementById('ev-panel').classList.remove('on');
+  }
+
+  document.addEventListener('click', e => {
+    const panel = document.getElementById('ev-panel');
+    if (!panel || !panel.classList.contains('on')) return;
+    if (e.target.closest('#ev-panel') || e.target.closest('.cal-day') || e.target.closest('.btn-new-ev') || e.target.closest('.btn-ev')) return;
+    closeEP();
+  });
+
+  function showEF(idx) {
+    _efi = idx;
+    const isEdit = idx >= 0;
+    const ev = isEdit ? pEvs[idx] : null;
+    const allDay = isEdit ? !ev?.start?.dateTime : true;
+    
+    _efCal = isEdit ? (ev?._calId || 'primary') : (calList[0]?.id || 'primary');
+    _efEvId = isEdit ? ev?.id : null;
+    _efColor = isEdit ? (ev?.colorId || '') : '';
+    
+    const title = isEdit ? (ev?.summary || '') : '';
+    const startV = isEdit ? toLDT(ev?.start?.dateTime) : (pDay + 'T09:00');
+    const endV = isEdit ? toLDT(ev?.end?.dateTime) : (pDay + 'T10:00');
+    const loc = isEdit ? (ev?.location || '') : '';
+    const desc = isEdit ? (ev?.description || '') : '';
+    
+    const curCal = calList.find(c => c.id === _efCal) || calList[0] || { backgroundColor: '#2563eb', summary: '기본 캘린더' };
+    const calOpts = calList.map(c => `
+      <div class="ev-cal-opt" onclick="event.stopPropagation();selEfCal('${ea(c.id)}','${ea(c.summary)}','${c.backgroundColor || '#2563eb'}')">
+        <span class="ev-cdot" style="background:${c.backgroundColor || '#2563eb'}"></span>
+        <span>${esc(c.summary)}</span>
+      </div>
+    `).join('') || '<div class="ev-cal-opt">기본 캘린더</div>';
+    
+    const chips = ECOLS.map(c => {
+      const bg = c.hex || (curCal.backgroundColor || '#2563eb');
+      const sel = c.id === _efColor;
+      return `
+        <div class="ev-chip${sel ? ' sel' : ''}" onclick="event.stopPropagation();selEfColor('${c.id}',this)" title="${c.id ? '색상 ' + c.id : '캘린더 기본색'}" style="background:${bg};${!c.hex ? 'border:2px dashed var(--t3)' : ''}">
+          ${sel ? '<span style="font-size:9px;color:#fff;font-weight:700">✓</span>' : ''}
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('ev-ph-ttl').textContent = isEdit ? '일정 수정' : '새 일정';
+    document.getElementById('ev-body').innerHTML = `
+      <div class="ev-form">
+        <input class="ef-inp" id="ef-ttl" placeholder="제목 (필수)" value="${esc(title)}" style="font-size:14px;font-weight:600;padding:8px 12px"/>
+        <div class="ef-sect">
+          <div class="ef-row">
+            <span class="ef-lbl">종일</span>
+            <input type="checkbox" class="ef-chk" id="ef-ad" ${allDay ? 'checked' : ''} onchange="togAD()"/>
+          </div>
+          <div id="ef-dw" style="${allDay ? '' : 'display:none'}">
+            <div class="ef-row">
+              <span class="ef-lbl">날짜</span>
+              <input type="date" class="ef-sel" id="ef-dt" value="${pDay}"/>
+            </div>
+          </div>
+          <div id="ef-tw" style="${allDay ? 'display:none' : 'flex'};flex-direction:column;gap:6px">
+            <div class="ef-row">
+              <span class="ef-lbl">시작</span>
+              <input type="datetime-local" class="ef-sel" id="ef-st" value="${startV}"/>
+            </div>
+            <div class="ef-row">
+              <span class="ef-lbl">종료</span>
+              <input type="datetime-local" class="ef-sel" id="ef-et" value="${endV}"/>
+            </div>
+          </div>
+          <div class="ef-row">
+            <span class="ef-lbl">반복</span>
+            <select class="ef-sel" id="ef-rep">
+              <option value="">반복 없음</option>
+              <option value="RRULE:FREQ=DAILY">매일</option>
+              <option value="RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR">주중 (월~금)</option>
+              <option value="RRULE:FREQ=WEEKLY">매주</option>
+              <option value="RRULE:FREQ=MONTHLY">매월</option>
+              <option value="RRULE:FREQ=YEARLY">매년</option>
+            </select>
+          </div>
+        </div>
+        <div class="ef-sect">
+          <div class="ef-row"><span class="ef-lbl">📍 장소</span><input class="ef-inp" id="ef-loc" placeholder="장소 입력..." value="${esc(loc)}"/></div>
+          <div class="ef-row"><span class="ef-lbl">📝 설명</span><textarea class="ef-inp" id="ef-desc" placeholder="상세 설명 입력..." rows="3" style="resize:vertical">${esc(desc)}</textarea></div>
+        </div>
+        <div class="ef-sect">
+          <div class="ef-row"><span class="ef-lbl">👥 초대</span><input class="ef-inp" id="ef-gs" placeholder="이메일 입력 (쉼표 구분)"/></div>
+          <div class="ef-row">
+            <span class="ef-lbl">🔔 알림</span>
+            <select class="ef-sel" id="ef-nm" style="width:70px;flex:none"><option value="popup">팝업</option><option value="email">메일</option></select>
+            <input type="number" class="ef-inp" id="ef-nmin" value="10" min="0" style="width:60px;flex:none"/>
+            <span style="font-size:12px;color:var(--t3)">분 전</span>
+          </div>
+        </div>
+        <div class="ef-sect" style="position:relative">
+          <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:4px">📅 캘린더 선택</div>
+          <div class="ev-cal-btn" onclick="event.stopPropagation();togEfCal()">
+            <span class="ev-cdot" id="ef-cdot" style="background:${curCal.backgroundColor || '#2563eb'}"></span>
+            <span id="ef-cname" style="font-size:12.5px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(curCal.summary || '기본')}</span>
+            <span style="font-size:10px;color:var(--t3)">▼</span>
+          </div>
+          <div class="ev-cal-list" id="ef-clist">${calOpts}</div>
+        </div>
+        <div class="ef-sect">
+          <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:6px">🎨 이벤트 색상</div>
+          <div class="ev-chips">${chips}</div>
+        </div>
+        <div style="display:flex;gap:8px;padding-top:4px">
+          <button class="btn-ev-save" onclick="event.stopPropagation();saveEF()" style="flex:1">💾 저장</button>
+          <button class="btn-ev-cancel" onclick="event.stopPropagation();showDay(pDay)" style="flex:1">취소</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function togAD() {
+    const ad = document.getElementById('ef-ad')?.checked;
+    const dw = document.getElementById('ef-dw');
+    const tw = document.getElementById('ef-tw');
+    if (dw) dw.style.display = ad ? '' : 'none';
+    if (tw) tw.style.display = ad ? 'none' : 'flex';
+  }
+
+  function togEfCal() {
+    const list = document.getElementById('ef-clist');
+    if (!list) return;
+    list.style.display = getComputedStyle(list).display === 'none' ? 'block' : 'none';
+  }
+
+  document.addEventListener('click', e => {
+    const list = document.getElementById('ef-clist');
+    if (list && list.style.display === 'block' && !e.target.closest('.ev-cal-btn')) {
+      list.style.display = 'none';
+    }
+  });
+
+  function selEfCal(id, name, col) {
+    _efCal = id;
+    const dot = document.getElementById('ef-cdot');
+    const nameEl = document.getElementById('ef-cname');
+    const list = document.getElementById('ef-clist');
+    
+    if (dot) dot.style.background = col;
+    if (nameEl) nameEl.textContent = name;
+    if (list) list.style.display = 'none';
+  }
+
+  function selEfColor(id, el) {
+    _efColor = id;
+    document.querySelectorAll('.ev-chip').forEach(chip => {
+      chip.classList.remove('sel');
+      chip.innerHTML = '';
+    });
+    if (el) {
+      el.classList.add('sel');
+      el.innerHTML = '<span style="font-size:9px;color:#fff;font-weight:700">✓</span>';
+    }
+  }
+
+  function ea(s) {
+    return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+
+  function toLDT(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    } catch {
+      return '';
+    }
+  }
+
+  async function saveEF() {
+    const isEdit = _efi >= 0;
+    const title = (document.getElementById('ef-ttl')?.value || '').trim();
+    if (!title) {
+      alert('제목을 입력해주세요.');
+      return;
+    }
+    
+    const ad = document.getElementById('ef-ad')?.checked;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const location = document.getElementById('ef-loc')?.value?.trim();
+    const description = document.getElementById('ef-desc')?.value?.trim();
+    const gs = document.getElementById('ef-gs')?.value?.trim();
+    const rep = document.getElementById('ef-rep')?.value;
+    const nm = document.getElementById('ef-nm')?.value || 'popup';
+    const nmin = parseInt(document.getElementById('ef-nmin')?.value || '10');
+    
+    const body = { summary: title };
+    if (location) body.location = location;
+    if (description) body.description = description;
+    if (_efColor) body.colorId = _efColor;
+    
+    if (gs) {
+      body.attendees = gs.split(',').map(g => ({ email: g.trim() })).filter(g => g.email.includes('@'));
+    }
+    if (rep) body.recurrence = [rep];
+    if (!isNaN(nmin)) {
+      body.reminders = { useDefault: false, overrides: [{ method: nm, minutes: nmin }] };
+    }
+    
+    if (ad) {
+      const dt = document.getElementById('ef-dt')?.value || pDay;
+      body.start = { date: dt };
+      body.end = { date: dt };
+    } else {
+      const sv = document.getElementById('ef-st')?.value;
+      const ev = document.getElementById('ef-et')?.value;
+      if (!sv || !ev) {
+        alert('시간을 입력해주세요.');
+        return;
+      }
+      if (new Date(sv) >= new Date(ev)) {
+        alert('종료 시간이 시작 시간보다 늦어야 합니다.');
+        return;
+      }
+      body.start = { dateTime: new Date(sv).toISOString(), timeZone: tz };
+      body.end = { dateTime: new Date(ev).toISOString(), timeZone: tz };
+    }
+    
+    try {
+      const ce = encodeURIComponent(_efCal || 'primary');
+      const url = isEdit 
+        ? `https://www.googleapis.com/calendar/v3/calendars/${ce}/events/${encodeURIComponent(_efEvId)}`
+        : `https://www.googleapis.com/calendar/v3/calendars/${ce}/events`;
+        
+      const r = await fetch(url, {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: {
+          Authorization: `Bearer ${AT}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      
+      if (!r.ok) {
+        const text = await r.text();
+        throw new Error(r.status + ': ' + text);
+      }
+      
+      await loadCalendar();
+      pEvs = calEvs.filter(e => (e.start?.dateTime || e.start?.date || '').split('T')[0] === pDay && !e._isT);
+      renderEP();
+    } catch (err) {
+      alert((isEdit ? '수정' : '저장') + ' 실패: ' + err.message);
+    }
+  }
+
+  async function delEv(i) {
+    const e = pEvs[i];
+    if (!confirm(`"${e.summary || '이 일정'}"을 삭제하시겠습니까?`)) return;
+    
+    try {
+      const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(e._calId || 'primary')}/events/${encodeURIComponent(e.id)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${AT}` }
+      });
+      if (!r.ok && r.status !== 204) throw new Error(r.status);
+      
+      calEvs = calEvs.filter(ev => ev.id !== e.id);
+      pEvs = pEvs.filter((_, idx) => idx !== i);
+      renderCalGrid();
+      renderEP();
+    } catch (err) {
+      alert('삭제 실패: ' + err.message);
+    }
+  }
+
+  function ft(iso) {
+    try {
+      return new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '';
+    }
+  }
+
+  function enc(s) {
+    return encodeURIComponent(s);
+  }
+
+  /* ==========================================================================
+     GMAIL.JS - GOOGLE GMAIL CLIENT WITH SECURITY SANITIZATION
+     ========================================================================== */
+
+  async function selLabel(lbl, el) {
+    document.querySelectorAll('.glbl').forEach(g => g.classList.remove('on'));
+    el.classList.add('on');
+    
+    gLabel = lbl;
+    clearSel();
+    closeReader();
+    
+    const srch = document.getElementById('g-srch');
+    if (srch) srch.value = '';
+    
+    const tb = document.getElementById('btn-empty-trash');
+    if (tb) tb.style.display = lbl === 'TRASH' ? 'flex' : 'none';
+    
+    await loadGmail();
+  }
+
+  async function loadGmail() {
+    loading('g-list', '메일 불러오는 중...');
+    try {
+      const data = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=${gLabel}&maxResults=25`);
+      if (!data.messages || data.messages.length === 0) {
+        setEmpty('g-list', 'mail', '메일이 없습니다.');
+        return;
+      }
+      
+      const details = await Promise.all(
+        data.messages.map(m => req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`))
+      );
+      gMsgs = details;
+      renderList();
+    } catch (err) {
+      console.error(err);
+      setErr('g-list', '메일을 불러올 수 없습니다.', loadGmail);
+    }
+  }
+
+  async function searchMail() {
+    const q = document.getElementById('g-srch').value.trim();
+    if (!q) return;
+    loading('g-list', '검색 중...');
+    
+    try {
+      const data = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${enc(q)}&maxResults=25`);
+      if (!data.messages || data.messages.length === 0) {
+        setEmpty('g-list', 'search', '검색 결과가 없습니다.');
+        return;
+      }
+      
+      const details = await Promise.all(
+        data.messages.map(m => req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`))
+      );
+      gMsgs = details;
+      renderList();
+    } catch (err) {
+      console.error(err);
+      setErr('g-list', '메일 검색에 실패했습니다.', loadGmail);
+    }
+  }
+
+  function renderList() {
+    const lblCountEl = document.getElementById('g-lbl');
+    if (lblCountEl) {
+      lblCountEl.textContent = `Gmail (${gMsgs.length})`;
+    }
+    
+    if (gMsgs.length === 0) {
+      setEmpty('g-list', 'mail', '메일이 없습니다.');
+      return;
+    }
+    
+    let html = '';
+    gMsgs.forEach((m, i) => {
+      const hd = m.payload?.headers || [];
+      const from = hd.find(h => h.name === 'From')?.value || '';
+      const subj = hd.find(h => h.name === 'Subject')?.value || '(제목 없음)';
+      const date = hd.find(h => h.name === 'Date')?.value || '';
+      
+      const unread = m.labelIds?.includes('UNREAD');
+      const isSel = selIds.has(m.id);
+      const name = from.replace(/<[^>]+>/, '').trim() || from;
+      const init = (name[0] || '?').toUpperCase();
+      
+      html += `
+        <div class="erow${unread ? ' unread' : ''}${isSel ? ' sel-row' : ''}" id="er${i}">
+          <div class="e-chk" onclick="togSel(event,'${m.id}',${i})">
+            <input type="checkbox" ${isSel ? 'checked' : ''} onclick="togSel(event,'${m.id}',${i})"/>
+          </div>
+          <div class="av" style="background:${AVCOLS[init.charCodeAt(0) % AVCOLS.length]}" onclick="openMsg(${i})">
+            ${esc(init)}
+          </div>
+          <div class="e-meta" onclick="openMsg(${i})">
+            <div class="e-top">
+              <span class="e-from${unread ? ' fw' : ''}">${esc(name)}</span>
+              <span class="e-date">${esc(fmtDate(date))}</span>
+            </div>
+            <div class="e-subj${unread ? ' fw' : ''}">${esc(subj)}</div>
+            <div class="e-snip">${esc(m.snippet || '')}</div>
+          </div>
+          ${unread ? '<div class="udot"></div>' : ''}
+        </div>
+      `;
+    });
+    
+    document.getElementById('g-list').innerHTML = html;
+    updSelBar();
+    lucide.createIcons();
+  }
+
+  function togSel(e, id, i) {
+    e.stopPropagation();
+    if (selIds.has(id)) {
+      selIds.delete(id);
+    } else {
+      selIds.add(id);
+    }
+    
+    updSelBar();
+    const row = document.getElementById('er' + i);
+    if (row) {
+      row.classList.toggle('sel-row', selIds.has(id));
+      const chk = row.querySelector('input[type=checkbox]');
+      if (chk) chk.checked = selIds.has(id);
+    }
+  }
+
+  function updSelBar() {
+    const count = selIds.size;
+    document.getElementById('sel-bar').classList.toggle('on', count > 0);
+    document.getElementById('sel-cnt').textContent = `${count}개 선택`;
+    
+    const chkAll = document.getElementById('chk-all');
+    if (chkAll) {
+      chkAll.checked = count > 0 && count === gMsgs.length;
+      chkAll.indeterminate = count > 0 && count < gMsgs.length;
+    }
+    
+    const labelSub = document.getElementById('g-sel-cnt');
+    if (labelSub) {
+      labelSub.textContent = gMsgs.length ? `${gMsgs.length}개 중 ${count}개 선택` : '';
+    }
+  }
+
+  function selectAll(c) {
+    if (c) {
+      gMsgs.forEach(m => selIds.add(m.id));
+    } else {
+      selIds.clear();
+    }
+    updSelBar();
+    renderList();
+  }
+
+  function clearSel() {
+    selIds.clear();
+    updSelBar();
+    renderList();
+  }
+
+  async function batchDel() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    const inTrash = gLabel === 'TRASH';
+    
+    if (!confirm(inTrash ? `${ids.length}개의 메일을 영구 삭제하시겠습니까? 복구할 수 없습니다.` : `${ids.length}개의 메일을 휴지통으로 이동하시겠습니까?`)) return;
+    
+    try {
+      if (inTrash) {
+        await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchDelete', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids })
+        });
+      } else {
+        await Promise.all(ids.map(id => fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}/trash`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${AT}` }
+        })));
+      }
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('삭제 실패: ' + err.message);
+    }
+  }
+
+  async function batchRead() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    
+    try {
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, removeLabelIds: ['UNREAD'] })
+      });
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      console.error('Batch read modify failed:', err);
+    }
+  }
+
+  async function emptyTrash() {
+    if (!confirm('휴지통을 완전히 비우시겠습니까? 복구할 수 없습니다.')) return;
+    loading('g-list', '비우는 중...');
+    
+    try {
+      let pt = '', ids = [];
+      do {
+        const data = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=TRASH&maxResults=500${pt ? '&pageToken=' + pt : ''}`);
+        ids = [...ids, ...(data.messages || []).map(m => m.id)];
+        pt = data.nextPageToken || '';
+      } while (pt);
+      
+      if (ids.length === 0) {
+        loadGmail();
+        return;
+      }
+      
+      for (let i = 0; i < ids.length; i += 500) {
+        await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchDelete', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: ids.slice(i, i + 500) })
+        });
+      }
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      console.error(err);
+      setErr('g-list', '휴지통 비우기에 실패했습니다.', emptyTrash);
+    }
+  }
+
+  async function loadLabelCounts() {
+    for (const lbl of ['INBOX', 'STARRED', 'SENT', 'SPAM', 'TRASH']) {
+      try {
+        const d = await req(`https://gmail.googleapis.com/gmail/v1/users/me/labels/${lbl}`);
+        const u = d.messagesUnread || 0;
+        if (lbl === 'INBOX' && _lastInboxUnread === 0) {
+          _lastInboxUnread = u;
+        }
+        const el = document.getElementById('lcnt-' + lbl);
+        if (el) {
+          el.textContent = u > 99 ? '99+' : u;
+          el.style.display = u > 0 ? '' : 'none';
+        }
+      } catch (err) {
+        console.warn(`Label counts fail for ${lbl}`);
+      }
+    }
+  }
+
+  async function openMsg(i) {
+    document.querySelectorAll('.erow').forEach(r => r.classList.remove('sel-row'));
+    const targetRow = document.getElementById('er' + i);
+    if (targetRow) targetRow.classList.add('sel-row');
+    
+    try {
+      const full = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${gMsgs[i].id}?format=full`);
+      selMsg = full;
+      
+      const hd = full.payload?.headers || [];
+      document.getElementById('r-subj').textContent = hd.find(h => h.name === 'Subject')?.value || '(제목 없음)';
+      
+      const from = hd.find(h => h.name === 'From')?.value || '';
+      const to = hd.find(h => h.name === 'To')?.value || '';
+      const date = hd.find(h => h.name === 'Date')?.value || '';
+      
+      document.getElementById('r-from').innerHTML = `
+        <b>보낸사람:</b> ${esc(from)}<br>
+        <b>받는사람:</b> ${esc(to)}<br>
+        <b>날짜:</b> ${esc(date)}
+      `;
+      
+      const rawBody = getBody(full.payload) || '<p style="padding:16px;color:#999">본문 없음</p>';
+      
+      const sanitizedBody = DOMPurify.sanitize(rawBody, {
+        ADD_ATTR: ['target'],
+        FORCE_BODY: true
+      });
+      
+      const wrappedDocument = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <meta name="color-scheme" content="only light">
+          <base target="_blank">
+          <style>
+            :root { color-scheme: only light; }
+            html, body { margin:0; padding:0; background:#fff!important; color:#202124!important; }
+            body { padding:12px; font-family:sans-serif; font-size:14px; line-height:1.6; }
+            img { max-width:100%!important; height:auto!important; }
+            a { color:#2563eb; text-decoration: underline; }
+            pre { white-space:pre-wrap; font-family:inherit; word-break:break-word; }
+          </style>
+        </head>
+        <body>
+          ${sanitizedBody}
+        </body>
+        </html>
+      `;
+      
+      document.getElementById('r-frame').srcdoc = wrappedDocument;
+      document.getElementById('r-ph').style.display = 'none';
+      
+      const contentWrap = document.getElementById('r-content');
+      if (contentWrap) contentWrap.style.display = 'flex';
+      
+      document.getElementById('g-reader').classList.add('on');
+      document.querySelector('.gmail-wrap')?.classList.add('reading');
+      
+      _curMsgId = full.id;
+      _curAtts = getAttachments(full.payload);
+      renderAttachments(_curAtts);
+      
+      const spamBtn = document.getElementById('btn-spam-act');
+      if (spamBtn) {
+        const isSpam = full.labelIds?.includes('SPAM');
+        spamBtn.innerHTML = isSpam ? `<i data-lucide="check-circle"></i>스팸 해제` : `<i data-lucide="alert-circle"></i>스팸`;
+        spamBtn.onclick = isSpam ? unmarkSpam : markSpam;
+      }
+      
+      if (full.labelIds?.includes('UNREAD')) {
+        await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${full.id}/modify`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ removeLabelIds: ['UNREAD'] })
+        });
+        gMsgs[i] = { ...gMsgs[i], labelIds: (gMsgs[i].labelIds || []).filter(l => l !== 'UNREAD') };
+        renderList();
+        
+        const newRow = document.getElementById('er' + i);
+        if (newRow) newRow.classList.add('sel-row');
+      }
+    } catch (err) {
+      console.error('Failed opening email:', err);
+      showToast('⚠️ 이메일을 여는 중 오류가 발생했습니다.');
+    }
+  }
+
+  function getAttachments(payload) {
+    const atts = [];
+    function scan(p) {
+      if (!p) return;
+      if (p.filename && p.filename.length > 0 && p.body?.attachmentId) {
+        atts.push({
+          id: p.body.attachmentId,
+          filename: p.filename,
+          mimeType: p.mimeType || 'application/octet-stream',
+          size: p.body.size || 0
+        });
+      }
+      (p.parts || []).forEach(scan);
+    }
+    scan(payload);
+    return atts;
+  }
+
+  function renderAttachments(atts) {
+    const div = document.getElementById('r-atts');
+    if (!div) return;
+    if (!atts.length) {
+      div.style.display = 'none';
+      return;
+    }
+    
+    div.style.display = 'block';
+    div.style.cssText = 'margin-top:12px; padding-top:12px; border-top:1px solid var(--bd);';
+    
+    let html = `<div style="font-size:11.5px;color:var(--t3);font-weight:700;margin-bottom:8px; display:flex; align-items:center; gap:4px;"><i data-lucide="paperclip" style="width:14px;height:14px"></i>첨부파일 ${atts.length}개</div>`;
+    
+    atts.forEach((att, idx) => {
+      const icon = att.mimeType.includes('pdf') ? 'file-text' 
+                 : att.mimeType.includes('image') ? 'image' 
+                 : att.mimeType.includes('zip') || att.mimeType.includes('compress') ? 'folder-archive' 
+                 : att.mimeType.includes('word') || att.mimeType.includes('document') ? 'file-edit' 
+                 : att.mimeType.includes('sheet') || att.mimeType.includes('excel') ? 'bar-chart-2' 
+                 : att.mimeType.includes('video') ? 'video' 
+                 : att.mimeType.includes('audio') ? 'music' : 'file';
+                 
+      const sz = att.size < 1024 ? att.size + ' B' 
+               : att.size < 1048576 ? (att.size / 1024).toFixed(1) + ' KB' 
+               : (att.size / 1048576).toFixed(1) + ' MB';
+               
+      html += `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--hover);margin-bottom:6px">
+          <i data-lucide="${icon}" style="color:var(--t2)"></i>
+          <span style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t1);font-weight:500;">${esc(att.filename)}</span>
+          <span style="font-size:10.5px;color:var(--t3);flex-shrink:0">${sz}</span>
+          <button onclick="downloadAtt(${idx})" style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:700;flex-shrink:0; display:flex; align-items:center; gap:3px;">
+            <i data-lucide="download" style="width:12px;height:12px"></i>저장
+          </button>
+        </div>
+      `;
+    });
+    
+    div.innerHTML = html;
+    lucide.createIcons();
+  }
+
+  async function downloadAtt(idx) {
+    const att = _curAtts[idx];
+    if (!att) return;
+    try {
+      const data = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${_curMsgId}/attachments/${att.id}`);
+      const b64 = data.data.replace(/-/g, '+').replace(/_/g, '/');
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) {
+        bytes[i] = bin.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: att.mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = att.filename;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      alert('다운로드 실패: ' + err.message);
+    }
+  }
+
+  function getBody(p) {
+    if (!p) return null;
+    if (p.body?.data) return decB(p.body.data);
+    if (p.parts) {
+      const htmlPart = p.parts.find(x => x.mimeType === 'text/html');
+      if (htmlPart?.body?.data) return decB(htmlPart.body.data);
+      
+      const plainPart = p.parts.find(x => x.mimeType === 'text/plain');
+      if (plainPart?.body?.data) {
+        return `<pre style="white-space:pre-wrap;font:14px/1.5 sans-serif;padding:14px">${esc(decB(plainPart.body.data))}</pre>`;
+      }
+      
+      for (const x of p.parts) {
+        const b = getBody(x);
+        if (b) return b;
+      }
+    }
+    return null;
+  }
+
+  function decB(s) {
+    try {
+      return decodeURIComponent(atob(s.replace(/-/g, '+').replace(/_/g, '/')).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    } catch {
+      return atob(s.replace(/-/g, '+').replace(/_/g, '/'));
+    }
+  }
+
+  function closeReader() {
+    selMsg = null;
+    _curMsgId = '';
+    _curAtts = [];
+    
+    document.getElementById('g-reader').classList.remove('on');
+    document.getElementById('r-ph').style.display = 'flex';
+    document.getElementById('r-content').style.display = 'none';
+    document.querySelector('.gmail-wrap')?.classList.remove('reading');
+    
+    const attDiv = document.getElementById('r-atts');
+    if (attDiv) attDiv.style.display = 'none';
+  }
+
+  async function deleteMsg() {
+    if (!selMsg) return;
+    
+    if (gLabel === 'TRASH') {
+      await permDeleteMsg();
+    } else {
+      if (!confirm('메일을 휴지통으로 이동하시겠습니까?')) return;
+      try {
+        const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/trash`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${AT}` }
+        });
+        if (!r.ok) throw new Error(r.status);
+        closeReader();
+        loadGmail();
+        loadLabelCounts();
+      } catch (err) {
+        alert('삭제 실패: ' + err.message);
+      }
+    }
+  }
+
+  async function permDeleteMsg() {
+    if (!selMsg) return;
+    if (!confirm('이 메일을 영구 삭제하시겠습니까? 복구할 수 없습니다.')) return;
+    try {
+      const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${AT}` }
+      });
+      if (!r.ok && r.status !== 204) throw new Error(r.status);
+      closeReader();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('영구 삭제 실패: ' + err.message);
+    }
+  }
+
+  async function unmarkSpam() {
+    if (!selMsg) return;
+    try {
+      await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ removeLabelIds: ['SPAM'], addLabelIds: ['INBOX'] })
+      });
+      closeReader();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('스팸 해제 실패: ' + err.message);
+    }
+  }
+
+  async function markSpam() {
+    if (!selMsg) return;
+    try {
+      await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addLabelIds: ['SPAM'], removeLabelIds: ['INBOX'] })
+      });
+      closeReader();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('스팸 이동 실패: ' + err.message);
+    }
+  }
+
+  async function markRead() {
+    if (!selMsg) return;
+    try {
+      await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ removeLabelIds: ['UNREAD'] })
+      });
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      console.error('Mark read failed:', err);
+    }
+  }
+
+  async function toggleStar() {
+    if (!selMsg) return;
+    const isStarred = selMsg.labelIds?.includes('STARRED');
+    try {
+      await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(isStarred ? { removeLabelIds: ['STARRED'] } : { addLabelIds: ['STARRED'] })
+      });
+      selMsg = {
+        ...selMsg,
+        labelIds: isStarred ? selMsg.labelIds.filter(l => l !== 'STARRED') : [...(selMsg.labelIds || []), 'STARRED']
+      };
+      showToast(isStarred ? '⭐ 중요 편지함에서 제외되었습니다.' : '⭐ 중요 메일로 등록되었습니다.');
+    } catch (err) {
+      console.error('Toggle star failed:', err);
+    }
+  }
+
+  function fmtDate(dateString) {
+    try {
+      const d = new Date(dateString);
+      const timeDiff = Date.now() - d.getTime();
+      if (timeDiff < 86400000) {
+        return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+      } else {
+        return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+      }
+    } catch {
+      return '';
+    }
+  }
+  </script>
 
 </body>
 </html>
