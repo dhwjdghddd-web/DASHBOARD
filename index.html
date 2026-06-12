@@ -395,8 +395,9 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
                   <button class="btn-act" onclick="markRead()">✅ 읽음</button>
                   <button class="btn-act" onclick="toggleStar()">⭐ 중요</button>
                 </div>
+                <div id="r-atts" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)"></div>
               </div>
-              <div class="r-body"><iframe class="r-frame" id="r-frame" sandbox="allow-same-origin"></iframe></div>
+              <div class="r-body"><iframe class="r-frame" id="r-frame" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe></div>
             </div>
           </div>
         </div>
@@ -1065,12 +1066,15 @@ async function openMsg(i){
     const from=hd.find(h=>h.name==='From')?.value||'',to=hd.find(h=>h.name==='To')?.value||'',date=hd.find(h=>h.name==='Date')?.value||'';
     document.getElementById('r-from').innerHTML=`<b>보낸사람:</b> ${esc(from)}<br><b>받는사람:</b> ${esc(to)}<br><b>날짜:</b> ${esc(date)}`;
     const _body=getBody(full.payload)||'<p style="padding:16px;color:#999">본문 없음</p>';
-    const _wrapped='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="only light"><style>:root{color-scheme:only light;}html,body{margin:0;padding:0;background:#fff!important;color:#202124!important;}body{padding:10px;font-family:sans-serif;font-size:14px;line-height:1.6;}img{max-width:100%!important;height:auto!important;}a{color:#1a73e8;}pre{white-space:pre-wrap;font-family:inherit;word-break:break-word;}</style></head><body>'+_body+'</body></html>';
+    const _wrapped='<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="only light"><base target="_blank"><style>:root{color-scheme:only light;}html,body{margin:0;padding:0;background:#fff!important;color:#202124!important;}body{padding:10px;font-family:sans-serif;font-size:14px;line-height:1.6;}img{max-width:100%!important;height:auto!important;}a{color:#1a73e8;}pre{white-space:pre-wrap;font-family:inherit;word-break:break-word;}</style></head><body>'+_body+'</body></html>';
     document.getElementById('r-frame').srcdoc=_wrapped;
     document.getElementById('r-ph').style.display='none';
     const rc=document.getElementById('r-content');rc.style.display='flex';rc.style.flexDirection='column';rc.style.overflow='hidden';
     document.getElementById('g-reader').classList.add('on');
     document.querySelector('.gmail-wrap')?.classList.add('reading');
+    _curMsgId=full.id;
+    _curAtts=getAttachments(full.payload);
+    renderAttachments(_curAtts);
     const spamBtn=document.getElementById('btn-spam-act');
     if(spamBtn){
       if(full.labelIds?.includes('SPAM')){
@@ -1086,14 +1090,66 @@ async function openMsg(i){
     }
   }catch(e){console.error(e);}
 }
+/* ── ATTACHMENTS ── */
+let _curMsgId='', _curAtts=[];
+
+function getAttachments(payload){
+  const atts=[];
+  function scan(p){
+    if(!p)return;
+    if(p.filename&&p.filename.length>0&&p.body?.attachmentId){
+      atts.push({id:p.body.attachmentId,filename:p.filename,mimeType:p.mimeType||'application/octet-stream',size:p.body.size||0});
+    }
+    (p.parts||[]).forEach(scan);
+  }
+  scan(payload);
+  return atts;
+}
+
+function renderAttachments(atts){
+  const div=document.getElementById('r-atts');
+  if(!div)return;
+  if(!atts.length){div.style.display='none';return;}
+  div.style.display='';
+  div.innerHTML='<div style="font-size:12px;color:var(--t3);font-weight:700;margin-bottom:6px">📎 첨부파일 '+atts.length+'개</div>'+
+    atts.map((att,i)=>{
+      const icon=att.mimeType.includes('pdf')?'📄':att.mimeType.includes('image')?'🖼️':att.mimeType.includes('zip')||att.mimeType.includes('compress')?'🗜️':att.mimeType.includes('word')||att.mimeType.includes('document')?'📝':att.mimeType.includes('sheet')||att.mimeType.includes('excel')?'📊':att.mimeType.includes('video')?'🎥':att.mimeType.includes('audio')?'🎵':'📎';
+      const sz=att.size<1024?att.size+'B':att.size<1048576?(att.size/1024).toFixed(1)+'KB':(att.size/1048576).toFixed(1)+'MB';
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:7px;background:var(--hover);margin-bottom:4px">'+
+        '<span style="font-size:18px">'+icon+'</span>'+
+        '<span style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t1)">'+esc(att.filename)+'</span>'+
+        '<span style="font-size:11px;color:var(--t3);flex-shrink:0">'+sz+'</span>'+
+        '<button onclick="downloadAtt('+i+')" style="background:var(--blue);color:#fff;border:none;border-radius:5px;padding:4px 10px;cursor:pointer;font-size:11px;flex-shrink:0">⬇️ 저장</button>'+
+      '</div>';
+    }).join('');
+}
+
+async function downloadAtt(idx){
+  const att=_curAtts[idx];
+  if(!att)return;
+  try{
+    const data=await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${_curMsgId}/attachments/${att.id}`);
+    const b64=data.data.replace(/-/g,'+').replace(/_/g,'/');
+    const bin=atob(b64);
+    const bytes=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+    const blob=new Blob([bytes],{type:att.mimeType});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=att.filename;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(e){alert('다운로드 실패: '+e.message);}
+}
+
 function getBody(p){if(!p)return null;if(p.body?.data)return decB(p.body.data);if(p.parts){const h=p.parts.find(x=>x.mimeType==='text/html');if(h?.body?.data)return decB(h.body.data);const t=p.parts.find(x=>x.mimeType==='text/plain');if(t?.body?.data)return`<pre style="white-space:pre-wrap;font:14px/1.5 sans-serif;padding:14px">${esc(decB(t.body.data))}</pre>`;for(const x of p.parts){const b=getBody(x);if(b)return b;}}return null;}
 function decB(s){try{return decodeURIComponent(atob(s.replace(/-/g,'+').replace(/_/g,'/')).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));}catch{return atob(s.replace(/-/g,'+').replace(/_/g,'/'));}}
 function closeReader(){
-  selMsg=null;
+  selMsg=null;_curMsgId='';_curAtts=[];
   document.getElementById('g-reader').classList.remove('on');
   document.getElementById('r-ph').style.display='';
   document.getElementById('r-content').style.display='none';
   document.querySelector('.gmail-wrap')?.classList.remove('reading');
+  const attDiv=document.getElementById('r-atts');if(attDiv)attDiv.style.display='none';
 }
 async function deleteMsg(){
   if(!selMsg)return;
