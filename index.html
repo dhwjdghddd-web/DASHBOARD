@@ -271,6 +271,351 @@ body{font-family:'Google Sans',system-ui,sans-serif;background:var(--bg);color:v
   flex-shrink:0;padding:9px 14px;border-bottom:1px solid var(--bd);
   background:var(--panel);align-items:center;gap:7px}
 .r-back:hover{background:var(--hover)}
+
+/* ═══════════════════════════════════════════════
+   REFINED DESIGN SYSTEM
+   Modern productivity app aesthetic
+   – Generous whitespace, soft depth, sharp type
+═══════════════════════════════════════════════ */
+
+/* ── Palette override ── */
+:root{
+  --blue:#2B6BE8;
+  --green:#12A150;
+  --yellow:#C8860A;
+  --red:#D93025;
+  --bg:#F3F4F8;
+  --panel:#FFFFFF;
+  --bd:#E8EAF0;
+  --t1:#111827;
+  --t2:#4B5563;
+  --t3:#9CA3AF;
+  --hover:#F5F6FA;
+  --inp:#FFFFFF;
+  --shadow:rgba(17,24,39,.06);
+  --th-t:#FEFCE8;
+  --th-c:#F0FDF4;
+  --th-g:#FFF1F2;
+  --cal-o:#F9FAFB;
+  --cal-td:#EEF4FF;
+  --hd:54px;--bnav:64px;
+}
+body.dark{
+  --blue:#5B9CF8;
+  --green:#34D399;
+  --yellow:#FCD34D;
+  --red:#F87171;
+  --bg:#0D0E14;
+  --panel:#17181F;
+  --bd:#252630;
+  --t1:#F0F1F5;
+  --t2:#8B92A5;
+  --t3:#4B5266;
+  --hover:#1E1F28;
+  --inp:#1E1F28;
+  --shadow:rgba(0,0,0,.35);
+  --th-t:#1A1800;
+  --th-c:#001A0A;
+  --th-g:#1A0005;
+  --cal-o:#111218;
+  --cal-td:#141C38;
+}
+
+/* ── Base ── */
+body{
+  font-family:'Inter',system-ui,-apple-system,sans-serif;
+  font-size:14px;
+  background:var(--bg);
+  color:var(--t1);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── HEADER: Refined gradient ── */
+.hd{
+  height:var(--hd);
+  background:linear-gradient(110deg,#1A3B9C 0%,#2B6BE8 55%,#2E8FE8 100%);
+  box-shadow:0 1px 0 rgba(255,255,255,.08),0 2px 12px rgba(30,80,200,.25);
+  padding:0 20px;
+  gap:14px;
+}
+.hd-title{font-size:15px;font-weight:750;letter-spacing:-.5px}
+.hd-date{font-size:12px;opacity:.6;letter-spacing:.1px}
+.btn-login{
+  background:#fff;color:#2B6BE8;
+  border:none;border-radius:20px;
+  padding:6px 18px;font-size:12px;font-weight:700;
+  box-shadow:0 1px 4px rgba(0,0,0,.1);
+  transition:transform .15s,box-shadow .15s;
+}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,.15)}
+.btn-ghost{
+  background:rgba(255,255,255,.12);color:#fff;
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:8px;padding:5px 11px;font-size:11px;
+  backdrop-filter:blur(8px);
+  transition:background .15s;
+}
+.btn-ghost:hover{background:rgba(255,255,255,.22)}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  background:var(--panel);
+  box-shadow:1px 0 0 var(--bd);
+  width:270px;
+}
+
+/* ── PANEL HEADERS ── */
+.ph{
+  padding:11px 16px;
+  background:var(--panel);
+  border-bottom:1px solid var(--bd);
+}
+.ph .lbl{font-size:13px;font-weight:700;letter-spacing:-.2px}
+.badge{
+  border-radius:20px;padding:2px 9px;
+  font-size:11px;font-weight:700;
+  letter-spacing:.3px;
+}
+.th-t{background:var(--th-t);border-color:rgba(202,138,4,.18)}
+.th-c{background:var(--th-c);border-color:rgba(16,185,129,.18)}
+.th-g{background:var(--th-g);border-color:rgba(220,38,38,.18)}
+
+/* ── TASK INPUT ── */
+.t-row{padding:10px 12px;background:var(--panel);border-bottom:1px solid var(--bd)}
+.t-inp{
+  border-radius:9px;padding:8px 12px;font-size:13px;
+  border:1.5px solid var(--bd);background:var(--inp);color:var(--t1);
+  transition:border-color .15s,box-shadow .15s;
+}
+.t-inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,107,232,.1)}
+.btn-add{
+  background:var(--blue);border-radius:9px;
+  font-size:20px;padding:7px 13px;
+  box-shadow:0 1px 4px rgba(43,107,232,.3);
+  transition:transform .12s,box-shadow .12s;
+}
+.btn-add:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(43,107,232,.35)}
+
+/* ── TASK ITEMS ── */
+.t-list{padding:8px}
+.t-item{padding:9px 10px;border-radius:10px;margin-bottom:1px;transition:background .12s}
+.t-item:hover{background:var(--hover)}
+.t-txt{font-size:13px;line-height:1.45;font-weight:450;color:var(--t1)}
+.t-txt.done{color:var(--t3);text-decoration-color:var(--bd)}
+.t-meta{font-size:11px;color:var(--t3);margin-top:2px;font-weight:450}
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--t3);padding:12px 16px 4px}
+.t-det-row{gap:8px}
+.t-det-lbl{font-size:11px;font-weight:600;color:var(--t3);min-width:40px}
+.t-det-inp{border-radius:7px;font-size:12px;padding:5px 9px;background:var(--inp);border:1.5px solid var(--bd);color:var(--t1)}
+
+/* ── CALENDAR ── */
+.cal-dow-row{border-bottom:1px solid var(--bd)}
+.cal-dow-cell{font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--t3);padding:7px 0}
+.cal-day{
+  padding:4px 4px 3px;
+  border-color:var(--bd);
+  transition:background .12s;
+}
+.cal-day:hover{background:var(--hover)}
+.cal-day.other{background:var(--cal-o)}
+.cal-day.other .cal-dn{color:var(--bd)}
+.cal-day.today-c{background:var(--cal-td)}
+.cal-dn{font-size:12px;font-weight:500;width:22px;height:22px;border-radius:50%}
+.today-c .cal-dn{background:var(--blue);color:#fff;font-weight:700;font-size:12px;box-shadow:0 2px 6px rgba(43,107,232,.4)}
+.cal-ev{
+  font-size:10px;font-weight:600;letter-spacing:.1px;
+  border-radius:4px;padding:1px 5px;margin-bottom:2px;
+  color:#fff;
+}
+.cal-ev.task-ev{color:var(--t2);font-weight:500}
+.task-dot{width:7px;height:7px;border-radius:50%;background:var(--blue)}
+.cal-more{font-size:10px;color:var(--t3);font-weight:500;padding-left:4px}
+
+/* ── EVENT PANEL ── */
+.ev-panel{
+  box-shadow:-8px 0 32px rgba(17,24,39,.1);
+  border-left:1px solid var(--bd);
+  width:290px;
+}
+body.dark .ev-panel{box-shadow:-8px 0 32px rgba(0,0,0,.4)}
+.ev-ph{padding:13px 16px;border-bottom:1px solid var(--bd)}
+.ev-ph-ttl{font-size:14px;font-weight:700;letter-spacing:-.2px}
+.btn-new-ev{
+  background:var(--blue);color:#fff;border:none;
+  border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;
+  box-shadow:0 1px 4px rgba(43,107,232,.3);
+  transition:transform .12s,box-shadow .12s;
+}
+.btn-new-ev:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(43,107,232,.35)}
+.ev-card{border-radius:10px;padding:11px 14px;margin-bottom:7px;border-left-width:3px}
+.ev-card-title{font-size:13px;font-weight:650;letter-spacing:-.1px}
+.ev-card-sub{font-size:11px;margin-top:3px;color:var(--t2)}
+.ev-card-acts{gap:6px;margin-top:8px}
+.btn-ev{
+  border-radius:7px;padding:4px 11px;font-size:11px;font-weight:600;
+  border:1px solid var(--bd);color:var(--t2);
+  transition:all .12s;
+}
+.btn-ev:hover{background:var(--hover);border-color:var(--t3)}
+.btn-ev.del:hover{background:#FEF2F2;color:var(--red);border-color:rgba(220,38,38,.3)}
+
+/* ── EVENT FORM ── */
+.ef-sect{border-radius:10px;padding:10px 12px;background:var(--hover);gap:7px}
+.ef-lbl{font-size:11px;font-weight:650;color:var(--t3);min-width:46px;letter-spacing:.2px}
+.ef-inp{border-radius:8px;padding:6px 10px;font-size:13px;background:var(--panel);border:1.5px solid var(--bd);color:var(--t1)}
+.ef-inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,107,232,.08)}
+.ef-sel{border-radius:8px;padding:6px 10px;font-size:13px;background:var(--panel);border:1.5px solid var(--bd);color:var(--t1)}
+.ev-cal-btn{border-radius:8px;border:1.5px solid var(--bd);background:var(--panel)}
+.ev-cal-list{border-radius:10px;border:1px solid var(--bd);box-shadow:0 8px 24px var(--shadow)}
+.ev-cal-opt{font-size:13px}
+.ev-chip{width:22px;height:22px;border-radius:50%}
+.btn-ev-save{
+  background:var(--blue);border-radius:9px;padding:8px 16px;
+  font-size:13px;font-weight:700;
+  box-shadow:0 1px 4px rgba(43,107,232,.3);
+  transition:transform .12s,box-shadow .12s;
+}
+.btn-ev-save:hover{transform:translateY(-1px);box-shadow:0 3px 8px rgba(43,107,232,.35)}
+.btn-ev-cancel{border-radius:9px;padding:8px 14px;font-size:13px;border:1.5px solid var(--bd);color:var(--t2)}
+.btn-ev-cancel:hover{background:var(--hover)}
+
+/* ── GMAIL LABELS ── */
+.g-labels{background:var(--panel);padding:8px 0}
+.glbl{
+  font-size:13px;font-weight:500;
+  padding:8px 12px;
+  border-radius:0 20px 20px 0;margin-right:8px;
+  transition:background .12s,color .12s;
+}
+.glbl.on{
+  background:var(--cal-td);color:var(--blue);
+  font-weight:700;
+}
+.glbl .ico{font-size:14px}
+.glbl .cnt{
+  font-size:10px;font-weight:800;
+  background:var(--red);color:#fff;
+  border-radius:20px;padding:1px 7px;
+  letter-spacing:.2px;
+}
+
+/* ── GMAIL SEARCH ── */
+.g-srch-inp{
+  border-radius:20px;padding:7px 14px;font-size:13px;
+  border:1.5px solid var(--bd);background:var(--inp);color:var(--t1);
+  transition:border-color .15s,box-shadow .15s;
+}
+.g-srch-inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(43,107,232,.1)}
+.btn-srch{border-radius:20px;padding:7px 14px;font-size:12px;font-weight:600}
+
+/* ── EMAIL ROWS ── */
+.g-selall{padding:6px 14px;background:var(--panel);border-bottom:1px solid var(--bd)}
+.g-selall label{font-size:12px;font-weight:500;color:var(--t2)}
+.erow{
+  padding:11px 14px;
+  border-bottom:1px solid rgba(0,0,0,.04);
+  gap:11px;
+  transition:background .1s;
+}
+body.dark .erow{border-bottom-color:rgba(255,255,255,.04)}
+.erow:hover{background:var(--hover)}
+.erow.unread{background:color-mix(in srgb,var(--blue) 4%,var(--panel))}
+.erow.sel-row{background:color-mix(in srgb,var(--blue) 8%,var(--panel))}
+.av{
+  width:36px;height:36px;border-radius:50%;
+  font-size:14px;font-weight:700;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+}
+.e-from{font-size:13px;font-weight:500;max-width:155px}
+.e-from.fw{font-weight:750}
+.e-date{font-size:11px;color:var(--t3);font-weight:450}
+.e-subj{font-size:13px;font-weight:400;letter-spacing:-.1px}
+.e-subj.fw{font-weight:650}
+.e-snip{font-size:11px;color:var(--t3)}
+.udot{width:7px;height:7px;border-radius:50%;background:var(--blue)}
+
+/* ── SELECTION BAR ── */
+.sel-bar{
+  padding:8px 14px;
+  background:color-mix(in srgb,var(--blue) 8%,var(--panel));
+  border-bottom:1px solid rgba(43,107,232,.15);
+}
+.sel-cnt{font-size:12px;font-weight:700;color:var(--blue)}
+.btn-sdel{
+  background:var(--red);border-radius:7px;
+  padding:5px 12px;font-size:11px;font-weight:700;
+  box-shadow:0 1px 3px rgba(220,38,38,.2);
+}
+.btn-sread{
+  background:var(--panel);border:1.5px solid var(--bd);
+  border-radius:7px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--t2);
+}
+
+/* ── EMAIL READER ── */
+.r-hd{padding:14px 18px;border-bottom:1px solid var(--bd)}
+.r-subj{font-size:16px;font-weight:750;letter-spacing:-.3px;line-height:1.3;margin-bottom:8px}
+.r-from{font-size:12px;color:var(--t2);line-height:1.7}
+.r-acts{gap:6px;margin-top:10px}
+.btn-act{
+  border-radius:8px;padding:5px 12px;font-size:11px;font-weight:650;
+  border:1.5px solid var(--bd);color:var(--t2);
+  transition:all .12s;
+}
+.btn-act:hover{background:var(--hover);border-color:var(--t3)}
+.btn-act.danger:hover{background:#FEF2F2;color:var(--red);border-color:rgba(220,38,38,.3)}
+.r-back{
+  font-size:12px;font-weight:650;color:var(--blue);
+  padding:10px 16px;border-bottom:1px solid var(--bd);
+  background:var(--panel);gap:6px;
+  letter-spacing:-.1px;
+  transition:background .12s;
+}
+.r-back:hover{background:var(--hover)}
+
+/* ── SPLITTERS ── */
+.sp-v,.sp-h{background:var(--bd);transition:background .15s}
+.sp-v:hover,.sp-v.on,.sp-h:hover,.sp-h.on{background:var(--blue)}
+.sp-v::after,.sp-h::after{background:rgba(128,128,128,.2)}
+
+/* ── BOTTOM NAV ── */
+.bnav{
+  background:var(--panel);
+  border-top:1px solid var(--bd);
+  box-shadow:0 -4px 12px rgba(17,24,39,.04);
+}
+.bnav-btn{font-size:10px;font-weight:600;letter-spacing:.2px;color:var(--t3)}
+.bnav-btn.on{color:var(--blue)}
+.bnav-ic{font-size:22px}
+
+/* ── STATE SCREENS ── */
+.state{padding:40px 20px}
+.state-ic{font-size:32px;margin-bottom:12px}
+.state-tx{font-size:14px;font-weight:500;color:var(--t3)}
+.btn-retry{
+  background:var(--blue);border-radius:8px;
+  padding:7px 18px;font-size:12px;font-weight:700;
+  box-shadow:0 1px 4px rgba(43,107,232,.25);
+  transition:transform .12s;
+}
+.btn-retry:hover{transform:translateY(-1px)}
+
+/* ── CALENDAR FILTER PANEL ── */
+.cal-filter-panel{border-radius:12px;box-shadow:0 8px 24px var(--shadow);border:1px solid var(--bd)}
+.cal-filter-hd{font-size:10px;font-weight:750;letter-spacing:.8px}
+.cal-filter-item{padding:8px 14px;font-size:13px}
+.cal-filter-item:first-of-type{border-radius:0}
+
+/* ── COLLAPSE BTN ── */
+.btn-col{border-radius:6px;font-size:12px;padding:3px 6px;transition:all .12s}
+.btn-col:hover{background:rgba(128,128,128,.1);color:var(--t1)}
+
+/* ── TASK DETAIL FORM ── */
+.t-detail{border-radius:0;border-bottom:1px solid var(--bd);background:var(--hover);padding:9px 12px}
+.btn-exp{border-radius:8px;border:1.5px solid var(--bd);font-size:13px}
+
+/* ── READING MODE ── */
+.gmail-wrap.reading .r-hd{padding:16px 24px}
+.gmail-wrap.reading .r-subj{font-size:18px}
 </style>
 </head>
 
