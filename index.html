@@ -16,6 +16,7 @@
      ========================================================================== */
 
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
 
   :root {
     /* Colors */
@@ -92,7 +93,7 @@
   }
 
   body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
     background: var(--bg);
     color: var(--t1);
     display: flex;
@@ -730,16 +731,16 @@
   }
 
   .cal-ev {
-    font-size: 10px;
+    font-size: 10.5px;
     border-radius: 4px;
     padding: 2px 6px;
     margin-bottom: 2px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #fff;
     font-weight: 600;
-    line-height: 1.2;
+    line-height: 1.3;
+    letter-spacing: -0.1px;
   }
 
   .cal-ev.task-ev {
@@ -817,7 +818,7 @@
   .agenda-list {
     flex: 1;
     overflow-y: auto;
-    padding: 10px 20px;
+    padding: 10px 20px 16px 20px;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -2570,7 +2571,20 @@
       document.addEventListener('mousemove', e => {
         if (!drag) return;
         const dy = e.clientY - sy;
-        const newHeight = Math.max(80, Math.min(400, h0 - dy));
+        
+        const wrap = document.querySelector('.cal-grid-wrap');
+        let maxH = 800; // default maximum fallback
+        if (wrap) {
+          const dow = document.getElementById('cal-dow');
+          const dowH = dow ? dow.offsetHeight : 0;
+          const spH = spca.offsetHeight || 4;
+          // Allow calendar cells to shrink to 12px. For 6 rows, that is 72px.
+          const minGridH = 72;
+          maxH = wrap.offsetHeight - dowH - spH - minGridH - 5;
+          if (maxH < 80) maxH = 80;
+        }
+        
+        const newHeight = Math.max(80, Math.min(maxH, h0 - dy));
         agenda.style.height = newHeight + 'px';
         fitCal();
       });
@@ -2607,6 +2621,20 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function getContrastColor(hexColor) {
+    if (!hexColor) return '#ffffff';
+    let hex = hexColor.replace('#', '');
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) return '#ffffff';
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 128) ? '#1f2937' : '#ffffff';
   }
 
   function loading(id, text) {
@@ -3133,13 +3161,15 @@
     renderAgenda();
   }
 
-  function fillCalendarEvents() {
+  function fillCalendarEvents(cellHeight) {
     const grid = document.getElementById('cal-grid');
     if (!grid) return;
     const cells = grid.querySelectorAll('.cal-day');
     if (!cells.length) return;
     const rows = Math.ceil(cells.length / 7);
-    const cellHeight = Math.max(38, Math.floor(grid.offsetHeight / rows));
+    if (cellHeight === undefined) {
+      cellHeight = Math.max(12, Math.floor(grid.offsetHeight / rows));
+    }
     
     cells.forEach(cell => {
       const ds = cell.getAttribute('data-date');
@@ -3174,10 +3204,15 @@
         }
         
         const visible = dayEvs.slice(0, limit);
-        html += visible.map(e => e._isT
-          ? `<div class="cal-ev task-ev"><span class="task-dot"></span>${esc(e.summary || '')}</div>`
-          : `<div class="cal-ev" style="background:${e._col || '#2563eb'}">${esc(e.summary || '일정')}</div>`
-        ).join('');
+        html += visible.map(e => {
+          if (e._isT) {
+            return `<div class="cal-ev task-ev"><span class="task-dot"></span>${esc(e.summary || '')}</div>`;
+          } else {
+            const bg = e._col || '#2563eb';
+            const fg = getContrastColor(bg);
+            return `<div class="cal-ev" style="background:${bg}; color:${fg}">${esc(e.summary || '일정')}</div>`;
+          }
+        }).join('');
         
         if (dayEvs.length > limit) {
           html += `<div class="cal-more">+${dayEvs.length - limit}</div>`;
@@ -3201,21 +3236,25 @@
     
     const dowH = dow ? dow.offsetHeight : 0;
     const spH = sp ? sp.offsetHeight : 4;
-    const agendaH = agenda ? agenda.offsetHeight : 180;
-    
-    // Available height for grid is parent container minus dow height, splitter, and agenda panel
-    const availableH = wrapH - dowH - spH - agendaH - 6;
-    if (availableH <= 0) return;
+    let agendaH = agenda ? agenda.offsetHeight : 180;
     
     const cells = grid.querySelectorAll('.cal-day');
     if (!cells.length) return;
-    
     const rows = Math.ceil(cells.length / 7);
-    const cellHeight = Math.max(38, Math.floor(availableH / rows));
+    const minGridH = rows * 12; // allow cell height down to 12px
+    
+    // Auto-shrink agenda height if container is too small to prevent layout cutoff
+    if (wrapH - dowH - spH - agendaH < minGridH) {
+      agendaH = Math.max(80, wrapH - dowH - spH - minGridH);
+      if (agenda) agenda.style.height = agendaH + 'px';
+    }
+    
+    const availableH = wrapH - dowH - spH - agendaH;
+    const cellHeight = Math.max(12, Math.floor(availableH / rows));
     
     grid.style.gridTemplateRows = `repeat(${rows}, ${cellHeight}px)`;
     
-    fillCalendarEvents();
+    fillCalendarEvents(cellHeight);
   }
 
   async function loadCalendar() {
