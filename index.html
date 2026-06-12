@@ -671,6 +671,7 @@
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     flex: 1;
+    min-height: 0;
     overflow: hidden;
     align-content: start;
   }
@@ -3159,11 +3160,18 @@
           html = `<div class="day-dots-row">${dots}</div>`;
         }
       } else {
-        // SM, MD, LG: Show event text adaptively
+        // Dynamic height calculation
+        const headerHeight = 34; // .cal-dn + margins + padding
+        const eventHeight = 18;  // .cal-ev height
+        const moreHeight = 14;   // .cal-more height
+        const remainingHeight = cellHeight - headerHeight;
+        
         let limit = 99;
-        if (cellHeight >= 55 && cellHeight < 80) limit = 1;
-        else if (cellHeight >= 80 && cellHeight < 110) limit = 2;
-        else if (cellHeight >= 110 && cellHeight < 140) limit = 3;
+        if (dayEvs.length * eventHeight > remainingHeight) {
+          // Subtract moreHeight to fit the "+X" indicator
+          limit = Math.floor((remainingHeight - moreHeight) / eventHeight);
+          if (limit < 1) limit = 1;
+        }
         
         const visible = dayEvs.slice(0, limit);
         html += visible.map(e => e._isT
@@ -3181,17 +3189,31 @@
 
   function fitCal() {
     if (window.innerWidth < 768) return;
+    const wrap = document.querySelector('.cal-grid-wrap');
+    const dow = document.getElementById('cal-dow');
     const grid = document.getElementById('cal-grid');
-    if (!grid) return;
+    const sp = document.getElementById('sp-cal-agenda');
+    const agenda = document.getElementById('cal-agenda-panel');
+    if (!wrap || !grid) return;
     
-    const h = grid.offsetHeight;
-    if (!h) return;
+    const wrapH = wrap.offsetHeight;
+    if (!wrapH) return;
+    
+    const dowH = dow ? dow.offsetHeight : 0;
+    const spH = sp ? sp.offsetHeight : 4;
+    const agendaH = agenda ? agenda.offsetHeight : 180;
+    
+    // Available height for grid is parent container minus dow height, splitter, and agenda panel
+    const availableH = wrapH - dowH - spH - agendaH - 6;
+    if (availableH <= 0) return;
     
     const cells = grid.querySelectorAll('.cal-day');
     if (!cells.length) return;
     
     const rows = Math.ceil(cells.length / 7);
-    grid.style.gridTemplateRows = `repeat(${rows}, ${Math.max(38, Math.floor(h / rows))}px)`;
+    const cellHeight = Math.max(38, Math.floor(availableH / rows));
+    
+    grid.style.gridTemplateRows = `repeat(${rows}, ${cellHeight}px)`;
     
     fillCalendarEvents();
   }
