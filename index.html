@@ -770,7 +770,7 @@
      ========================================================================== */
   .cal-agenda-panel {
     height: 180px;
-    border-top: 2px solid var(--bd);
+    border-top: none;
     background: var(--panel);
     display: flex;
     flex-direction: column;
@@ -1722,7 +1722,17 @@
     z-index: 100;
   }
 
-  .sp-v:hover, .sp-v.on, .sp-h:hover, .sp-h.on {
+  .sp-cal-h {
+    height: 4px;
+    flex-shrink: 0;
+    cursor: row-resize;
+    background: var(--bd);
+    position: relative;
+    transition: background 0.15s;
+    z-index: 100;
+  }
+
+  .sp-v:hover, .sp-v.on, .sp-h:hover, .sp-h.on, .sp-cal-h:hover, .sp-cal-h.on {
     background: var(--blue);
   }
 
@@ -1734,6 +1744,18 @@
     transform: translate(-50%, -50%);
     width: 2px;
     height: 24px;
+    border-radius: 2px;
+    background: rgba(128, 128, 128, 0.25);
+  }
+
+  .sp-cal-h::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 2px;
+    width: 24px;
     border-radius: 2px;
     background: rgba(128, 128, 128, 0.25);
   }
@@ -1976,6 +1998,17 @@
       display: none !important;
     }
   }
+
+  /* Reading Mode for Gmail (Hides list columns to expand reader) */
+  .gmail-wrap.reading .g-labels {
+    display: none !important;
+  }
+  .gmail-wrap.reading .g-list-col {
+    display: none !important;
+  }
+  .gmail-wrap.reading .r-back {
+    display: flex !important;
+  }
   </style>
 </head>
 <body>
@@ -2121,6 +2154,9 @@
         <div class="cal-grid-wrap">
           <div id="cal-dow" class="cal-dow-row"></div>
           <div class="cal-days" id="cal-grid"></div>
+          
+          <!-- Horizontal Splitter between calendar grid and agenda -->
+          <div class="sp-cal-h" id="sp-cal-agenda"></div>
           
           <!-- Modern Agenda/Schedule List -->
           <div class="cal-agenda-panel" id="cal-agenda-panel">
@@ -2486,6 +2522,46 @@
         document.body.style.userSelect = '';
         localStorage.setItem('sp-cw', cal.offsetWidth);
         localStorage.setItem('sp-gw', gm.offsetWidth);
+      });
+    }
+
+    // Horizontal Splitter between Calendar Grid and Agenda Panel
+    const spca = document.getElementById('sp-cal-agenda');
+    const agenda = document.getElementById('cal-agenda-panel');
+    
+    if (spca && agenda) {
+      const cachedHeight = localStorage.getItem('sp-agenda-h');
+      if (cachedHeight) {
+        agenda.style.height = cachedHeight + 'px';
+      }
+      
+      let drag = false, sy = 0, h0 = 0;
+      
+      spca.addEventListener('mousedown', e => {
+        e.preventDefault();
+        drag = true;
+        sy = e.clientY;
+        h0 = agenda.offsetHeight;
+        spca.classList.add('on');
+        document.body.style.cursor = 'row-resize';
+        document.body.style.userSelect = 'none';
+      });
+      
+      document.addEventListener('mousemove', e => {
+        if (!drag) return;
+        const dy = e.clientY - sy;
+        const newHeight = Math.max(80, Math.min(400, h0 - dy));
+        agenda.style.height = newHeight + 'px';
+        fitCal();
+      });
+      
+      document.addEventListener('mouseup', () => {
+        if (!drag) return;
+        drag = false;
+        spca.classList.remove('on');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        localStorage.setItem('sp-agenda-h', agenda.offsetHeight);
       });
     }
   }
