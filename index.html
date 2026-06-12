@@ -2637,6 +2637,37 @@
     return (yiq >= 150) ? '#1f2937' : '#ffffff';
   }
 
+  function compareEvents(a, b) {
+    const dateA = (a.start?.dateTime || a.start?.date || '').split('T')[0];
+    const dateB = (b.start?.dateTime || b.start?.date || '').split('T')[0];
+    if (dateA !== dateB) {
+      return dateA.localeCompare(dateB);
+    }
+    
+    // Priority order: 1: All-day regular events, 2: Tasks, 3: Timed events
+    const getPriority = (e) => {
+      if (e._isT) return 2;
+      if (e.start?.date) return 1;
+      return 3;
+    };
+    
+    const pA = getPriority(a);
+    const pB = getPriority(b);
+    if (pA !== pB) {
+      return pA - pB;
+    }
+    
+    if (pA === 3) {
+      const timeA = a.start?.dateTime || '';
+      const timeB = b.start?.dateTime || '';
+      return timeA.localeCompare(timeB);
+    }
+    
+    const sumA = a.summary || '';
+    const sumB = b.summary || '';
+    return sumA.localeCompare(sumB);
+  }
+
   function loading(id, text) {
     const el = document.getElementById(id);
     if (el) {
@@ -3284,7 +3315,7 @@
         }
       }
       
-      calEvs.sort((a, b) => (a.start?.dateTime || a.start?.date || '').localeCompare(b.start?.dateTime || b.start?.date || ''));
+      calEvs.sort(compareEvents);
       renderCalGrid();
     } catch (err) {
       console.error(err);
@@ -3312,7 +3343,7 @@
       return dateStr >= todayStr;
     });
     
-    upcoming.sort((a, b) => (a.start?.dateTime || a.start?.date || '').localeCompare(b.start?.dateTime || b.start?.date || ''));
+    upcoming.sort(compareEvents);
     
     if (upcoming.length === 0) {
       agendaListEl.innerHTML = `
