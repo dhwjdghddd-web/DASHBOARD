@@ -2345,6 +2345,7 @@
   let pEvs = [];
   let _efi = -1;
   let _efCal = 'primary';
+  let _efOrigCal = 'primary';
   let _efEvId = null;
   let _efColor = '';
   let _pollTimer = null;
@@ -3451,6 +3452,7 @@
     const allDay = isEdit ? !ev?.start?.dateTime : true;
     
     _efCal = isEdit ? (ev?._calId || 'primary') : (calList[0]?.id || 'primary');
+    _efOrigCal = _efCal;
     _efEvId = isEdit ? ev?.id : null;
     _efColor = isEdit ? (ev?.colorId || '') : '';
     
@@ -3460,8 +3462,9 @@
     const loc = isEdit ? (ev?.location || '') : '';
     const desc = isEdit ? (ev?.description || '') : '';
     
-    const curCal = calList.find(c => c.id === _efCal) || calList[0] || { backgroundColor: '#2563eb', summary: '기본 캘린더' };
-    const calOpts = calList.map(c => `
+    const writeCals = calList.filter(c => c.accessRole === 'writer' || c.accessRole === 'owner' || c.id === 'primary');
+    const curCal = writeCals.find(c => c.id === _efCal) || writeCals[0] || { backgroundColor: '#2563eb', summary: '기본 캘린더' };
+    const calOpts = writeCals.map(c => `
       <div class="ev-cal-opt" onclick="event.stopPropagation();selEfCal('${ea(c.id)}','${ea(c.summary)}','${c.backgroundColor || '#2563eb'}')">
         <span class="ev-cdot" style="background:${c.backgroundColor || '#2563eb'}"></span>
         <span>${esc(c.summary)}</span>
@@ -3528,25 +3531,15 @@
             <span style="font-size:12px;color:var(--t3)">분 전</span>
           </div>
         </div>
-        ${isEdit ? `
-          <div class="ef-sect" style="position:relative">
-            <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:4px">📅 캘린더 (수정 불가)</div>
-            <div class="ev-cal-btn" style="background:var(--hover);cursor:default;opacity:0.8">
-              <span class="ev-cdot" style="background:${curCal.backgroundColor || '#2563eb'}"></span>
-              <span style="font-size:12.5px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(curCal.summary || '기본')}</span>
-            </div>
+        <div class="ef-sect" style="position:relative">
+          <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:4px">${isEdit ? '📅 캘린더 변경' : '📅 캘린더 선택'}</div>
+          <div class="ev-cal-btn" onclick="event.stopPropagation();togEfCal()">
+            <span class="ev-cdot" id="ef-cdot" style="background:${curCal.backgroundColor || '#2563eb'}"></span>
+            <span id="ef-cname" style="font-size:12.5px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(curCal.summary || '기본')}</span>
+            <span style="font-size:10px;color:var(--t3)">▼</span>
           </div>
-        ` : `
-          <div class="ef-sect" style="position:relative">
-            <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:4px">📅 캘린더 선택</div>
-            <div class="ev-cal-btn" onclick="event.stopPropagation();togEfCal()">
-              <span class="ev-cdot" id="ef-cdot" style="background:${curCal.backgroundColor || '#2563eb'}"></span>
-              <span id="ef-cname" style="font-size:12.5px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(curCal.summary || '기본')}</span>
-              <span style="font-size:10px;color:var(--t3)">▼</span>
-            </div>
-            <div class="ev-cal-list" id="ef-clist">${calOpts}</div>
-          </div>
-        `}
+          <div class="ev-cal-list" id="ef-clist">${calOpts}</div>
+        </div>
         <div class="ef-sect">
           <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:6px">🎨 이벤트 색상</div>
           <div class="ev-chips">${chips}</div>
@@ -3635,16 +3628,24 @@
     const nmin = parseInt(document.getElementById('ef-nmin')?.value || '10');
     
     const body = { summary: title };
-    if (location) body.location = location;
-    if (description) body.description = description;
     if (_efColor) body.colorId = _efColor;
     
+    body.location = location || '';
+    body.description = description || '';
     if (gs) {
       body.attendees = gs.split(',').map(g => ({ email: g.trim() })).filter(g => g.email.includes('@'));
+    } else {
+      body.attendees = [];
     }
-    if (rep) body.recurrence = [rep];
+    if (rep) {
+      body.recurrence = [rep];
+    } else {
+      body.recurrence = null;
+    }
     if (!isNaN(nmin)) {
       body.reminders = { useDefault: false, overrides: [{ method: nm, minutes: nmin }] };
+    } else {
+      body.reminders = { useDefault: true };
     }
     
     if (ad) {
@@ -3667,9 +3668,28 @@
     }
     
     try {
-      const ce = encodeURIComponent(_efCal || 'primary');
+      let activeEvId = _efEvId;
+      let activeCal = _efCal || 'primary';
+      
+      if (isEdit && _efOrigCal && _efOrigCal !== activeCal) {
+        const moveUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(_efOrigCal)}/events/${encodeURIComponent(activeEvId)}/move?destination=${encodeURIComponent(activeCal)}`;
+        const rMove = await fetch(moveUrl, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${AT}`
+          }
+        });
+        if (!rMove.ok) {
+          const text = await rMove.text();
+          throw new Error('캘린더 이동 실패: ' + rMove.status + ' - ' + text);
+        }
+        const movedEv = await rMove.json();
+        activeEvId = movedEv.id;
+      }
+      
+      const ce = encodeURIComponent(activeCal);
       const url = isEdit 
-        ? `https://www.googleapis.com/calendar/v3/calendars/${ce}/events/${encodeURIComponent(_efEvId)}`
+        ? `https://www.googleapis.com/calendar/v3/calendars/${ce}/events/${encodeURIComponent(activeEvId)}`
         : `https://www.googleapis.com/calendar/v3/calendars/${ce}/events`;
         
       const r = await fetch(url, {
