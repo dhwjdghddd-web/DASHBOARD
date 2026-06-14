@@ -159,9 +159,9 @@
   }
 
   .hd-title {
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
   }
 
   .hd-date {
@@ -328,9 +328,10 @@
   }
 
   .ph-title .lbl {
-    font-weight: 700;
-    font-size: 14px;
+    font-weight: 600;
+    font-size: 15px;
     color: var(--t1);
+    letter-spacing: -0.2px;
   }
 
   .ph-title i {
@@ -542,7 +543,7 @@
   }
 
   .t-txt {
-    font-size: 13px;
+    font-size: 13.5px;
     line-height: 1.4;
     color: var(--t1);
     font-weight: 500;
@@ -840,15 +841,15 @@
   }
 
   .agenda-time {
-    font-size: 11px;
-    font-weight: 700;
+    font-size: 11.5px;
+    font-weight: 600;
     color: var(--t2);
     min-width: 80px;
   }
 
   .agenda-title {
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 500;
     color: var(--t1);
     flex: 1;
     white-space: nowrap;
@@ -1539,7 +1540,7 @@
   }
 
   .e-from {
-    font-size: 12.5px;
+    font-size: 13px;
     color: var(--t1);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1558,7 +1559,7 @@
   }
 
   .e-subj {
-    font-size: 12.5px;
+    font-size: 13px;
     color: var(--t1);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1570,7 +1571,7 @@
   }
 
   .e-snip {
-    font-size: 11px;
+    font-size: 11.5px;
     color: var(--t3);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -2020,7 +2021,7 @@
     }
   }
 
-  /* Reading Mode for Gmail (Hides list columns to expand reader) */
+  /* Reading Mode for Gmail */
   .gmail-wrap.reading .g-labels {
     display: none !important;
   }
@@ -2061,7 +2062,7 @@
   <!-- APP CONTAINER -->
   <div class="body">
     
-    <!-- SIDEBAR: TASKS (Desktop & Tablet) -->
+    <!-- SIDEBAR: TASKS -->
     <aside class="sidebar">
       <div class="ph th-t">
         <div class="ph-title">
@@ -2282,7 +2283,7 @@
     </main>
   </div>
 
-  <!-- BOTTOM NAVIGATION -->
+  <!-- BOTTOM NAVIGATION (Mobile only) -->
   <nav class="bnav">
     <div class="bnav-inner">
       <button class="bnav-btn" onclick="mNav('tasks',this)"><i data-lucide="check-square" class="bnav-ic"></i><span>태스크</span></button>
@@ -2729,7 +2730,6 @@
   /* ==========================================================================
      AUTH.JS - GOOGLE IDENTITY SERVICES OAUTH & SESSION PERSISTENCE
      ========================================================================== */
-
   function tryGoogle() {
     if (typeof google !== 'undefined' && google.accounts) {
       TC = google.accounts.oauth2.initTokenClient({
@@ -2738,11 +2738,8 @@
         callback: response => {
           if (!response.error) {
             AT = response.access_token;
-            
-            // Cache to sessionStorage for 1 hour
             sessionStorage.setItem('g_access_token', AT);
             sessionStorage.setItem('g_token_expires', String(Date.now() + 3600 * 1000));
-            
             onLogin();
           } else {
             showToast('❌ 로그인 오류: ' + response.error);
@@ -2827,7 +2824,6 @@
   /* ==========================================================================
      TASKS.JS - GOOGLE TASKS API MANAGEMENT
      ========================================================================== */
-
   function togTForm(s) {
     const form = document.getElementById('t-form-' + s);
     if (form) {
@@ -3027,7 +3023,6 @@
   /* ==========================================================================
      CALENDAR.JS - GOOGLE CALENDAR & AGENDA VIEW
      ========================================================================== */
-
   async function loadCalColors() {
     try {
       const [cols, list] = await Promise.all([
@@ -3212,7 +3207,6 @@
       
       let html = '';
       if (cellHeight < 55) {
-        // XS: Show dots only
         if (dayEvs.length > 0) {
           const dots = dayEvs.map(e => {
             const color = e._col || '#2563eb';
@@ -3221,15 +3215,13 @@
           html = `<div class="day-dots-row">${dots}</div>`;
         }
       } else {
-        // Dynamic height calculation
-        const headerHeight = 34; // .cal-dn + margins + padding
-        const eventHeight = 18;  // .cal-ev height
-        const moreHeight = 14;   // .cal-more height
+        const headerHeight = 34;
+        const eventHeight = 18;
+        const moreHeight = 14;
         const remainingHeight = cellHeight - headerHeight;
         
         let limit = 99;
         if (dayEvs.length * eventHeight > remainingHeight) {
-          // Subtract moreHeight to fit the "+X" indicator
           limit = Math.floor((remainingHeight - moreHeight) / eventHeight);
           if (limit < 1) limit = 1;
         }
@@ -3272,9 +3264,8 @@
     const cells = grid.querySelectorAll('.cal-day');
     if (!cells.length) return;
     const rows = Math.ceil(cells.length / 7);
-    const minGridH = rows * 12; // allow cell height down to 12px
+    const minGridH = rows * 12;
     
-    // Auto-shrink agenda height if container is too small to prevent layout cutoff
     if (wrapH - dowH - spH - agendaH < minGridH) {
       agendaH = Math.max(80, wrapH - dowH - spH - minGridH);
       if (agenda) agenda.style.height = agendaH + 'px';
@@ -3308,7 +3299,8 @@
               const ec = ECOLS.find(x => x.id === e.colorId);
               if (ec?.hex) col = ec.hex;
             }
-            calEvs.push({ ...e, _col: col, _cal: cal.summary, _calId: cal.id });
+            const writable = cal.accessRole === 'writer' || cal.accessRole === 'owner' || cal.id === 'primary';
+            calEvs.push({ ...e, _col: col, _cal: cal.summary, _calId: cal.id, _writable: writable });
           });
         } catch (err) {
           console.warn(`Failed loading events for calendar ${cal.id}:`, err);
@@ -3422,12 +3414,18 @@
           </div>
         ` : ''}
         <div class="ev-card-acts">
-          <button class="btn-ev" onclick="event.stopPropagation();showEF(${i})">
-            <i data-lucide="edit-3"></i><span>수정</span>
-          </button>
-          <button class="btn-ev del" onclick="event.stopPropagation();delEv(${i})">
-            <i data-lucide="trash-2"></i><span>삭제</span>
-          </button>
+          ${e._writable ? `
+            <button class="btn-ev" onclick="event.stopPropagation();showEF(${i})">
+              <i data-lucide="edit-3"></i><span>수정</span>
+            </button>
+            <button class="btn-ev del" onclick="event.stopPropagation();delEv(${i})">
+              <i data-lucide="trash-2"></i><span>삭제</span>
+            </button>
+          ` : `
+            <span style="font-size:11px;color:var(--t3);display:flex;align-items:center;gap:4px;padding:4px 0">
+              <i data-lucide="lock" style="width:12px;height:12px"></i>읽기 전용 일정
+            </span>
+          `}
         </div>
       </div>
     `).join('');
@@ -3474,7 +3472,7 @@
       const bg = c.hex || (curCal.backgroundColor || '#2563eb');
       const sel = c.id === _efColor;
       return `
-        <div class="ev-chip${sel ? ' sel' : ''}" onclick="event.stopPropagation();selEfColor('${c.id}',this)" title="${c.id ? '색상 ' + c.id : '캘린더 기본색'}" style="background:${bg};${!c.hex ? 'border:2px dashed var(--t3)' : ''}">
+        <div class="ev-chip${sel ? ' sel' : ''}" onclick="event.stopPropagation();selEfColor('${c.id}',this)" style="background:${bg};${!c.hex ? 'border:2px dashed var(--t3)' : ''}">
           ${sel ? '<span style="font-size:9px;color:#fff;font-weight:700">✓</span>' : ''}
         </div>
       `;
@@ -3530,15 +3528,25 @@
             <span style="font-size:12px;color:var(--t3)">분 전</span>
           </div>
         </div>
-        <div class="ef-sect" style="position:relative">
-          <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:4px">📅 캘린더 선택</div>
-          <div class="ev-cal-btn" onclick="event.stopPropagation();togEfCal()">
-            <span class="ev-cdot" id="ef-cdot" style="background:${curCal.backgroundColor || '#2563eb'}"></span>
-            <span id="ef-cname" style="font-size:12.5px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(curCal.summary || '기본')}</span>
-            <span style="font-size:10px;color:var(--t3)">▼</span>
+        ${isEdit ? `
+          <div class="ef-sect" style="position:relative">
+            <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:4px">📅 캘린더 (수정 불가)</div>
+            <div class="ev-cal-btn" style="background:var(--hover);cursor:default;opacity:0.8">
+              <span class="ev-cdot" style="background:${curCal.backgroundColor || '#2563eb'}"></span>
+              <span style="font-size:12.5px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(curCal.summary || '기본')}</span>
+            </div>
           </div>
-          <div class="ev-cal-list" id="ef-clist">${calOpts}</div>
-        </div>
+        ` : `
+          <div class="ef-sect" style="position:relative">
+            <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:4px">📅 캘린더 선택</div>
+            <div class="ev-cal-btn" onclick="event.stopPropagation();togEfCal()">
+              <span class="ev-cdot" id="ef-cdot" style="background:${curCal.backgroundColor || '#2563eb'}"></span>
+              <span id="ef-cname" style="font-size:12.5px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(curCal.summary || '기본')}</span>
+              <span style="font-size:10px;color:var(--t3)">▼</span>
+            </div>
+            <div class="ev-cal-list" id="ef-clist">${calOpts}</div>
+          </div>
+        `}
         <div class="ef-sect">
           <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:6px">🎨 이벤트 색상</div>
           <div class="ev-chips">${chips}</div>
@@ -3721,7 +3729,6 @@
   /* ==========================================================================
      GMAIL.JS - GOOGLE GMAIL CLIENT WITH SECURITY SANITIZATION
      ========================================================================== */
-
   async function selLabel(lbl, el) {
     document.querySelectorAll('.glbl').forEach(g => g.classList.remove('on'));
     el.classList.add('on');
