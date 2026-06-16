@@ -4029,10 +4029,10 @@
       
       const rawBody = getBody(full.payload) || '<p style="padding:16px;color:#999">본문 없음</p>';
       
-      const sanitizedBody = DOMPurify.sanitize(rawBody, {
-        ADD_ATTR: ['target'],
-        FORCE_BODY: true
-      });
+      // DOMPurify 로딩 지연에 대비한 방어 코드
+      const sanitizedBody = (typeof DOMPurify !== 'undefined') 
+        ? DOMPurify.sanitize(rawBody, { ADD_ATTR: ['target'], FORCE_BODY: true }) 
+        : rawBody;
       
       const wrappedDocument = `
         <!DOCTYPE html>
@@ -4057,7 +4057,21 @@
         </html>
       `;
       
-      document.getElementById('r-frame').srcdoc = wrappedDocument;
+      // 브라우저의 iframe srcdoc 렌더링 버그(하얀 화면 굳음) 해결을 위해 iframe 엘리먼트를 새로 만듭니다.
+      const oldFrame = document.getElementById('r-frame');
+      if (oldFrame) {
+        const newFrame = document.createElement('iframe');
+        newFrame.className = 'r-frame';
+        newFrame.id = 'r-frame';
+        newFrame.sandbox = 'allow-popups allow-popups-to-escape-sandbox';
+        newFrame.srcdoc = wrappedDocument;
+        
+        const parent = oldFrame.parentNode;
+        if (parent) {
+          parent.replaceChild(newFrame, oldFrame);
+        }
+      }
+      
       document.getElementById('r-ph').style.display = 'none';
       
       const contentWrap = document.getElementById('r-content');
