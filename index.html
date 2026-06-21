@@ -2355,6 +2355,7 @@
   let _efOrigCal = 'primary';
   let _efEvId = null;
   let _efColor = '';
+  let currentUserEmail = '';
   let _pollTimer = null;
   let _lastInboxUnread = 0;
 
@@ -2843,7 +2844,10 @@
         _refreshingPromise = null;
       };
       
-      TC.requestAccessToken({ prompt: '' }); // silent refresh without popup
+      const email = sessionStorage.getItem('g_user_email') || currentUserEmail;
+      const opts = { prompt: '' };
+      if (email) opts.hint = email;
+      TC.requestAccessToken(opts); // silent refresh with email hint
     });
 
     return _refreshingPromise;
@@ -2942,8 +2946,22 @@
     loadAll();
   }
 
+  async function fetchUserEmail() {
+    try {
+      const profile = await req('https://gmail.googleapis.com/gmail/v1/users/me/profile');
+      if (profile && profile.emailAddress) {
+        currentUserEmail = profile.emailAddress;
+        sessionStorage.setItem('g_user_email', currentUserEmail);
+        console.log('Logged in user:', currentUserEmail);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch user email:', err);
+    }
+  }
+
   async function loadAll() {
     try {
+      await fetchUserEmail(); // Fetch user email for refresh hint
       await loadCalColors();
       loadTasks();
       loadCalendar();
