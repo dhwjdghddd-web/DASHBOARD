@@ -2845,9 +2845,9 @@
       };
       
       const email = sessionStorage.getItem('g_user_email') || currentUserEmail;
-      const opts = { prompt: '' };
-      if (email) opts.hint = email;
-      TC.requestAccessToken(opts); // silent refresh with email hint
+      const opts = { prompt: 'none' };
+      if (email) opts.login_hint = email;
+      TC.requestAccessToken(opts); // silent refresh with email login_hint
     });
 
     return _refreshingPromise;
