@@ -258,6 +258,13 @@
     padding: 4px 10px;
     border-radius: 99px;
   }
+  .tag-connection.disconnected {
+    color: var(--red);
+    background: rgba(239, 68, 68, 0.1);
+  }
+  .tag-connection.disconnected .conn-dot {
+    background: var(--red);
+  }
 
   .conn-dot {
     width: 6px;
@@ -2351,6 +2358,27 @@
   let _pollTimer = null;
   let _lastInboxUnread = 0;
 
+  // Intercept all fetch requests globally to handle 401 errors & network loss
+  const _origFetch = window.fetch;
+  window.fetch = async function (...args) {
+    try {
+      const res = await _origFetch(...args);
+      if (res.status === 401) {
+        const urlStr = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+        if (urlStr.includes('googleapis.com') && typeof _refreshingPromise !== 'undefined' && !_refreshingPromise) {
+          console.warn('Detected expired Google API token via global fetch interceptor.');
+          if (typeof onLogout === 'function') onLogout();
+        }
+      }
+      return res;
+    } catch (err) {
+      if (!navigator.onLine && typeof updateOnlineStatus === 'function') {
+        updateOnlineStatus();
+      }
+      throw err;
+    }
+  };
+
   // Initialize on Load
   window.addEventListener('load', () => {
     initDark();
@@ -2366,21 +2394,23 @@
     const cachedToken = sessionStorage.getItem('g_access_token');
     const tokenExpires = sessionStorage.getItem('g_token_expires');
     
-    if (cachedToken && tokenExpires && Date.now() < parseInt(tokenExpires)) {
-      AT = cachedToken;
-      
-      // Set auto timeout notifier
-      const timeLeft = parseInt(tokenExpires) - Date.now();
-      setTimeout(() => {
-        showToast('⚠️ Google 인증 세션이 만료되었습니다. 다시 로그인해주세요.');
-        const btnReauth = document.getElementById('btn-reauth');
-        if (btnReauth) btnReauth.style.display = '';
-      }, timeLeft);
-      
-      tryGoogle(); // init GSI client in background
-      onLogin();
-    } else {
-      tryGoogle();
+    tryGoogle();
+    
+    if (cachedToken && tokenExpires) {
+      if (Date.now() < parseInt(tokenExpires)) {
+        AT = cachedToken;
+        onLogin();
+      } else {
+        setTimeout(async () => {
+          try {
+            console.log('Recovering expired session by auto-refresh...');
+            await refreshAccessToken();
+          } catch (err) {
+            console.warn('Auto session recovery failed:', err);
+            onLogout();
+          }
+        }, 500);
+      }
     }
     
     // Layout Init
@@ -2393,6 +2423,11 @@
     
     // Lucide Icons Render
     lucide.createIcons();
+    
+    // Online/Offline event handling
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
   });
 
   // Window Resize adjustment
@@ -2604,7 +2639,10 @@
 
   /* ── SHARED UTILITIES ── */
   async function req(url, opt = {}) {
-    const r = await fetch(url, {
+    if (!AT) {
+      throw new Error('No access token available');
+    }
+    let r = await fetch(url, {
       ...opt,
       headers: {
         Authorization: `Bearer ${AT}`,
@@ -2612,6 +2650,26 @@
         ...(opt.headers || {})
       }
     });
+    
+    if (r.status === 401) {
+      try {
+        console.log('Access token expired. Refreshing token...');
+        const newAT = await refreshAccessToken();
+        r = await fetch(url, {
+          ...opt,
+          headers: {
+            Authorization: `Bearer ${newAT}`,
+            'Content-Type': 'application/json',
+            ...(opt.headers || {})
+          }
+        });
+      } catch (err) {
+        console.error('Failed to auto-refresh token:', err);
+        onLogout();
+        throw new Error('401 (Authentication failed)');
+      }
+    }
+    
     if (r.status === 204) return {};
     if (!r.ok) throw new Error(r.status);
     return r.json();
@@ -2731,6 +2789,112 @@
   /* ==========================================================================
      AUTH.JS - GOOGLE IDENTITY SERVICES OAUTH & SESSION PERSISTENCE
      ========================================================================== */
+  /* ==========================================================================
+     AUTH.JS - GOOGLE IDENTITY SERVICES OAUTH & SESSION PERSISTENCE
+     ========================================================================== */
+  let _refreshTimer = null;
+  let _refreshingPromise = null;
+
+  function scheduleTokenRefresh() {
+    if (_refreshTimer) clearTimeout(_refreshTimer);
+    
+    const tokenExpires = sessionStorage.getItem('g_token_expires');
+    if (!tokenExpires) return;
+    
+    const timeLeft = parseInt(tokenExpires) - Date.now();
+    const refreshDelay = Math.max(0, timeLeft - 5 * 60 * 1000); // 5 minutes before expiration
+    
+    console.log(`Token refresh scheduled in ${(refreshDelay / 1000 / 60).toFixed(1)} minutes`);
+    
+    _refreshTimer = setTimeout(async () => {
+      try {
+        console.log('Proactively refreshing access token...');
+        await refreshAccessToken();
+      } catch (err) {
+        console.warn('Failed proactive token refresh:', err);
+        _refreshTimer = setTimeout(scheduleTokenRefresh, 30000);
+      }
+    }, refreshDelay);
+  }
+
+  function refreshAccessToken() {
+    if (_refreshingPromise) return _refreshingPromise;
+
+    _refreshingPromise = new Promise((resolve, reject) => {
+      if (!TC) {
+        reject(new Error('Google Client가 준비되지 않았습니다.'));
+        return;
+      }
+      
+      const originalCallback = TC.callback;
+      
+      TC.callback = (response) => {
+        if (response && !response.error) {
+          AT = response.access_token;
+          sessionStorage.setItem('g_access_token', AT);
+          sessionStorage.setItem('g_token_expires', String(Date.now() + 3600 * 1000));
+          onLogin();
+          resolve(AT);
+        } else {
+          onLogout();
+          reject(new Error(response?.error || '토큰 갱신 실패'));
+        }
+        TC.callback = originalCallback;
+        _refreshingPromise = null;
+      };
+      
+      TC.requestAccessToken({ prompt: '' }); // silent refresh without popup
+    });
+
+    return _refreshingPromise;
+  }
+
+  function onLogout() {
+    AT = null;
+    sessionStorage.removeItem('g_access_token');
+    sessionStorage.removeItem('g_token_expires');
+    stopPoll();
+    if (_refreshTimer) {
+      clearTimeout(_refreshTimer);
+      _refreshTimer = null;
+    }
+    
+    const btnLogin = document.getElementById('btn-login');
+    if (btnLogin) btnLogin.style.display = 'flex';
+    
+    const tagConn = document.getElementById('tag-conn');
+    if (tagConn) tagConn.style.display = 'none';
+    
+    const btnRef = document.getElementById('btn-ref');
+    if (btnRef) btnRef.style.display = 'none';
+    
+    const btnReauth = document.getElementById('btn-reauth');
+    if (btnReauth) btnReauth.style.display = 'none';
+    
+    showToast('⚠️ Google 로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
+    updateOnlineStatus();
+  }
+
+  function updateOnlineStatus() {
+    const conn = document.getElementById('tag-conn');
+    if (!conn) return;
+    
+    if (!AT) {
+      conn.style.display = 'none';
+      return;
+    }
+    
+    conn.style.display = 'flex';
+    if (navigator.onLine) {
+      conn.classList.remove('disconnected');
+      conn.innerHTML = '<span class="conn-dot"></span>연결됨';
+    } else {
+      conn.classList.add('disconnected');
+      conn.innerHTML = '<span class="conn-dot"></span>연결 끊김';
+      showToast('⚠️ 네트워크 연결이 끊어졌습니다. 오프라인 상태입니다.');
+    }
+  }
+
   function tryGoogle() {
     if (typeof google !== 'undefined' && google.accounts) {
       TC = google.accounts.oauth2.initTokenClient({
@@ -2773,6 +2937,8 @@
     const btnReauth = document.getElementById('btn-reauth');
     if (btnReauth) btnReauth.style.display = 'none';
     
+    scheduleTokenRefresh();
+    updateOnlineStatus();
     loadAll();
   }
 
