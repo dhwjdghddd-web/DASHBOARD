@@ -2330,7 +2330,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.0.2</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.0.3</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -3197,46 +3197,104 @@
      ========================================================================== */
   let contactsList = [];
 
+  function parseEmailHeader(val) {
+    if (!val) return [];
+    const contacts = [];
+    // Split by comma not inside quotes
+    const parts = val.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+    parts.forEach(p => {
+      p = p.trim();
+      if (!p) return;
+      
+      const match = p.match(/^(.*?)\s*<([^>]+)>$/) || p.match(/^<([^>]+)>$/);
+      if (match) {
+        let name = match[1] ? match[1].trim() : '';
+        const email = (match[2] || match[0]).trim();
+        name = name.replace(/^["']|["']$/g, '').trim();
+        contacts.push({ name, email });
+      } else {
+        if (p.includes('@')) {
+          contacts.push({ name: '', email: p });
+        }
+      }
+    });
+    return contacts;
+  }
+
   async function loadContacts() {
     if (!AT) return;
+    const map = new Map();
+
+    // 1. Regular Contacts (People API)
     try {
-      // 1. Regular Contacts
       const res1 = await req('https://people.googleapis.com/v1/people/me/connections?personFields=names,emailAddresses&pageSize=1000');
       const connections = (res1.connections || []).map(person => {
         const name = person.names?.[0]?.displayName || '';
         const email = person.emailAddresses?.[0]?.value || '';
         return { name, email };
       }).filter(c => c.email);
-      
-      // 2. Other Contacts (People sent/received emails to)
-      let otherContacts = [];
-      try {
-        const res2 = await req('https://people.googleapis.com/v1/otherContacts?readMask=names,emailAddresses&pageSize=1000');
-        otherContacts = (res2.otherContacts || []).map(person => {
-          const name = person.names?.[0]?.displayName || '';
-          const email = person.emailAddresses?.[0]?.value || '';
-          return { name, email };
-        }).filter(c => c.email);
-      } catch (errOther) {
-        console.warn('Failed loading otherContacts (fallback to connections only):', errOther);
-      }
-      
-      // 3. De-duplicate and merge
-      const map = new Map();
       connections.forEach(c => map.set(c.email.toLowerCase(), c));
+      console.log('Loaded regular contacts:', connections.length);
+    } catch (err1) {
+      console.warn('Failed loading regular contacts:', err1);
+    }
+
+    // 2. Other Contacts (People API)
+    try {
+      const res2 = await req('https://people.googleapis.com/v1/otherContacts?readMask=names,emailAddresses&pageSize=1000');
+      const otherContacts = (res2.otherContacts || []).map(person => {
+        const name = person.names?.[0]?.displayName || '';
+        const email = person.emailAddresses?.[0]?.value || '';
+        return { name, email };
+      }).filter(c => c.email);
       otherContacts.forEach(c => {
         const key = c.email.toLowerCase();
         if (!map.has(key)) {
           map.set(key, c);
         }
       });
-      
-      contactsList = Array.from(map.values());
-      console.log('Loaded combined contacts:', contactsList.length);
-    } catch (err) {
-      console.warn('Failed loading contacts:', err);
-      showToast('⚠️ 구글 주소록 동의가 필요합니다. 상단 [재인증]을 눌러주세요.');
+      console.log('Loaded other contacts:', otherContacts.length);
+    } catch (errOther) {
+      console.warn('Failed loading otherContacts:', errOther);
     }
+
+    // 3. Fallback/Hybrid: Fetch emails from Gmail to parse sent/received contacts
+    try {
+      const gmailRes = await req('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=30');
+      if (gmailRes.messages && gmailRes.messages.length > 0) {
+        const msgDetails = await Promise.all(
+          gmailRes.messages.map(m => 
+            req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=To`).catch(() => null)
+          )
+        );
+        
+        let gmailContactsCount = 0;
+        msgDetails.forEach(msg => {
+          if (!msg || !msg.payload || !msg.payload.headers) return;
+          msg.payload.headers.forEach(h => {
+            const name = h.name.toLowerCase();
+            if (name === 'from' || name === 'to') {
+              const parsed = parseEmailHeader(h.value);
+              parsed.forEach(contact => {
+                if (contact.email) {
+                  const key = contact.email.toLowerCase();
+                  if (!map.has(key)) {
+                    map.set(key, contact);
+                    gmailContactsCount++;
+                  }
+                }
+              });
+            }
+          });
+        });
+        console.log('Extracted unique contacts from recent Gmail messages:', gmailContactsCount);
+      }
+    } catch (errGmail) {
+      console.warn('Failed extracting contacts from Gmail messages:', errGmail);
+    }
+
+    contactsList = Array.from(map.values());
+    console.log('Loaded combined contacts total:', contactsList.length);
   }
 
   function handleComposeAC(val) {
@@ -3250,8 +3308,8 @@
     }
     
     const matches = contactsList.filter(c => 
-      c.name.toLowerCase().includes(query) || 
-      c.email.toLowerCase().includes(query)
+      (c.name || '').toLowerCase().includes(query) || 
+      (c.email || '').toLowerCase().includes(query)
     ).slice(0, 10);
     
     if (matches.length === 0) {
@@ -3543,7 +3601,7 @@
   async function loadAll() {
     try {
       await fetchUserEmail(); // Fetch user email for refresh hint
-      await loadContacts(); // Load contacts for autocomplete
+      loadContacts(); // Load contacts for autocomplete asynchronously in the background
       await loadCalColors();
       loadTasks();
       loadCalendar();
