@@ -2330,7 +2330,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title">Google Dashboard</span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.0.1</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -2608,7 +2608,7 @@
 
   // Google OAuth Constants
   const CID = '809713924882-6h063f11qhltjkv3n4l209caa53eoim8.apps.googleusercontent.com';
-  const SCOPES = 'https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/calendar.events https://mail.google.com/ https://www.googleapis.com/auth/contacts.readonly';
+  const SCOPES = 'https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/calendar.events https://mail.google.com/ https://www.googleapis.com/auth/contacts.readonly https://www.googleapis.com/auth/contacts.other.readonly';
 
   // Style Colors
   const AVCOLS = ['#EA4335', '#4285F4', '#34A853', '#FBBC04', '#9C27B0', '#FF6D00'];
@@ -3194,13 +3194,39 @@
   async function loadContacts() {
     if (!AT) return;
     try {
-      const data = await req('https://people.googleapis.com/v1/people/me/connections?personFields=names,emailAddresses&pageSize=1000');
-      contactsList = (data.connections || []).map(person => {
+      // 1. Regular Contacts
+      const res1 = await req('https://people.googleapis.com/v1/people/me/connections?personFields=names,emailAddresses&pageSize=1000');
+      const connections = (res1.connections || []).map(person => {
         const name = person.names?.[0]?.displayName || '';
         const email = person.emailAddresses?.[0]?.value || '';
         return { name, email };
       }).filter(c => c.email);
-      console.log('Loaded contacts:', contactsList.length);
+      
+      // 2. Other Contacts (People sent/received emails to)
+      let otherContacts = [];
+      try {
+        const res2 = await req('https://people.googleapis.com/v1/otherContacts?readMask=names,emailAddresses&pageSize=1000');
+        otherContacts = (res2.otherContacts || []).map(person => {
+          const name = person.names?.[0]?.displayName || '';
+          const email = person.emailAddresses?.[0]?.value || '';
+          return { name, email };
+        }).filter(c => c.email);
+      } catch (errOther) {
+        console.warn('Failed loading otherContacts (fallback to connections only):', errOther);
+      }
+      
+      // 3. De-duplicate and merge
+      const map = new Map();
+      connections.forEach(c => map.set(c.email.toLowerCase(), c));
+      otherContacts.forEach(c => {
+        const key = c.email.toLowerCase();
+        if (!map.has(key)) {
+          map.set(key, c);
+        }
+      });
+      
+      contactsList = Array.from(map.values());
+      console.log('Loaded combined contacts:', contactsList.length);
     } catch (err) {
       console.warn('Failed loading contacts:', err);
     }
