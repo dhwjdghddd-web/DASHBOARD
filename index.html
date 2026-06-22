@@ -3834,8 +3834,8 @@
     
     if (ad) {
       const dt = document.getElementById('ef-dt')?.value || pDay;
-      body.start = { date: dt };
-      body.end = { date: dt };
+      body.start = { date: dt, dateTime: null };
+      body.end = { date: dt, dateTime: null };
     } else {
       const sv = document.getElementById('ef-st')?.value;
       const ev = document.getElementById('ef-et')?.value;
@@ -3847,8 +3847,8 @@
         alert('종료 시간이 시작 시간보다 늦어야 합니다.');
         return;
       }
-      body.start = { dateTime: new Date(sv).toISOString(), timeZone: tz };
-      body.end = { dateTime: new Date(ev).toISOString(), timeZone: tz };
+      body.start = { dateTime: new Date(sv).toISOString(), timeZone: tz, date: null };
+      body.end = { dateTime: new Date(ev).toISOString(), timeZone: tz, date: null };
     }
     
     try {
