@@ -2150,11 +2150,48 @@
     overflow: hidden;
   }
   .comp-field {
+    position: relative;
     display: flex;
     align-items: center;
     border-bottom: 1px solid var(--bd);
     padding: 8px 16px;
     gap: 12px;
+  }
+  
+  /* Autocomplete List */
+  .comp-ac-list {
+    position: absolute;
+    top: 100%;
+    left: 76px;
+    right: 16px;
+    background: var(--panel);
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-lg);
+    max-height: 160px;
+    overflow-y: auto;
+    z-index: 1200;
+    display: none;
+  }
+  .comp-ac-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--t1);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: background 0.15s;
+  }
+  .comp-ac-item:hover {
+    background: var(--hover);
+  }
+  .comp-ac-name {
+    font-weight: 600;
+  }
+  .comp-ac-email {
+    color: var(--t3);
+    font-size: 11px;
   }
   .comp-lbl {
     font-size: 12px;
@@ -2571,7 +2608,7 @@
 
   // Google OAuth Constants
   const CID = '809713924882-6h063f11qhltjkv3n4l209caa53eoim8.apps.googleusercontent.com';
-  const SCOPES = 'https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/calendar.events https://mail.google.com/';
+  const SCOPES = 'https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/calendar.events https://mail.google.com/ https://www.googleapis.com/auth/contacts.readonly';
 
   // Style Colors
   const AVCOLS = ['#EA4335', '#4285F4', '#34A853', '#FBBC04', '#9C27B0', '#FF6D00'];
@@ -3152,6 +3189,70 @@
   /* ==========================================================================
      GMAIL COMPOSE & ATTACHMENT COMPONENT
      ========================================================================== */
+  let contactsList = [];
+
+  async function loadContacts() {
+    if (!AT) return;
+    try {
+      const data = await req('https://people.googleapis.com/v1/people/me/connections?personFields=names,emailAddresses&pageSize=1000');
+      contactsList = (data.connections || []).map(person => {
+        const name = person.names?.[0]?.displayName || '';
+        const email = person.emailAddresses?.[0]?.value || '';
+        return { name, email };
+      }).filter(c => c.email);
+      console.log('Loaded contacts:', contactsList.length);
+    } catch (err) {
+      console.warn('Failed loading contacts:', err);
+    }
+  }
+
+  function handleComposeAC(val) {
+    const acList = document.getElementById('comp-ac-list');
+    if (!acList) return;
+    
+    const query = val.trim().toLowerCase();
+    if (!query) {
+      acList.style.display = 'none';
+      return;
+    }
+    
+    const matches = contactsList.filter(c => 
+      c.name.toLowerCase().includes(query) || 
+      c.email.toLowerCase().includes(query)
+    ).slice(0, 10);
+    
+    if (matches.length === 0) {
+      acList.style.display = 'none';
+      return;
+    }
+    
+    acList.style.display = 'block';
+    acList.innerHTML = matches.map(c => `
+      <div class="comp-ac-item" onclick="selectComposeAC('${ea(c.email)}')">
+        <span class="comp-ac-name">${esc(c.name || '(이름 없음)')}</span>
+        <span class="comp-ac-email">${esc(c.email)}</span>
+      </div>
+    `).join('');
+  }
+
+  function selectComposeAC(email) {
+    const toInput = document.getElementById('comp-to');
+    if (toInput) {
+      toInput.value = email;
+    }
+    const acList = document.getElementById('comp-ac-list');
+    if (acList) {
+      acList.style.display = 'none';
+    }
+  }
+
+  document.addEventListener('click', e => {
+    const acList = document.getElementById('comp-ac-list');
+    if (acList && !e.target.closest('.comp-field')) {
+      acList.style.display = 'none';
+    }
+  });
+
   let composeFiles = [];
 
   function openCompose() {
@@ -3408,6 +3509,7 @@
   async function loadAll() {
     try {
       await fetchUserEmail(); // Fetch user email for refresh hint
+      await loadContacts(); // Load contacts for autocomplete
       await loadCalColors();
       loadTasks();
       loadCalendar();
@@ -4997,7 +5099,8 @@
     <div class="comp-body">
       <div class="comp-field">
         <span class="comp-lbl">받는 사람</span>
-        <input type="text" class="comp-inp" id="comp-to" placeholder="이메일 주소..."/>
+        <input type="text" class="comp-inp" id="comp-to" placeholder="이메일 주소..." autocomplete="off" oninput="handleComposeAC(this.value)" onfocus="handleComposeAC(this.value)"/>
+        <div class="comp-ac-list" id="comp-ac-list"></div>
       </div>
       <div class="comp-field">
         <span class="comp-lbl">제목</span>
