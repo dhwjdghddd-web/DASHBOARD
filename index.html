@@ -2342,7 +2342,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.1.3</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.1.4</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -3042,6 +3042,18 @@
     return days;
   }
 
+  function titleSortKey(t) {
+    if (!t) return '2';
+    const ch = [...t][0];
+    let cat = '0';
+    if (/\p{Nd}/u.test(ch)) {
+      cat = '1';
+    } else if (/\p{L}/u.test(ch)) {
+      cat = '2';
+    }
+    return cat + t;
+  }
+
   function compareEvents(a, b) {
     const dateA = getEventDays(a)[0] || '';
     const dateB = getEventDays(b)[0] || '';
@@ -3049,53 +3061,52 @@
       return dateA.localeCompare(dateB);
     }
     
-    // Priority order: 1: All-day / Multi-day regular events, 2: Timed events, 3: Tasks
-    const getPriority = (e) => {
-      if (e.start?.date || getEventDays(e).length > 1) return 1;
-      if (e._isT) return 3;
-      return 2;
+    // Groups: 1: Multi-day, 2: 1-day all-day, 3: 1-day timed, 4: Tasks
+    const getGroup = (e) => {
+      if (e._isT) return 4;
+      const len = getEventDays(e).length;
+      if (len > 1) return 1;
+      if (e.start?.date) return 2;
+      return 3;
     };
     
-    const pA = getPriority(a);
-    const pB = getPriority(b);
-    if (pA !== pB) {
-      return pA - pB;
+    const gA = getGroup(a);
+    const gB = getGroup(b);
+    if (gA !== gB) {
+      return gA - gB;
     }
     
-    if (pA === 1) {
-      // Sort by duration (shorter first)
-      const durA = getEventDays(a).length;
-      const durB = getEventDays(b).length;
-      if (durA !== durB) return durA - durB;
+    if (gA === 1) {
+      // Same start date, both multi-day
+      // Sort all-day events first
+      const isAllDayA = !!a.start?.date;
+      const isAllDayB = !!b.start?.date;
+      if (isAllDayA !== isAllDayB) {
+        return isAllDayA ? -1 : 1;
+      }
     }
     
-    if (pA === 2) {
+    if (gA === 3) {
+      // Same start date, both timed
+      // Sort by actual start instant (dateTime)
       const timeA = a.start?.dateTime || '';
       const timeB = b.start?.dateTime || '';
-      if (timeA !== timeB) return timeA.localeCompare(timeB);
-    }
-    
-    // Tie-breaker 1: Calendar Sidebar list order (Primary/upper calendars first)
-    const getCalIndex = (e) => {
-      if (!e._calId) return 999;
-      const idx = calList.findIndex(c => c.id === e._calId);
-      if (idx >= 0) {
-        const cal = calList[idx];
-        if (cal.primary) return 0;
-        return idx + 1;
+      if (timeA !== timeB) {
+        return timeA < timeB ? -1 : 1;
       }
-      return 999;
-    };
-    const calIdxA = getCalIndex(a);
-    const calIdxB = getCalIndex(b);
-    if (calIdxA !== calIdxB) {
-      return calIdxA - calIdxB;
     }
     
-    // Tie-breaker 2: Summary (Alphabetical)
-    const sumA = a.summary || '';
-    const sumB = b.summary || '';
-    return sumA.localeCompare(sumB);
+    // Tie-breaker 1: Title Collation (Emoji/Symbol < Number < Letter)
+    const keyA = titleSortKey(a.summary || '');
+    const keyB = titleSortKey(b.summary || '');
+    if (keyA !== keyB) {
+      return keyA < keyB ? -1 : 1;
+    }
+    
+    // Tie-breaker 2: Event ID
+    const idA = a.id || '';
+    const idB = b.id || '';
+    return idA < idB ? -1 : (idA > idB ? 1 : 0);
   }
 
   function loading(id, text) {
