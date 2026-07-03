@@ -2342,7 +2342,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.1.0</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.1.1</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -3060,6 +3060,18 @@
     const pB = getPriority(b);
     if (pA !== pB) {
       return pA - pB;
+    }
+    
+    // Sort by Calendar Sidebar list order (Primary/upper calendars first)
+    const getCalIndex = (e) => {
+      if (!e._calId) return 999;
+      const idx = calList.findIndex(c => c.id === e._calId);
+      return idx >= 0 ? idx : 999;
+    };
+    const calIdxA = getCalIndex(a);
+    const calIdxB = getCalIndex(b);
+    if (calIdxA !== calIdxB) {
+      return calIdxA - calIdxB;
     }
     
     if (pA === 1) {
