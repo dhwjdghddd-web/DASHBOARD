@@ -2342,7 +2342,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.0.5</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.0.6</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -3036,8 +3036,8 @@
   }
 
   function compareEvents(a, b) {
-    const dateA = (a.start?.dateTime || a.start?.date || '').split('T')[0];
-    const dateB = (b.start?.dateTime || b.start?.date || '').split('T')[0];
+    const dateA = getEventDays(a)[0] || '';
+    const dateB = getEventDays(b)[0] || '';
     if (dateA !== dateB) {
       return dateA.localeCompare(dateB);
     }
@@ -4320,7 +4320,8 @@
       return;
     }
     
-    const todayStr = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     const upcoming = calEvs.filter(e => {
       const eDays = getEventDays(e);
       if (eDays.length === 0) return false;
@@ -4372,7 +4373,7 @@
 
   function showDay(ds) {
     pDay = ds;
-    pEvs = calEvs.filter(e => (e.start?.dateTime || e.start?.date || '').split('T')[0] === ds && !e._isT);
+    pEvs = calEvs.filter(e => getEventDays(e).includes(ds) && !e._isT);
     
     document.getElementById('ev-ph-ttl').textContent = new Date(ds + 'T00:00:00').toLocaleDateString('ko-KR', {
       month: 'long', day: 'numeric', weekday: 'long'
@@ -4703,7 +4704,7 @@
       }
       
       await loadCalendar();
-      pEvs = calEvs.filter(e => (e.start?.dateTime || e.start?.date || '').split('T')[0] === pDay && !e._isT);
+      pEvs = calEvs.filter(e => getEventDays(e).includes(pDay) && !e._isT);
       renderEP();
     } catch (err) {
       alert((isEdit ? '수정' : '저장') + ' 실패: ' + err.message);
