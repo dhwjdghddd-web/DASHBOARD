@@ -2342,7 +2342,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.0.6</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.0.8</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -3015,9 +3015,16 @@
     let curr = new Date(start.getFullYear(), start.getMonth(), start.getDate());
     let last = new Date(end.getFullYear(), end.getMonth(), end.getDate());
     
+    const formatLocal = (dt) => {
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const d = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
+
     if (isAllDay) {
       while (curr < last) {
-        days.push(curr.toISOString().split('T')[0]);
+        days.push(formatLocal(curr));
         curr.setDate(curr.getDate() + 1);
       }
       if (days.length === 0) {
@@ -3025,7 +3032,7 @@
       }
     } else {
       while (curr <= last) {
-        days.push(curr.toISOString().split('T')[0]);
+        days.push(formatLocal(curr));
         curr.setDate(curr.getDate() + 1);
       }
       if (days.length > 1 && end.getHours() === 0 && end.getMinutes() === 0 && end.getSeconds() === 0 && end.getMilliseconds() === 0) {
@@ -3042,11 +3049,11 @@
       return dateA.localeCompare(dateB);
     }
     
-    // Priority order: 1: All-day / Multi-day regular events, 2: Tasks, 3: Timed events
+    // Priority order: 1: All-day / Multi-day regular events, 2: Timed events, 3: Tasks
     const getPriority = (e) => {
-      if (e._isT) return 2;
       if (e.start?.date || getEventDays(e).length > 1) return 1;
-      return 3;
+      if (e._isT) return 3;
+      return 2;
     };
     
     const pA = getPriority(a);
@@ -3062,7 +3069,7 @@
       if (durA !== durB) return durB - durA;
     }
     
-    if (pA === 3) {
+    if (pA === 2) {
       const timeA = a.start?.dateTime || '';
       const timeB = b.start?.dateTime || '';
       return timeA.localeCompare(timeB);
@@ -4272,8 +4279,17 @@
 
   async function loadCalendar() {
     try {
-      const from = new Date(calY, calM, 1).toISOString();
-      const to = new Date(calY, calM + 1, 0, 23, 59, 59).toISOString();
+      const first = new Date(calY, calM, 1);
+      const last = new Date(calY, calM + 1, 0);
+      const gridStart = new Date(calY, calM, 1 - first.getDay());
+      
+      const rem = (first.getDay() + last.getDate()) % 7;
+      const trailDays = rem > 0 ? (7 - rem) : 0;
+      const gridEnd = new Date(calY, calM + 1, trailDays);
+      gridEnd.setHours(23, 59, 59, 999);
+      
+      const from = gridStart.toISOString();
+      const to = gridEnd.toISOString();
       
       calEvs = calEvs.filter(e => e._isT);
       
@@ -4453,6 +4469,7 @@
     _efEvId = isEdit ? ev?.id : null;
     _efColor = isEdit ? (ev?.colorId || '') : '';
     
+    const allDayDt = isEdit ? (ev?.start?.date || pDay) : pDay;
     const title = isEdit ? (ev?.summary || '') : '';
     const startV = isEdit ? toLDT(ev?.start?.dateTime) : (pDay + 'T09:00');
     const endV = isEdit ? toLDT(ev?.end?.dateTime) : (pDay + 'T10:00');
@@ -4490,7 +4507,7 @@
           <div id="ef-dw" style="${allDay ? '' : 'display:none'}">
             <div class="ef-row">
               <span class="ef-lbl">날짜</span>
-              <input type="date" class="ef-sel" id="ef-dt" value="${pDay}"/>
+              <input type="date" class="ef-sel" id="ef-dt" value="${allDayDt}"/>
             </div>
           </div>
           <div id="ef-tw" style="${allDay ? 'display:none' : 'flex'};flex-direction:column;gap:6px">
@@ -4647,8 +4664,19 @@
     
     if (ad) {
       const dt = document.getElementById('ef-dt')?.value || pDay;
+      const startDate = new Date(dt + 'T00:00:00');
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
+      
+      const formatLocal = (dt) => {
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth() + 1).padStart(2, '0');
+        const d = String(dt.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      };
+      
       body.start = { date: dt, dateTime: null };
-      body.end = { date: dt, dateTime: null };
+      body.end = { date: formatLocal(endDate), dateTime: null };
     } else {
       const sv = document.getElementById('ef-st')?.value;
       const ev = document.getElementById('ef-et')?.value;
