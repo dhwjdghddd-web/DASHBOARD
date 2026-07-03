@@ -688,7 +688,7 @@
   .cal-day {
     border-right: 1px solid var(--bd);
     border-bottom: 1px solid var(--bd);
-    padding: 4px;
+    padding: 4px 0;
     cursor: pointer;
     transition: background 0.15s;
     background: var(--panel);
@@ -730,6 +730,7 @@
     border-radius: 50%;
     margin-bottom: 4px;
     color: var(--t1);
+    margin-left: 4px;
   }
 
   .today-c .cal-dn {
@@ -766,6 +767,17 @@
     border-radius: 50%;
     background: var(--blue);
     flex-shrink: 0;
+  }
+
+  .task-dot.completed {
+    width: 8px;
+    height: 8px;
+    background: #10b981 !important;
+  }
+
+  .cal-ev.task-ev.completed {
+    text-decoration: line-through;
+    opacity: 0.6;
   }
 
   .cal-more {
@@ -2330,7 +2342,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.0.4</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.0.5</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -2990,6 +3002,39 @@
     return (yiq >= 150) ? '#1f2937' : '#ffffff';
   }
 
+  function getEventDays(e) {
+    let startStr = e.start?.dateTime || e.start?.date || '';
+    let endStr = e.end?.dateTime || e.end?.date || '';
+    if (!startStr) return [];
+    
+    let start = new Date(startStr);
+    let end = new Date(endStr || startStr);
+    
+    let isAllDay = !!e.start?.date;
+    let days = [];
+    let curr = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    let last = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    
+    if (isAllDay) {
+      while (curr < last) {
+        days.push(curr.toISOString().split('T')[0]);
+        curr.setDate(curr.getDate() + 1);
+      }
+      if (days.length === 0) {
+        days.push(startStr.split('T')[0]);
+      }
+    } else {
+      while (curr <= last) {
+        days.push(curr.toISOString().split('T')[0]);
+        curr.setDate(curr.getDate() + 1);
+      }
+      if (days.length > 1 && end.getHours() === 0 && end.getMinutes() === 0 && end.getSeconds() === 0 && end.getMilliseconds() === 0) {
+        days.pop();
+      }
+    }
+    return days;
+  }
+
   function compareEvents(a, b) {
     const dateA = (a.start?.dateTime || a.start?.date || '').split('T')[0];
     const dateB = (b.start?.dateTime || b.start?.date || '').split('T')[0];
@@ -2997,10 +3042,10 @@
       return dateA.localeCompare(dateB);
     }
     
-    // Priority order: 1: All-day regular events, 2: Tasks, 3: Timed events
+    // Priority order: 1: All-day / Multi-day regular events, 2: Tasks, 3: Timed events
     const getPriority = (e) => {
       if (e._isT) return 2;
-      if (e.start?.date) return 1;
+      if (e.start?.date || getEventDays(e).length > 1) return 1;
       return 3;
     };
     
@@ -3008,6 +3053,13 @@
     const pB = getPriority(b);
     if (pA !== pB) {
       return pA - pB;
+    }
+    
+    if (pA === 1) {
+      // Sort by duration (longer first)
+      const durA = getEventDays(a).length;
+      const durB = getEventDays(b).length;
+      if (durA !== durB) return durB - durA;
     }
     
     if (pA === 3) {
@@ -3830,7 +3882,7 @@
 
   function addTasksToCal() {
     calEvs = calEvs.filter(e => !e._isT);
-    allT.filter(t => t.due && t.status !== 'completed').forEach(t => {
+    allT.filter(t => t.due).forEach(t => {
       const ds = t.due.split('T')[0];
       calEvs.push({
         id: 't-' + t.id,
@@ -3839,7 +3891,8 @@
         end: { date: ds },
         _col: '#2563eb',
         _cal: '태스크',
-        _isT: true
+        _isT: true,
+        _completed: t.status === 'completed'
       });
     });
     renderCalGrid();
@@ -3977,9 +4030,11 @@
     
     for (let i = 0; i < first.getDay(); i++) {
       const d = new Date(calY, calM, 1 - first.getDay() + i);
+      const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       html += `
-        <div class="cal-day other">
+        <div class="cal-day other" onclick="showDay('${ds}')" data-date="${ds}">
           <div class="cal-dn">${d.getDate()}</div>
+          <div class="cal-events-inner"></div>
         </div>
       `;
     }
@@ -3999,9 +4054,12 @@
     const rem = (first.getDay() + last.getDate()) % 7;
     if (rem > 0) {
       for (let i = 1; i <= 7 - rem; i++) {
+        const d = new Date(calY, calM + 1, i);
+        const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         html += `
-          <div class="cal-day other">
+          <div class="cal-day other" onclick="showDay('${ds}')" data-date="${ds}">
             <div class="cal-dn">${i}</div>
+            <div class="cal-events-inner"></div>
           </div>
         `;
       }
@@ -4022,13 +4080,83 @@
       cellHeight = Math.max(12, Math.floor(grid.offsetHeight / rows));
     }
     
+    // Collect all dates from grid cells
+    const gridDates = [];
     cells.forEach(cell => {
+      gridDates.push(cell.getAttribute('data-date') || '');
+    });
+    
+    // Slots allocation maps
+    const slotsMap = {};
+    const maxSlotMap = {};
+    gridDates.forEach(d => {
+      if (d) {
+        slotsMap[d] = {};
+        maxSlotMap[d] = -1;
+      }
+    });
+    
+    // Process week by week for continuous layout slotting
+    for (let w = 0; w < rows; w++) {
+      const weekDates = [];
+      for (let i = 0; i < 7; i++) {
+        weekDates.push(gridDates[w * 7 + i] || '');
+      }
+      
+      // Get all events overlapping this week
+      const weekEvs = calEvs.filter(e => {
+        const eDays = getEventDays(e);
+        return eDays.some(d => weekDates.includes(d));
+      });
+      
+      weekEvs.sort(compareEvents);
+      
+      // Track occupied slots for this week: daySlots[col][slotIndex] = true
+      const daySlots = Array.from({ length: 7 }, () => []);
+      
+      weekEvs.forEach(e => {
+        const eDays = getEventDays(e);
+        const occupiedCols = [];
+        for (let i = 0; i < 7; i++) {
+          if (eDays.includes(weekDates[i])) {
+            occupiedCols.push(i);
+          }
+        }
+        
+        let s = 0;
+        while (true) {
+          let conflict = false;
+          for (const col of occupiedCols) {
+            if (daySlots[col][s] === true) {
+              conflict = true;
+              break;
+            }
+          }
+          if (!conflict) break;
+          s++;
+        }
+        
+        occupiedCols.forEach(col => {
+          daySlots[col][s] = true;
+          const dateStr = weekDates[col];
+          const key = e.id || e.summary || '';
+          slotsMap[dateStr][key] = s;
+          if (s > maxSlotMap[dateStr]) {
+            maxSlotMap[dateStr] = s;
+          }
+        });
+      });
+    }
+    
+    // Render events inside cell segments
+    cells.forEach((cell, cellIdx) => {
       const ds = cell.getAttribute('data-date');
       if (!ds) return;
       const inner = cell.querySelector('.cal-events-inner');
       if (!inner) return;
       
-      const dayEvs = calEvs.filter(e => (e.start?.dateTime || e.start?.date || '').split('T')[0] === ds);
+      const dayOfWeek = cellIdx % 7; // 0 = Sun, 6 = Sat
+      const dayEvs = calEvs.filter(e => getEventDays(e).includes(ds));
       
       let html = '';
       if (cellHeight < 55) {
@@ -4045,25 +4173,63 @@
         const moreHeight = 14;
         const remainingHeight = cellHeight - headerHeight;
         
-        let limit = 99;
-        if (dayEvs.length * eventHeight > remainingHeight) {
-          limit = Math.floor((remainingHeight - moreHeight) / eventHeight);
+        const maxSlot = maxSlotMap[ds];
+        let showMore = false;
+        let limit = maxSlot + 1;
+        
+        if ((maxSlot + 1) * 20 > remainingHeight) {
+          showMore = true;
+          limit = Math.floor((remainingHeight - moreHeight) / 20);
           if (limit < 1) limit = 1;
         }
         
-        const visible = dayEvs.slice(0, limit);
-        html += visible.map(e => {
-          if (e._isT) {
-            return `<div class="cal-ev task-ev"><span class="task-dot"></span>${esc(e.summary || '')}</div>`;
+        for (let s = 0; s < limit; s++) {
+          const ev = dayEvs.find(e => slotsMap[ds][e.id || e.summary] === s);
+          if (ev) {
+            if (ev._isT) {
+              const compClass = ev._completed ? ' completed' : '';
+              const dotClass = ev._completed ? 'task-dot completed' : 'task-dot';
+              html += `<div class="cal-ev task-ev${compClass}" style="margin-left:4px; margin-right:4px;"><span class="${dotClass}"></span>${esc(ev.summary || '')}</div>`;
+            } else {
+              const bg = ev._col || '#2563eb';
+              const fg = getContrastColor(bg);
+              
+              const eDays = getEventDays(ev);
+              const idx = eDays.indexOf(ds);
+              const isStart = (idx === 0);
+              const isEnd = (idx === eDays.length - 1);
+              
+              // Only display text on start day or week boundary (Sunday)
+              const showText = isStart || (dayOfWeek === 0);
+              
+              let borderLeft = 'border-top-left-radius: 4px; border-bottom-left-radius: 4px;';
+              let borderRight = 'border-top-right-radius: 4px; border-bottom-right-radius: 4px;';
+              let marginLeft = 'margin-left: 4px;';
+              let marginRight = 'margin-right: 4px;';
+              
+              if (!isStart && dayOfWeek !== 0) {
+                borderLeft = 'border-top-left-radius: 0; border-bottom-left-radius: 0;';
+                marginLeft = 'margin-left: 0;';
+              }
+              if (!isEnd && dayOfWeek !== 6) {
+                borderRight = 'border-top-right-radius: 0; border-bottom-right-radius: 0;';
+                marginRight = 'margin-right: 0;';
+              }
+              
+              const styles = `${borderLeft} ${borderRight} ${marginLeft} ${marginRight}`;
+              
+              html += `<div class="cal-ev" style="background:${bg}; color:${fg}; ${styles}">${showText ? esc(ev.summary || '일정') : '&nbsp;'}</div>`;
+            }
           } else {
-            const bg = e._col || '#2563eb';
-            const fg = getContrastColor(bg);
-            return `<div class="cal-ev" style="background:${bg}; color:${fg}">${esc(e.summary || '일정')}</div>`;
+            html += `<div class="cal-ev-spacer" style="height:18px; margin-bottom:2px;"></div>`;
           }
-        }).join('');
+        }
         
-        if (dayEvs.length > limit) {
-          html += `<div class="cal-more">+${dayEvs.length - limit}</div>`;
+        if (showMore) {
+          const hiddenCount = dayEvs.filter(e => slotsMap[ds][e.id || e.summary] >= limit).length;
+          if (hiddenCount > 0) {
+            html += `<div class="cal-more">+${hiddenCount}개 더 보기</div>`;
+          }
         }
       }
       inner.innerHTML = html;
@@ -4156,8 +4322,10 @@
     
     const todayStr = new Date().toISOString().split('T')[0];
     const upcoming = calEvs.filter(e => {
-      const dateStr = (e.start?.dateTime || e.start?.date || '').split('T')[0];
-      return dateStr >= todayStr;
+      const eDays = getEventDays(e);
+      if (eDays.length === 0) return false;
+      const lastDay = eDays[eDays.length - 1];
+      return lastDay >= todayStr;
     });
     
     upcoming.sort(compareEvents);
@@ -4182,13 +4350,17 @@
       });
       const color = e._col || '#2563eb';
       
+      const isCompleted = e._isT && e._completed;
+      const cardOpacity = isCompleted ? 'opacity: 0.6;' : '';
+      const titleStyle = isCompleted ? 'text-decoration: line-through; opacity: 0.8;' : '';
+      
       html += `
-        <div class="agenda-card" style="border-left-color: ${color}">
+        <div class="agenda-card" style="border-left-color: ${color}; ${cardOpacity}">
           <div class="agenda-time">
             <div>${dateVal}</div>
             <div style="opacity: 0.8; font-weight: 500;">${timeVal}</div>
           </div>
-          <div class="agenda-title">${esc(e.summary || '(제목 없음)')}</div>
+          <div class="agenda-title" style="${titleStyle}">${esc(e.summary || '(제목 없음)')}</div>
           ${e._cal ? `<span class="agenda-calname">${esc(e._cal)}</span>` : ''}
         </div>
       `;
