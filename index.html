@@ -2453,7 +2453,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.7</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.8</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -2923,15 +2923,16 @@
     }
   }
 
-  /* ── SPLITTERS RESIZING WITH RATIO PRESERVATION ── */
+  /* ── SPLITTERS RESIZING ── */
   function initSplitters() {
     const spv = document.getElementById('sp-v');
     const sb = document.querySelector('.sidebar');
     
     if (spv && sb) {
-      const rt = localStorage.getItem('sp-rt');
-      if (rt && window.innerWidth >= 768) {
-        sb.style.flex = `${rt} ${rt} 0%`;
+      const sw = localStorage.getItem('sp-sw');
+      if (sw && window.innerWidth >= 768) {
+        sb.style.width = sw + 'px';
+        sb.style.flex = 'none';
       }
       
       let drag = false, sx = 0, sw0 = 0;
@@ -2949,12 +2950,10 @@
       
       document.addEventListener('mousemove', e => {
         if (!drag) return;
-        const mainWidth = document.querySelector('.body')?.clientWidth || window.innerWidth;
-        const d = e.clientX - sx;
-        const newSw = Math.max(160, Math.min(mainWidth * 0.45, sw0 + d));
-        const ratioSb = ((newSw / mainWidth) * 3.4).toFixed(3);
-        sb.style.flex = `${ratioSb} ${ratioSb} 0%`;
-        sb.style.width = 'auto';
+        const maxW = (document.querySelector('.body')?.clientWidth || window.innerWidth) * 0.45;
+        const newSw = Math.max(180, Math.min(maxW, sw0 + (e.clientX - sx)));
+        sb.style.width = newSw + 'px';
+        sb.style.flex = 'none';
       });
       
       document.addEventListener('mouseup', () => {
