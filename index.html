@@ -80,20 +80,20 @@
   /* ==========================================================================
      BASE & RESET
      ========================================================================== */
-  * {
+  *, *::before, *::after {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
     -webkit-tap-highlight-color: transparent;
   }
 
   html, body {
-    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
     overflow: hidden;
-  }
-
-  body {
-    font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
     background: var(--bg);
     color: var(--t1);
     display: flex;
@@ -103,6 +103,16 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  .app-wrap {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   /* Scrollbar styles */
@@ -286,6 +296,8 @@
   .body {
     display: flex;
     flex: 1;
+    width: 100%;
+    height: calc(100vh - var(--hd));
     overflow: hidden;
     position: relative;
   }
@@ -298,22 +310,29 @@
     flex-direction: column;
     overflow: hidden;
     box-shadow: 1px 0 0 var(--bd);
+    height: 100%;
   }
 
   .main {
     flex: 1;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: row;
     overflow: hidden;
     min-width: 0;
+    max-width: 100%;
   }
 
   .view {
     flex: 1;
+    height: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     background: var(--panel);
+    min-width: 0;
+    max-width: 100%;
   }
 
   /* ==========================================================================
@@ -1276,13 +1295,17 @@
      GMAIL
      ========================================================================== */
   #view-gmail {
-    min-width: 360px;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .gmail-wrap {
     display: flex;
     flex: 1;
     overflow: hidden;
+    width: 100%;
+    max-width: 100%;
   }
 
   .g-labels {
@@ -2413,7 +2436,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.3</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.5</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
