@@ -1345,12 +1345,11 @@
   }
 
   .g-list-col {
-    width: 340px;
-    flex-shrink: 0;
+    flex: 1;
+    width: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border-right: 1px solid var(--bd);
     background: var(--panel);
   }
 
@@ -1700,32 +1699,28 @@
 
   /* GMAIL READER */
   .g-reader {
+    display: none;
     flex: 1;
-    display: flex;
+    width: 100%;
     flex-direction: column;
     overflow: hidden;
     background: var(--panel);
   }
 
-  .r-ph {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    flex: 1;
-    color: var(--t3);
-    gap: 12px;
-    padding: 40px;
+  .gmail-wrap.reading .g-list-col {
+    display: none !important;
   }
 
-  .r-ph-icon {
-    width: 48px;
-    height: 48px;
-    stroke-width: 1.5px;
+  .gmail-wrap.reading .g-reader {
+    display: flex !important;
+  }
+
+  .r-ph {
+    display: none;
   }
 
   .r-back {
-    display: none;
+    display: flex;
     align-items: center;
     gap: 8px;
     padding: 12px 18px;
@@ -2418,7 +2413,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.2</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.3</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -2644,12 +2639,8 @@
             
             <!-- Gmail Mail Reader Column -->
             <div class="g-reader" id="g-reader">
-              <div class="r-back" onclick="closeReader()"><i data-lucide="arrow-left"></i><span>목록으로</span></div>
-              <div class="r-ph" id="r-ph">
-                <i data-lucide="mail-open" class="r-ph-icon"></i>
-                <div>메일을 선택하여 읽어보세요.</div>
-              </div>
-              <div id="r-content" class="r-content-wrap" style="display:none">
+              <div class="r-back" onclick="closeReader()"><i data-lucide="arrow-left"></i><span>← 메일 목록으로 돌아가기</span></div>
+              <div id="r-content" class="r-content-wrap">
                 <div class="r-hd">
                   <div class="r-subj" id="r-subj"></div>
                   <div class="r-from" id="r-from"></div>
@@ -5491,7 +5482,8 @@
         }
       }
       
-      document.getElementById('r-ph').style.display = 'none';
+      const ph = document.getElementById('r-ph');
+      if (ph) ph.style.display = 'none';
       
       const contentWrap = document.getElementById('r-content');
       if (contentWrap) contentWrap.style.display = 'flex';
@@ -5644,9 +5636,12 @@
     _curMsgId = '';
     _curAtts = [];
     
-    document.getElementById('g-reader').classList.remove('on');
-    document.getElementById('r-ph').style.display = 'flex';
-    document.getElementById('r-content').style.display = 'none';
+    const reader = document.getElementById('g-reader');
+    if (reader) reader.classList.remove('on');
+    
+    const ph = document.getElementById('r-ph');
+    if (ph) ph.style.display = 'none';
+    
     document.querySelector('.gmail-wrap')?.classList.remove('reading');
     
     const attDiv = document.getElementById('r-atts');
