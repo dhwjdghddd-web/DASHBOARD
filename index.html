@@ -1,0 +1,5795 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Google Tasks, Calendar, Gmail Dashboard</title>
+  
+  <!-- CDNs for External APIs & Utilities -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.9/purify.min.js"></script>
+  
+  <style>
+  /* ==========================================================================
+     PREMIUM DESIGN SYSTEM - GOOGLE DASHBOARD
+     ========================================================================== */
+
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+  :root {
+    /* Colors */
+    --blue: #2563eb;
+    --blue-hover: #1d4ed8;
+    --green: #10b981;
+    --yellow: #f59e0b;
+    --red: #ef4444;
+    
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --bd: #e2e8f0;
+    
+    /* Text colors */
+    --t1: #0f172a;
+    --t2: #475569;
+    --t3: #94a3b8;
+    
+    --hover: #f1f5f9;
+    --inp: #ffffff;
+    --shadow: rgba(15, 23, 42, 0.05);
+    --shadow-lg: rgba(15, 23, 42, 0.1);
+    
+    /* Category indicator pastels (light theme) */
+    --th-t: rgba(245, 158, 11, 0.08);
+    --th-c: rgba(16, 185, 129, 0.08);
+    --th-g: rgba(239, 68, 68, 0.08);
+    
+    --cal-o: #f8fafc;
+    --cal-td: #eff6ff;
+    
+    /* Dimensions */
+    --hd: 56px;
+    --bnav: 64px;
+    --sidebar-w: 280px;
+  }
+
+  body.dark {
+    --bg: #090d16;
+    --panel: #111827;
+    --bd: #1f2937;
+    
+    --t1: #f3f4f6;
+    --t2: #9ca3af;
+    --t3: #6b7280;
+    
+    --hover: #1f2937;
+    --inp: #1f2937;
+    --shadow: rgba(0, 0, 0, 0.2);
+    --shadow-lg: rgba(0, 0, 0, 0.4);
+    
+    /* Category indicator pastels (dark theme) */
+    --th-t: rgba(245, 158, 11, 0.15);
+    --th-c: rgba(16, 185, 129, 0.15);
+    --th-g: rgba(239, 68, 68, 0.15);
+    
+    --cal-o: #0b0f19;
+    --cal-td: #1e293b;
+  }
+
+  /* ==========================================================================
+     BASE & RESET
+     ========================================================================== */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    font-family: 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+    background: var(--bg);
+    color: var(--t1);
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  /* Scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--bd);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--t3);
+  }
+
+  /* Icons styling */
+  .lucide, i[data-lucide] {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2px;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  /* ==========================================================================
+     HEADER
+     ========================================================================== */
+  .hd {
+    height: var(--hd);
+    background: var(--panel);
+    border-bottom: 1px solid var(--bd);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 3px var(--shadow);
+    z-index: 300;
+    flex-shrink: 0;
+  }
+
+  .hd-l {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .hd-icon {
+    color: var(--blue);
+    width: 24px;
+    height: 24px;
+  }
+
+  .hd-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+
+  .hd-date {
+    font-size: 12px;
+    color: var(--t2);
+    font-weight: 500;
+    background: var(--hover);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .hd-r {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Buttons & Elements */
+  .btn-login {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  .btn-login:hover {
+    background: var(--blue-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--t2);
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .btn-ghost:hover {
+    background: var(--hover);
+    color: var(--t1);
+    border-color: var(--t3);
+  }
+
+  .btn-ghost-icon {
+    background: transparent;
+    color: var(--t2);
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-ghost-icon:hover {
+    background: var(--hover);
+    color: var(--t1);
+  }
+
+  .btn-ghost-icon.danger-icon:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--red);
+  }
+
+  .tag-connection {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 4px 10px;
+    border-radius: 99px;
+  }
+  .tag-connection.disconnected {
+    color: var(--red);
+    background: rgba(239, 68, 68, 0.1);
+  }
+  .tag-connection.disconnected .conn-dot {
+    background: var(--red);
+  }
+
+  .conn-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.5; }
+  }
+
+  /* ==========================================================================
+     LAYOUT
+     ========================================================================== */
+  .body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 1px 0 0 var(--bd);
+  }
+
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--panel);
+  }
+
+  /* ==========================================================================
+     PANEL HEADER
+     ========================================================================== */
+  .ph {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--bd);
+    flex-shrink: 0;
+  }
+
+  .ph-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ph-title .lbl {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--t1);
+    letter-spacing: -0.2px;
+  }
+
+  .ph-title i {
+    width: 20px;
+    height: 20px;
+  }
+
+  .ph .r {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .badge {
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* Header colors */
+  .th-t { background: var(--th-t); border-color: rgba(245, 158, 11, 0.2); }
+  .th-c { background: var(--th-c); border-color: rgba(16, 185, 129, 0.2); }
+  .th-g { background: var(--th-g); border-color: rgba(239, 68, 68, 0.2); }
+
+  .col-t { color: var(--yellow); }
+  .col-c { color: var(--green); }
+  .col-g { color: var(--red); }
+
+  .btn-col {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--t3);
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .btn-col:hover {
+    background: var(--hover);
+    color: var(--t1);
+  }
+
+  /* ==========================================================================
+     TASKS
+     ========================================================================== */
+  .t-row {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--bd);
+    display: flex;
+    gap: 8px;
+    background: var(--panel);
+    flex-shrink: 0;
+  }
+
+  .t-inp {
+    flex: 1;
+    border: 1.5px solid var(--bd);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    outline: none;
+    background: var(--inp);
+    color: var(--t1);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .t-inp::placeholder {
+    color: var(--t3);
+  }
+
+  .t-inp:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+
+  .btn-add {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-add:hover {
+    background: var(--blue-hover);
+    transform: scale(1.03);
+  }
+
+  .btn-exp {
+    background: transparent;
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--t2);
+    transition: all 0.2s;
+  }
+
+  .btn-exp:hover {
+    background: var(--hover);
+    border-color: var(--t3);
+  }
+
+  .t-detail {
+    max-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 16px;
+    background: var(--hover);
+    border-bottom: 0 solid var(--bd);
+    flex-shrink: 0;
+    transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), padding 0.25s, border-width 0.1s;
+  }
+
+  .t-detail.on {
+    max-height: 100px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--bd);
+  }
+
+  .t-det-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .t-det-lbl {
+    font-size: 11px;
+    color: var(--t3);
+    font-weight: 600;
+    min-width: 50px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .t-det-lbl i {
+    width: 14px;
+    height: 14px;
+  }
+
+  .t-det-inp {
+    flex: 1;
+    border: 1.5px solid var(--bd);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 12px;
+    background: var(--inp);
+    color: var(--t1);
+    outline: none;
+  }
+
+  .t-det-inp:focus {
+    border-color: var(--blue);
+  }
+
+  .t-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .t-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+
+  .t-item:hover {
+    background: var(--hover);
+  }
+
+  .t-item input[type=checkbox] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--green);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .t-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .t-txt {
+    font-size: 13.5px;
+    line-height: 1.4;
+    color: var(--t1);
+    font-weight: 500;
+  }
+
+  .t-txt.done {
+    text-decoration: line-through;
+    color: var(--t3);
+  }
+
+  .t-meta {
+    font-size: 11px;
+    color: var(--t3);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .t-del {
+    opacity: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--red);
+    padding: 2px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: opacity 0.2s, background 0.2s;
+  }
+
+  .t-item:hover .t-del {
+    opacity: 1;
+  }
+
+  .t-del:hover {
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  .sec-lbl {
+    font-size: 10px;
+    color: var(--t3);
+    font-weight: 800;
+    padding: 16px 10px 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ==========================================================================
+     CALENDAR
+     ========================================================================= */
+  #view-calendar {
+    border-right: 1px solid var(--bd);
+    min-width: 320px;
+  }
+
+  .cal-date-label {
+    font-size: 14px;
+    font-weight: 700;
+    min-width: 100px;
+    text-align: center;
+    color: var(--t1);
+  }
+
+  .btn-cal-nav {
+    background: transparent;
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--t2);
+    transition: all 0.15s;
+  }
+
+  .btn-cal-nav:hover {
+    background: var(--hover);
+    border-color: var(--t3);
+  }
+
+  .btn-cal-today {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0 12px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    transition: background 0.2s;
+  }
+
+  .btn-cal-today:hover {
+    background: var(--blue-hover);
+  }
+
+  .cal-grid-wrap {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cal-dow-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    flex-shrink: 0;
+    background: var(--panel);
+    border-bottom: 1px solid var(--bd);
+  }
+
+  .cal-dow-cell {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--t3);
+    padding: 8px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .cal-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    align-content: start;
+  }
+
+  .cal-day {
+    border-right: 1px solid var(--bd);
+    border-bottom: 1px solid var(--bd);
+    padding: 4px 0;
+    cursor: pointer;
+    transition: background 0.15s;
+    background: var(--panel);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 48px;
+  }
+
+  .cal-day:hover {
+    background: var(--hover);
+  }
+
+  .cal-day:nth-child(7n) {
+    border-right: none;
+  }
+
+  .cal-day.other {
+    background: var(--cal-o);
+  }
+
+  .cal-day.other .cal-dn {
+    color: var(--t3);
+    opacity: 0.4;
+  }
+
+  .cal-day.today-c {
+    background: var(--cal-td);
+  }
+
+  .cal-dn {
+    font-size: 11px;
+    font-weight: 600;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-bottom: 4px;
+    color: var(--t1);
+    margin-left: 4px;
+  }
+
+  .today-c .cal-dn {
+    background: var(--blue);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .cal-ev {
+    font-size: 10.5px;
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.1px;
+  }
+
+  .cal-ev.task-ev {
+    background: transparent !important;
+    color: var(--t1);
+    padding-left: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .task-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+    flex-shrink: 0;
+  }
+
+  .task-dot.completed {
+    width: 8px;
+    height: 8px;
+    background: #10b981 !important;
+  }
+
+  .cal-ev.task-ev.completed {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .cal-more {
+    font-size: 9px;
+    color: var(--t3);
+    font-weight: 700;
+    padding-left: 4px;
+  }
+
+  /* Day cell dot row for small height views */
+  .day-dots-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 3px;
+    padding: 2px 4px;
+    flex-wrap: wrap;
+    overflow: hidden;
+    max-height: 16px;
+  }
+
+  .day-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* ==========================================================================
+     AGENDA VIEW PANEL
+     ========================================================================== */
+  .cal-agenda-panel {
+    height: 180px;
+    border-top: none;
+    background: var(--panel);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .agenda-hd {
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--bd);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--hover);
+    color: var(--t1);
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  .agenda-hd i {
+    color: var(--blue);
+  }
+
+  .agenda-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 20px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .agenda-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border-left: 4px solid var(--blue);
+    background: var(--hover);
+    transition: transform 0.15s ease;
+  }
+
+  .agenda-card:hover {
+    transform: translateX(2px);
+  }
+
+  .agenda-time {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--t2);
+    min-width: 80px;
+  }
+
+  .agenda-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--t1);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .agenda-calname {
+    font-size: 10px;
+    color: var(--t3);
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  body.dark .agenda-calname {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .state-mini {
+    text-align: center;
+    padding: 20px;
+    color: var(--t3);
+    font-size: 12px;
+  }
+
+  /* ==========================================================================
+     CALENDAR FILTER PANEL
+     ========================================================================== */
+  .cal-filter-wrap {
+    position: relative;
+  }
+
+  .cal-filter-panel {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: var(--panel);
+    border: 1px solid var(--bd);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px var(--shadow-lg);
+    z-index: 400;
+    min-width: 240px;
+    padding: 8px 0;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .cal-filter-panel.on {
+    display: block;
+    animation: fadeIn 0.15s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .cal-filter-hd {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--t3);
+    padding: 6px 16px 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--bd);
+    margin-bottom: 6px;
+  }
+
+  .cal-filter-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .cal-filter-item:hover {
+    background: var(--hover);
+  }
+
+  .cal-fi-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .cal-fi-name {
+    flex: 1;
+    font-size: 13px;
+    color: var(--t1);
+    font-weight: 500;
+  }
+
+  .cal-fi-chk {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--blue);
+    flex-shrink: 0;
+  }
+
+  /* ==========================================================================
+     EVENT PANEL / DRAWER
+     ========================================================================== */
+  .ev-panel {
+    position: fixed;
+    right: 0;
+    top: var(--hd);
+    bottom: 0;
+    width: 340px;
+    background: var(--panel);
+    border-left: 1px solid var(--bd);
+    box-shadow: -10px 0 30px var(--shadow-lg);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ev-panel.on {
+    transform: translateX(0);
+  }
+
+  .ev-ph {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--bd);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .ev-ph-ttl {
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--t1);
+    letter-spacing: -0.2px;
+  }
+
+  .ev-ph-r {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-new-ev {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-new-ev:hover {
+    background: var(--blue-hover);
+  }
+
+  .btn-x {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--t3);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: background 0.2s;
+  }
+
+  .btn-x:hover {
+    background: var(--hover);
+    color: var(--t1);
+  }
+
+  .ev-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .ev-card {
+    border-left: 4px solid;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 4px var(--shadow);
+    background: var(--panel);
+  }
+
+  .ev-card-title {
+    font-weight: 700;
+    font-size: 13.5px;
+    color: var(--t1);
+    margin-bottom: 4px;
+  }
+
+  .ev-card-sub {
+    font-size: 11px;
+    color: var(--t2);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ev-card-acts {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .btn-ev {
+    background: transparent;
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--t2);
+    transition: all 0.15s;
+  }
+
+  .btn-ev:hover {
+    background: var(--hover);
+    border-color: var(--t3);
+    color: var(--t1);
+  }
+
+  .btn-ev.del:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--red);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+
+  .ev-none {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--t3);
+    font-size: 13px;
+  }
+
+  /* EVENT FORM */
+  .ev-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ef-sect {
+    background: var(--hover);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .ef-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ef-lbl {
+    font-size: 11px;
+    color: var(--t3);
+    min-width: 54px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .ef-inp, .ef-sel {
+    flex: 1;
+    border: 1.5px solid var(--bd);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12.5px;
+    background: var(--inp);
+    color: var(--t1);
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 0;
+  }
+
+  .ef-inp:focus, .ef-sel:focus {
+    border-color: var(--blue);
+  }
+
+  .ef-chk {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--blue);
+  }
+
+  .ev-cal-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1.5px solid var(--bd);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    background: var(--inp);
+  }
+
+  .ev-cal-list {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 4px);
+    background: var(--panel);
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px var(--shadow-lg);
+    z-index: 500;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  .ev-cal-opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12.5px;
+    color: var(--t1);
+  }
+
+  .ev-cal-opt:hover {
+    background: var(--hover);
+  }
+
+  .ev-cdot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ev-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .ev-chip {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ev-chip.sel, .ev-chip:hover {
+    border-color: var(--t1) !important;
+  }
+
+  .btn-ev-save {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .btn-ev-cancel {
+    background: transparent;
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--t2);
+  }
+
+  .btn-ev-cancel:hover {
+    background: var(--hover);
+  }
+
+  /* ==========================================================================
+     GMAIL
+     ========================================================================== */
+  #view-gmail {
+    min-width: 360px;
+  }
+
+  .gmail-wrap {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .g-labels {
+    width: 160px;
+    flex-shrink: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--bd);
+    overflow-y: auto;
+    padding: 10px 0;
+  }
+
+  .glbl {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-radius: 0 99px 99px 0;
+    margin-right: 10px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--t2);
+    transition: all 0.15s;
+  }
+
+  .glbl:hover {
+    background: var(--hover);
+    color: var(--t1);
+  }
+
+  .glbl.on {
+    background: var(--cal-td);
+    color: var(--blue);
+    font-weight: 700;
+  }
+
+  .glbl .ico {
+    color: var(--t3);
+    transition: color 0.15s;
+  }
+
+  .glbl.on .ico {
+    color: var(--blue);
+  }
+
+  .glbl .cnt {
+    margin-left: auto;
+    font-size: 10px;
+    background: var(--red);
+    color: #fff;
+    border-radius: 10px;
+    padding: 1px 6px;
+    font-weight: 700;
+  }
+
+  .g-main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .g-list-col {
+    width: 340px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-right: 1px solid var(--bd);
+    background: var(--panel);
+  }
+
+  .g-srch-row {
+    padding: 12px;
+    border-bottom: 1px solid var(--bd);
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .g-srch-inp {
+    flex: 1;
+    border: 1.5px solid var(--bd);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    outline: none;
+    background: var(--inp);
+    color: var(--t1);
+    transition: border-color 0.2s;
+  }
+
+  .g-srch-inp:focus {
+    border-color: var(--blue);
+  }
+
+  .btn-srch {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .g-selall {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--bd);
+    background: var(--panel);
+    flex-shrink: 0;
+  }
+
+  .g-selall label {
+    font-size: 12px;
+    color: var(--t2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .g-selall input[type=checkbox] {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: var(--blue);
+  }
+
+  .g-sel-cnt {
+    font-size: 11px;
+    color: var(--t3);
+  }
+
+  .sel-bar {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--cal-td);
+    border-bottom: 1px solid var(--bd);
+    flex-shrink: 0;
+  }
+
+  .sel-bar.on {
+    display: flex;
+    animation: slideDown 0.2s ease;
+  }
+
+  @keyframes slideDown {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+  }
+
+  .sel-cnt {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--blue);
+  }
+
+  .btn-sdel {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-sread {
+    background: var(--panel);
+    color: var(--t2);
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-sx {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--t3);
+    font-size: 16px;
+    margin-left: auto;
+  }
+
+  .g-list {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--panel);
+  }
+
+  .erow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    cursor: pointer;
+    transition: background 0.15s;
+    background: var(--panel);
+  }
+
+  body.dark .erow {
+    border-bottom-color: rgba(255, 255, 255, 0.04);
+  }
+
+  .erow:hover {
+    background: var(--hover);
+  }
+
+  .erow.unread {
+    background: var(--cal-td);
+  }
+
+  .erow.sel-row {
+    background: rgba(37, 99, 235, 0.06);
+  }
+
+  .e-chk {
+    width: 44px;
+    height: 100%;
+    margin-left: -12px;
+    padding: 0 12px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .e-chk input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--blue);
+    pointer-events: none;
+  }
+
+  .g-move-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .g-move-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 100;
+    background: var(--bg);
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+    min-width: 170px;
+    max-height: 240px;
+    overflow-y: auto;
+    padding: 6px 0;
+  }
+
+  .g-move-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--t1);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .g-move-item:hover {
+    background: var(--hover);
+    color: var(--blue);
+  }
+
+  .g-move-item i {
+    width: 14px;
+    height: 14px;
+    color: var(--t2);
+  }
+
+  .g-move-hd {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--t3);
+    padding: 4px 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .av {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .e-meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .e-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  .e-from {
+    font-size: 13px;
+    color: var(--t1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 160px;
+  }
+
+  .e-from.fw {
+    font-weight: 750;
+  }
+
+  .e-date {
+    font-size: 11px;
+    color: var(--t3);
+    flex-shrink: 0;
+  }
+
+  .e-subj {
+    font-size: 13px;
+    color: var(--t1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .e-subj.fw {
+    font-weight: 700;
+  }
+
+  .e-snip {
+    font-size: 11.5px;
+    color: var(--t3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 2px;
+  }
+
+  .udot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--blue);
+    flex-shrink: 0;
+  }
+
+  .btn-empty-trash {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--red);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-empty-trash:hover {
+    background: var(--red);
+    color: #fff;
+  }
+
+  /* GMAIL READER */
+  .g-reader {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--panel);
+  }
+
+  .r-ph {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: var(--t3);
+    gap: 12px;
+    padding: 40px;
+  }
+
+  .r-ph-icon {
+    width: 48px;
+    height: 48px;
+    stroke-width: 1.5px;
+  }
+
+  .r-back {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--bd);
+    background: var(--panel);
+    cursor: pointer;
+    color: var(--blue);
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .r-content-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .r-hd {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--bd);
+    flex-shrink: 0;
+    background: var(--panel);
+  }
+
+  .r-subj {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: var(--t1);
+    line-height: 1.4;
+    letter-spacing: -0.3px;
+  }
+
+  .r-from {
+    font-size: 12px;
+    color: var(--t2);
+    line-height: 1.7;
+  }
+
+  .r-acts {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-act {
+    background: transparent;
+    border: 1px solid var(--bd);
+    border-radius: 6px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--t2);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.15s;
+  }
+
+  .btn-act:hover {
+    background: var(--hover);
+    border-color: var(--t3);
+    color: var(--t1);
+  }
+
+  .btn-act.danger:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--red);
+    border-color: rgba(239, 68, 68, 0.2);
+  }
+
+  .r-body {
+    flex: 1;
+    overflow: auto;
+    background: #fff;
+  }
+
+  .r-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* ==========================================================================
+     SPLITTERS & COLLAPSIBLE PANELS
+     ========================================================================== */
+  .sp-v {
+    width: 4px;
+    flex-shrink: 0;
+    cursor: col-resize;
+    background: var(--bd);
+    position: relative;
+    transition: background 0.15s;
+    z-index: 100;
+  }
+
+  .sp-h {
+    width: 4px;
+    flex-shrink: 0;
+    cursor: col-resize;
+    background: var(--bd);
+    position: relative;
+    transition: background 0.15s;
+    z-index: 100;
+  }
+
+  .sp-cal-h {
+    height: 4px;
+    flex-shrink: 0;
+    cursor: row-resize;
+    background: var(--bd);
+    position: relative;
+    transition: background 0.15s;
+    z-index: 100;
+  }
+
+  .sp-v:hover, .sp-v.on, .sp-h:hover, .sp-h.on, .sp-cal-h:hover, .sp-cal-h.on {
+    background: var(--blue);
+  }
+
+  .sp-v::after, .sp-h::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 2px;
+    height: 24px;
+    border-radius: 2px;
+    background: rgba(128, 128, 128, 0.25);
+  }
+
+  .sp-cal-h::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 2px;
+    width: 24px;
+    border-radius: 2px;
+    background: rgba(128, 128, 128, 0.25);
+  }
+
+  /* Collapsible Panel Behaviors */
+  #view-calendar.col .cal-grid-wrap { display: none !important; }
+  #view-gmail.col .gmail-wrap { display: none !important; }
+
+  /* ==========================================================================
+     STATE SCREENS
+     ========================================================================== */
+  .state {
+    padding: 48px 16px;
+    text-align: center;
+    color: var(--t3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .state-ic {
+    font-size: 32px;
+    color: var(--t3);
+  }
+
+  .state-ic i {
+    width: 40px;
+    height: 40px;
+    stroke-width: 1.5px;
+  }
+
+  .state-tx {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .btn-retry {
+    margin-top: 12px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 16px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .spin {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+
+  /* ==========================================================================
+     MOBILE BOTTOM NAVIGATION
+     ========================================================================== */
+  .bnav {
+    display: none;
+    height: var(--bnav);
+    background: var(--panel);
+    border-top: 1px solid var(--bd);
+    flex-shrink: 0;
+    z-index: 200;
+    box-shadow: 0 -2px 10px var(--shadow);
+  }
+
+  .bnav-inner {
+    display: flex;
+    height: 100%;
+  }
+
+  .bnav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--t3);
+    font-size: 11px;
+    font-weight: 600;
+    transition: color 0.15s;
+  }
+
+  .bnav-btn.on {
+    color: var(--blue);
+  }
+
+  .bnav-ic {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* ==========================================================================
+     DESKTOP RESPONSIVE BEHAVIOR (>=768px)
+     ========================================================================== */
+  @media (min-width: 768px) {
+    .sp-v { display: block; }
+    .sp-h { display: block; }
+    .bnav { display: none; }
+    #view-tasks { display: none !important; }
+    
+    /* Desktop split layout settings */
+    #view-calendar {
+      display: flex !important;
+      flex: 1;
+      height: 100%;
+    }
+    
+    #view-gmail {
+      display: flex !important;
+      flex: 1;
+      height: 100%;
+    }
+
+    /* Handle custom collapse states on desktop */
+    #view-calendar.col {
+      flex: none !important;
+      width: 60px !important;
+      min-width: 60px !important;
+    }
+    #view-calendar.col .r, 
+    #view-calendar.col .cal-date-label {
+      display: none !important;
+    }
+
+    #view-gmail.col {
+      flex: none !important;
+      width: 60px !important;
+      min-width: 60px !important;
+    }
+    #view-gmail.col .r {
+      display: none !important;
+    }
+  }
+
+  /* ==========================================================================
+     MOBILE RESPONSIVE BEHAVIOR (<767px)
+     ========================================================================== */
+  @media (max-width: 767px) {
+    :root {
+      --hd: 52px;
+    }
+    
+    .sidebar { display: none !important; }
+    .sp-v, .sp-h { display: none !important; }
+    .bnav { display: block; }
+    
+    /* Switch views cleanly */
+    .view { display: none; }
+    .view.on { display: flex; flex: 1; }
+    
+    .hd-date { display: none; }
+    
+    /* Gmail Mobile overrides */
+    .gmail-wrap {
+      flex-direction: column;
+    }
+    
+    .g-labels {
+      width: 100%;
+      height: auto;
+      flex-direction: row;
+      overflow-x: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--bd);
+      padding: 6px;
+      gap: 4px;
+      display: flex;
+    }
+    
+    .glbl {
+      border-radius: 20px;
+      margin-right: 0;
+      white-space: nowrap;
+      padding: 6px 12px;
+    }
+    
+    .g-main {
+      flex-direction: column;
+      flex: 1;
+    }
+    
+    .g-list-col {
+      width: 100%;
+      flex: 1;
+      border-right: none;
+    }
+    
+    /* Slide-in gmail reader for mobile */
+    .g-reader {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 250;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .g-reader.on {
+      transform: translateX(0);
+    }
+    
+    .r-back {
+      display: flex !important;
+    }
+    
+    #view-gmail .gmail-wrap {
+      position: relative;
+    }
+    
+    .cal-day {
+      min-height: 52px;
+    }
+    
+    /* Agenda container height on mobile */
+    .cal-agenda-panel {
+      height: 140px;
+    }
+    
+    /* Detail drawer on mobile overlay */
+    .ev-panel {
+      width: 100%;
+      top: var(--hd);
+      bottom: var(--bnav);
+    }
+    
+    .btn-col {
+      display: none !important;
+    }
+  }
+
+  /* Reading Mode for Gmail */
+  .gmail-wrap.reading .g-labels {
+    display: none !important;
+  }
+  .gmail-wrap.reading .g-list-col {
+    display: none !important;
+  }
+  .gmail-wrap.reading .r-back {
+    display: flex !important;
+  }
+
+  /* Compose Button */
+  .btn-compose {
+    margin: 8px 12px 16px;
+    padding: 12px 24px;
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 24px;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    transition: all 0.2s ease;
+  }
+  .btn-compose:hover {
+    background: var(--blue-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.35);
+  }
+  .btn-compose i {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Floating Compose Window */
+  .compose-win {
+    position: fixed;
+    bottom: 0;
+    right: 80px;
+    width: 500px;
+    height: 480px;
+    background: var(--panel);
+    border: 1px solid var(--bd);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 8px 30px var(--shadow-lg);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .compose-win.minimized {
+    height: 40px !important;
+    bottom: 0;
+  }
+  .compose-win.maximized {
+    top: 50px;
+    bottom: 50px;
+    left: 10%;
+    right: 10%;
+    width: 80% !important;
+    height: auto !important;
+    border-radius: 12px;
+  }
+  
+  .comp-hd {
+    height: 40px;
+    background: #1f2937;
+    color: #fff;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  body.dark .comp-hd {
+    background: #0f172a;
+  }
+  .comp-title {
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+  .comp-hd-acts {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .comp-hd-acts button {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .comp-hd-acts button:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+  }
+  .comp-hd-acts button i {
+    width: 14px;
+    height: 14px;
+  }
+
+  .comp-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--panel);
+    overflow: visible;
+  }
+  .comp-field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--bd);
+    padding: 8px 16px;
+    gap: 12px;
+  }
+  
+  /* Autocomplete List */
+  .comp-ac-list {
+    position: absolute;
+    top: 100%;
+    left: 76px;
+    right: 16px;
+    background: var(--panel);
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--shadow-lg);
+    max-height: 160px;
+    overflow-y: auto;
+    z-index: 1200;
+    display: none;
+  }
+  .comp-ac-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--t1);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: background 0.15s;
+  }
+  .comp-ac-item:hover {
+    background: var(--hover);
+  }
+  .comp-ac-name {
+    font-weight: 600;
+  }
+  .comp-ac-email {
+    color: var(--t3);
+    font-size: 11px;
+  }
+  .comp-lbl {
+    font-size: 12px;
+    color: var(--t3);
+    font-weight: 600;
+    min-width: 60px;
+  }
+  .comp-inp {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: var(--t1);
+    background: transparent;
+  }
+  .comp-body-text {
+    flex: 1;
+    padding: 16px;
+    display: flex;
+  }
+  .comp-txt {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--t1);
+    background: transparent;
+    font-family: inherit;
+  }
+
+  /* Compose Attachments */
+  .comp-atts {
+    border-top: 1px solid var(--bd);
+    background: var(--hover);
+    padding: 10px 16px;
+    max-height: 120px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .comp-att-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--panel);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--bd);
+  }
+  .comp-att-name {
+    flex: 1;
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--t1);
+  }
+  .comp-att-size {
+    font-size: 11px;
+    color: var(--t3);
+  }
+  .comp-att-del {
+    background: none;
+    border: none;
+    color: var(--t3);
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .comp-att-del:hover {
+    color: var(--red);
+  }
+
+  .comp-ft {
+    height: 60px;
+    border-top: 1px solid var(--bd);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--panel);
+  }
+  .comp-btn-send {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(37,99,235,0.2);
+    transition: background 0.15s;
+  }
+  .comp-btn-send:hover {
+    background: var(--blue-hover);
+  }
+  .comp-btn-send i {
+    width: 14px;
+    height: 14px;
+  }
+  .comp-btn-clip {
+    background: transparent;
+    border: none;
+    color: var(--t2);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .comp-btn-clip:hover {
+    background: var(--hover);
+    color: var(--t1);
+  }
+  .comp-btn-clip i {
+    width: 18px;
+    height: 18px;
+  }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="hd">
+    <div class="hd-l">
+      <i data-lucide="layout-dashboard" class="hd-icon"></i>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.0</span></span>
+      <span class="hd-date" id="hdate"></span>
+    </div>
+    <div class="hd-r">
+      <span id="tag-conn" class="tag-connection" style="display:none"><span class="conn-dot"></span>연결됨</span>
+      <button id="btn-ref" class="btn-ghost" style="display:none" onclick="loadAll()" title="새로고침">
+        <i data-lucide="refresh-cw"></i>
+      </button>
+      <button id="btn-reauth" class="btn-ghost" style="display:none" onclick="signIn()">
+        <i data-lucide="key-round"></i><span>재인증</span>
+      </button>
+      <button id="btn-theme" class="btn-ghost" onclick="toggleDark()" title="테마 변경">
+        <i data-lucide="moon" id="theme-icon"></i>
+      </button>
+      <button id="btn-login" class="btn-login" onclick="signIn()">
+        <i data-lucide="log-in"></i><span>Google 로그인</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- APP CONTAINER -->
+  <div class="body">
+    
+    <!-- SIDEBAR: TASKS -->
+    <aside class="sidebar">
+      <div class="ph th-t">
+        <div class="ph-title">
+          <i data-lucide="check-square" class="col-t"></i>
+          <span class="lbl">태스크</span>
+        </div>
+        <span class="r">
+          <span class="badge" id="t-badge" style="background:var(--t3);color:#fff">0</span>
+        </span>
+      </div>
+      <div class="t-row">
+        <input class="t-inp" id="t-inp-d" placeholder="새 태스크 추가..." onkeydown="if(event.key==='Enter')addTask('d')"/>
+        <button class="btn-exp" onclick="togTForm('d')" title="세부 설정">
+          <i data-lucide="sliders-horizontal"></i>
+        </button>
+        <button class="btn-add" onclick="addTask('d')">
+          <i data-lucide="plus"></i>
+        </button>
+      </div>
+      <div class="t-detail" id="t-form-d">
+        <div class="t-det-row">
+          <span class="t-det-lbl"><i data-lucide="calendar-days"></i>마감</span>
+          <input class="t-det-inp" type="date" id="t-due-d"/>
+        </div>
+        <div class="t-det-row">
+          <span class="t-det-lbl"><i data-lucide="align-left"></i>메모</span>
+          <input class="t-det-inp" id="t-note-d" placeholder="메모 입력..."/>
+        </div>
+      </div>
+      <div class="t-list" id="t-list-d">
+        <div class="state">
+          <div class="state-ic"><i data-lucide="lock"></i></div>
+          <div class="state-tx">로그인 후 이용해 주세요.</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- VERTICAL SPLITTER (Sidebar | Main) -->
+    <div class="sp-v" id="sp-v"></div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="main" id="main">
+      
+      <!-- Tasks View (Mobile only) -->
+      <section class="view" id="view-tasks">
+        <div class="ph th-t">
+          <div class="ph-title">
+            <i data-lucide="check-square" class="col-t"></i>
+            <span class="lbl">태스크</span>
+          </div>
+          <span class="r">
+            <span class="badge" id="t-badge-m" style="background:var(--t3);color:#fff">0</span>
+          </span>
+        </div>
+        <div class="t-row">
+          <input class="t-inp" id="t-inp-m" placeholder="새 태스크 추가..." onkeydown="if(event.key==='Enter')addTask('m')"/>
+          <button class="btn-exp" onclick="togTForm('m')" title="세부 설정">
+            <i data-lucide="sliders-horizontal"></i>
+          </button>
+          <button class="btn-add" onclick="addTask('m')">
+            <i data-lucide="plus"></i>
+          </button>
+        </div>
+        <div class="t-detail" id="t-form-m">
+          <div class="t-det-row">
+            <span class="t-det-lbl"><i data-lucide="calendar-days"></i>마감</span>
+            <input class="t-det-inp" type="date" id="t-due-m"/>
+          </div>
+          <div class="t-det-row">
+            <span class="t-det-lbl"><i data-lucide="align-left"></i>메모</span>
+            <input class="t-det-inp" id="t-note-m" placeholder="메모 입력..."/>
+          </div>
+        </div>
+        <div class="t-list" id="t-list-m">
+          <div class="state">
+            <div class="state-ic"><i data-lucide="lock"></i></div>
+            <div class="state-tx">로그인 후 이용해 주세요.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Calendar & Agenda Panel -->
+      <section class="view" id="view-calendar">
+        <div class="ph th-c">
+          <div class="ph-title">
+            <button class="btn-col" id="btn-col-calendar" onclick="colToggle('calendar')">
+              <i data-lucide="chevron-down"></i>
+            </button>
+            <i data-lucide="calendar" class="col-c"></i>
+            <span class="lbl">캘린더</span>
+          </div>
+          <span class="r">
+            <button class="btn-cal-nav" onclick="calNav(-1)"><i data-lucide="chevron-left"></i></button>
+            <span id="cal-lbl" class="cal-date-label"></span>
+            <button class="btn-cal-nav" onclick="calNav(1)"><i data-lucide="chevron-right"></i></button>
+            <button class="btn-cal-today" onclick="calToday()">오늘</button>
+            <button class="btn-ghost-icon" onclick="loadCalendar()" title="새로고침"><i data-lucide="refresh-cw"></i></button>
+            <div class="cal-filter-wrap">
+              <button class="btn-ghost-icon" id="btn-cal-filter" onclick="event.stopPropagation();toggleCalFilterPanel()" title="캘린더 필터">
+                <i data-lucide="filter"></i>
+              </button>
+              <div class="cal-filter-panel" id="cal-filter-panel">
+                <div class="cal-filter-hd">캘린더 표시 설정</div>
+                <div id="cal-filter-list"></div>
+              </div>
+            </div>
+          </span>
+        </div>
+        
+        <!-- Grid and Agenda wrapper -->
+        <div class="cal-grid-wrap">
+          <div id="cal-dow" class="cal-dow-row"></div>
+          <div class="cal-days" id="cal-grid"></div>
+          
+          <!-- Horizontal Splitter between calendar grid and agenda -->
+          <div class="sp-cal-h" id="sp-cal-agenda"></div>
+          
+          <!-- Modern Agenda/Schedule List -->
+          <div class="cal-agenda-panel" id="cal-agenda-panel">
+            <div class="agenda-hd">
+              <i data-lucide="list-todo"></i>
+              <span>다가오는 일정 목록</span>
+            </div>
+            <div class="agenda-list" id="agenda-list">
+              <div class="state-mini">🔒 로그인 후 일정이 표시됩니다.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MIDDLE SPLITTER (Calendar | Gmail) -->
+      <div class="sp-h" id="sp-h"></div>
+
+      <!-- Gmail View Panel -->
+      <section class="view" id="view-gmail">
+        <div class="ph th-g">
+          <div class="ph-title">
+            <button class="btn-col" id="btn-col-gmail" onclick="colToggle('gmail')">
+              <i data-lucide="chevron-down"></i>
+            </button>
+            <i data-lucide="mail" class="col-g"></i>
+            <span class="lbl" id="g-lbl">Gmail</span>
+          </div>
+          <span class="r">
+            <button id="btn-empty-trash" class="btn-empty-trash" style="display:none" onclick="emptyTrash()">
+              <i data-lucide="trash-2"></i><span>휴지통 비우기</span>
+            </button>
+            <button class="btn-ghost-icon danger-icon" onclick="loadGmail()" title="새로고침"><i data-lucide="refresh-cw"></i></button>
+          </span>
+        </div>
+        
+        <div class="gmail-wrap">
+          <!-- Gmail Sidebar: Labels -->
+          <nav class="g-labels" id="g-labels">
+            <button class="btn-compose" onclick="openCompose()">
+              <i data-lucide="edit-3"></i><span>편지쓰기</span>
+            </button>
+            <div class="glbl on" onclick="selLabel('INBOX',this)"><i data-lucide="inbox" class="ico"></i><span>받은편지함</span><span class="cnt" id="lcnt-INBOX" style="display:none"></span></div>
+            <div class="glbl" onclick="selLabel('STARRED',this)"><i data-lucide="star" class="ico"></i><span>중요편지함</span><span class="cnt" id="lcnt-STARRED" style="display:none"></span></div>
+            <div class="glbl" onclick="selLabel('SENT',this)"><i data-lucide="send" class="ico"></i><span>보낸편지함</span><span class="cnt" id="lcnt-SENT" style="display:none"></span></div>
+            <div class="glbl" onclick="selLabel('SPAM',this)"><i data-lucide="alert-triangle" class="ico"></i><span>스팸함</span><span class="cnt" id="lcnt-SPAM" style="display:none"></span></div>
+            <div class="glbl" onclick="selLabel('TRASH',this)"><i data-lucide="trash-2" class="ico"></i><span>휴지통</span><span class="cnt" id="lcnt-TRASH" style="display:none"></span></div>
+          </nav>
+          
+          <div class="g-main">
+            <!-- Gmail Mail List Column -->
+            <div class="g-list-col">
+              <div class="g-srch-row">
+                <input class="g-srch-inp" id="g-srch" placeholder="메일 검색..." onkeydown="if(event.key==='Enter')searchMail()"/>
+                <button class="btn-srch" onclick="searchMail()"><i data-lucide="search"></i></button>
+              </div>
+              <div class="g-selall">
+                <label>
+                  <input type="checkbox" id="chk-all" onchange="selectAll(this.checked)"/>
+                  <span>전체 선택</span>
+                </label>
+                <span class="g-sel-cnt" id="g-sel-cnt"></span>
+              </div>
+              <div class="sel-bar" id="sel-bar">
+                <span class="sel-cnt" id="sel-cnt">0개</span>
+                <button class="btn-sread" onclick="batchRead()"><i data-lucide="check-check"></i>읽음</button>
+                <button class="btn-sread" onclick="batchUnread()"><i data-lucide="mail"></i>안읽음</button>
+                <button class="btn-sread" onclick="batchStar()"><i data-lucide="star"></i>중요</button>
+                <button class="btn-sread" id="btn-batch-spam" onclick="batchSpam()"><i data-lucide="alert-circle"></i>스팸</button>
+                <button class="btn-sread" id="btn-batch-unspam" onclick="batchUnmarkSpam()" style="display:none"><i data-lucide="check-circle"></i>스팸해제</button>
+                <div class="g-move-wrap">
+                  <button class="btn-sread" onclick="toggleBatchMoveMenu(event)"><i data-lucide="folder-output"></i>이동 <i data-lucide="chevron-down" style="width:12px;height:12px"></i></button>
+                  <div class="g-move-menu" id="g-batch-move-menu" style="display:none"></div>
+                </div>
+                <button class="btn-sdel" onclick="batchDel()"><i data-lucide="trash-2"></i>삭제</button>
+                <button class="btn-sx" onclick="clearSel()"><i data-lucide="x"></i></button>
+              </div>
+              <div class="g-list" id="g-list">
+                <div class="state">
+                  <div class="state-ic"><i data-lucide="lock"></i></div>
+                  <div class="state-tx">로그인 후 이용해 주세요.</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Gmail Mail Reader Column -->
+            <div class="g-reader" id="g-reader">
+              <div class="r-back" onclick="closeReader()"><i data-lucide="arrow-left"></i><span>목록으로</span></div>
+              <div class="r-ph" id="r-ph">
+                <i data-lucide="mail-open" class="r-ph-icon"></i>
+                <div>메일을 선택하여 읽어보세요.</div>
+              </div>
+              <div id="r-content" class="r-content-wrap" style="display:none">
+                <div class="r-hd">
+                  <div class="r-subj" id="r-subj"></div>
+                  <div class="r-from" id="r-from"></div>
+                  <div class="r-acts">
+                    <button class="btn-act" onclick="replyMsg('reply')"><i data-lucide="reply"></i>답장</button>
+                    <button class="btn-act" onclick="replyMsg('replyAll')"><i data-lucide="reply-all"></i>전체답장</button>
+                    <button class="btn-act" onclick="replyMsg('forward')"><i data-lucide="forward"></i>전달</button>
+                    <button class="btn-act" onclick="toggleStar()"><i data-lucide="star"></i>중요</button>
+                    <button class="btn-act" onclick="markUnread()"><i data-lucide="mail"></i>안읽음</button>
+                    <div class="g-move-wrap">
+                      <button class="btn-act" onclick="toggleSingleMoveMenu(event)"><i data-lucide="folder-output"></i>이동 <i data-lucide="chevron-down" style="width:12px;height:12px"></i></button>
+                      <div class="g-move-menu" id="g-single-move-menu" style="display:none"></div>
+                    </div>
+                    <button class="btn-act" id="btn-spam-act" onclick="markSpam()"><i data-lucide="alert-circle"></i>스팸</button>
+                    <button class="btn-act danger" onclick="deleteMsg()"><i data-lucide="trash-2"></i>삭제</button>
+                  </div>
+                  <div id="r-atts" style="display:none"></div>
+                </div>
+                <div class="r-body">
+                  <iframe class="r-frame" id="r-frame" sandbox="allow-popups allow-popups-to-escape-sandbox"></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- BOTTOM NAVIGATION (Mobile only) -->
+  <nav class="bnav">
+    <div class="bnav-inner">
+      <button class="bnav-btn" onclick="mNav('tasks',this)"><i data-lucide="check-square" class="bnav-ic"></i><span>태스크</span></button>
+      <button class="bnav-btn on" onclick="mNav('calendar',this)"><i data-lucide="calendar" class="bnav-ic"></i><span>캘린더</span></button>
+      <button class="bnav-btn" onclick="mNav('gmail',this)"><i data-lucide="mail" class="bnav-ic"></i><span>Gmail</span></button>
+    </div>
+  </nav>
+
+  <!-- EVENT SLIDING DRAWER -->
+  <div class="ev-panel" id="ev-panel">
+    <div class="ev-ph">
+      <span class="ev-ph-ttl" id="ev-ph-ttl">일정</span>
+      <div class="ev-ph-r">
+        <button class="btn-new-ev" onclick="event.stopPropagation();showEF(-1)">
+          <i data-lucide="plus"></i><span>새 일정</span>
+        </button>
+        <button class="btn-x" onclick="closeEP()"><i data-lucide="x"></i></button>
+      </div>
+    </div>
+    <div class="ev-body" id="ev-body"></div>
+  </div>
+
+  <!-- Javascript Modules Combined Inline -->
+  <script>
+  /* ==========================================================================
+     APP.JS - GLOBAL STATE & LAYOUT COORDINATOR
+     ========================================================================== */
+
+  // Google OAuth Constants
+  const CID = '809713924882-6h063f11qhltjkv3n4l209caa53eoim8.apps.googleusercontent.com';
+  const SCOPES = 'https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.readonly https://mail.google.com/ https://www.googleapis.com/auth/contacts.readonly https://www.googleapis.com/auth/contacts.other.readonly';
+
+  // Style Colors
+  const AVCOLS = ['#EA4335', '#4285F4', '#34A853', '#FBBC04', '#9C27B0', '#FF6D00'];
+  const ECOLS = [
+    { id: '', name: '캘린더 색상', hex: '' },
+    { id: '1', hex: '#7986cb' }, { id: '2', hex: '#33b679' }, { id: '3', hex: '#8e24aa' },
+    { id: '4', hex: '#e67c73' }, { id: '5', hex: '#f6c026' }, { id: '6', hex: '#f5511d' },
+    { id: '7', hex: '#039be5' }, { id: '8', hex: '#616161' }, { id: '9', hex: '#3f51b5' },
+    { id: '10', hex: '#0b8043' }, { id: '11', hex: '#d50000' }
+  ];
+
+  // Global Shared State
+  let TC = null;
+  let AT = null;
+  let TLid = null;
+  let allT = [];
+  let calEvs = [];
+  let calList = [];
+  let calCM = {};
+  let calY = new Date().getFullYear();
+  let calM = new Date().getMonth();
+  let calFilter = {};
+  let gLabel = 'INBOX';
+  let gMsgs = [];
+  let selMsg = null;
+  let selIds = new Set();
+  let pDay = '';
+  let pEvs = [];
+  let _efi = -1;
+  let _efCal = 'primary';
+  let _efOrigCal = 'primary';
+  let _efEvId = null;
+  let _efColor = '';
+  let currentUserEmail = '';
+  let _pollTimer = null;
+  let _lastInboxUnread = 0;
+
+  // Intercept all fetch requests globally to handle 401 errors & network loss
+  const _origFetch = window.fetch;
+  window.fetch = async function (...args) {
+    try {
+      const res = await _origFetch(...args);
+      if (res.status === 401) {
+        const urlStr = typeof args[0] === 'string' ? args[0] : (args[0]?.url || '');
+        if (urlStr.includes('googleapis.com') && typeof _refreshingPromise !== 'undefined' && !_refreshingPromise) {
+          console.warn('Detected expired Google API token via global fetch interceptor.');
+          if (typeof onLogout === 'function') onLogout();
+        }
+      }
+      return res;
+    } catch (err) {
+      if (!navigator.onLine && typeof updateOnlineStatus === 'function') {
+        updateOnlineStatus();
+      }
+      throw err;
+    }
+  };
+
+  // Initialize on Load
+  window.addEventListener('load', () => {
+    initDark();
+    initSplitters();
+    renderCalGrid();
+    
+    // Set date in header
+    document.getElementById('hdate').textContent = new Date().toLocaleDateString('ko-KR', {
+      year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
+    });
+    
+    // Session Recovery
+    const cachedToken = sessionStorage.getItem('g_access_token');
+    const tokenExpires = sessionStorage.getItem('g_token_expires');
+    const cachedScopes = sessionStorage.getItem('g_token_scopes');
+    
+    tryGoogle();
+    
+    if (cachedToken && tokenExpires && cachedScopes === SCOPES) {
+      if (Date.now() < parseInt(tokenExpires)) {
+        AT = cachedToken;
+        onLogin();
+      } else {
+        setTimeout(async () => {
+          try {
+            console.log('Recovering expired session by auto-refresh...');
+            await refreshAccessToken();
+          } catch (err) {
+            console.warn('Auto session recovery failed:', err);
+            onLogout();
+          }
+        }, 500);
+      }
+    } else {
+      sessionStorage.removeItem('g_access_token');
+      sessionStorage.removeItem('g_token_expires');
+      sessionStorage.removeItem('g_token_scopes');
+    }
+    
+    // Layout Init
+    if (window.innerWidth >= 768) {
+      document.getElementById('view-calendar').classList.add('on');
+      document.getElementById('view-gmail').classList.add('on');
+    } else {
+      document.getElementById('view-calendar').classList.add('on');
+    }
+    
+    // Lucide Icons Render
+    lucide.createIcons();
+    
+    // Online/Offline event handling
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+  });
+
+  // Window Resize adjustment
+  window.addEventListener('resize', () => {
+    setTimeout(fitCal, 50);
+  });
+
+  /* ── DARK MODE ── */
+  function initDark() {
+    const theme = localStorage.getItem('g-theme');
+    const sysTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setDark(theme === 'dark' || (theme === null && sysTheme));
+    
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+      if (!localStorage.getItem('g-theme')) setDark(e.matches);
+    });
+  }
+
+  function setDark(on) {
+    document.body.classList.toggle('dark', on);
+    const icon = document.getElementById('theme-icon');
+    if (icon) {
+      icon.setAttribute('data-lucide', on ? 'sun' : 'moon');
+      lucide.createIcons();
+    }
+  }
+
+  function toggleDark() {
+    const on = document.body.classList.toggle('dark');
+    localStorage.setItem('g-theme', on ? 'dark' : 'light');
+    const icon = document.getElementById('theme-icon');
+    if (icon) {
+      icon.setAttribute('data-lucide', on ? 'sun' : 'moon');
+      lucide.createIcons();
+    }
+  }
+
+  /* ── MOBILE NAVIGATION ── */
+  function mNav(viewName, element) {
+    document.querySelectorAll('.bnav-btn').forEach(btn => btn.classList.remove('on'));
+    element.classList.add('on');
+    
+    document.querySelectorAll('.view').forEach(view => view.classList.remove('on'));
+    const targetView = document.getElementById('view-' + viewName);
+    if (targetView) targetView.classList.add('on');
+    
+    if (viewName === 'calendar') setTimeout(fitCal, 50);
+  }
+
+  /* ── PANEL COLLAPSE ── */
+  function colToggle(viewName) {
+    const view = document.getElementById('view-' + viewName);
+    const btn = document.getElementById('btn-col-' + viewName);
+    const collapsed = view.classList.toggle('col');
+    
+    if (btn) {
+      const icon = btn.querySelector('i');
+      if (icon) {
+        icon.setAttribute('data-lucide', collapsed ? 'chevron-right' : 'chevron-down');
+        lucide.createIcons();
+      }
+    }
+    
+    if (!collapsed && viewName === 'calendar') {
+      setTimeout(fitCal, 50);
+    }
+  }
+
+  /* ── SPLITTERS RESIZING ── */
+  function initSplitters() {
+    const spv = document.getElementById('sp-v');
+    const sb = document.querySelector('.sidebar');
+    
+    if (spv && sb) {
+      const sw = localStorage.getItem('sp-sw');
+      if (sw) sb.style.width = sw + 'px';
+      
+      let drag = false, sx = 0, sw0 = 0;
+      
+      spv.addEventListener('mousedown', e => {
+        e.preventDefault();
+        drag = true;
+        sx = e.clientX;
+        sw0 = sb.offsetWidth;
+        spv.classList.add('on');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+      });
+      
+      document.addEventListener('mousemove', e => {
+        if (!drag) return;
+        sb.style.width = Math.max(160, Math.min(480, sw0 + (e.clientX - sx))) + 'px';
+      });
+      
+      document.addEventListener('mouseup', () => {
+        if (!drag) return;
+        drag = false;
+        spv.classList.remove('on');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        localStorage.setItem('sp-sw', sb.offsetWidth);
+      });
+    }
+    
+    const sph = document.getElementById('sp-h');
+    const cal = document.getElementById('view-calendar');
+    const gm = document.getElementById('view-gmail');
+    
+    if (sph && cal && gm) {
+      const sc = localStorage.getItem('sp-cw');
+      const sg = localStorage.getItem('sp-gw');
+      
+      if (sc && sg && window.innerWidth >= 768) {
+        cal.style.width = sc + 'px';
+        cal.style.flex = 'none';
+        gm.style.width = sg + 'px';
+        gm.style.flex = 'none';
+      }
+      
+      let drag = false, sx2 = 0, cw0 = 0, gw0 = 0;
+      const MINSZ = 240;
+      
+      sph.addEventListener('mousedown', e => {
+        if (window.innerWidth < 768) return;
+        e.preventDefault();
+        drag = true;
+        sx2 = e.clientX;
+        cw0 = cal.offsetWidth;
+        gw0 = gm.offsetWidth;
+        sph.classList.add('on');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+      });
+      
+      document.addEventListener('mousemove', e => {
+        if (!drag) return;
+        const d = e.clientX - sx2;
+        cal.style.width = Math.max(MINSZ, cw0 + d) + 'px';
+        cal.style.flex = 'none';
+        gm.style.width = Math.max(MINSZ, gw0 - d) + 'px';
+        gm.style.flex = 'none';
+        fitCal();
+      });
+      
+      document.addEventListener('mouseup', () => {
+        if (!drag) return;
+        drag = false;
+        sph.classList.remove('on');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        localStorage.setItem('sp-cw', cal.offsetWidth);
+        localStorage.setItem('sp-gw', gm.offsetWidth);
+      });
+    }
+
+    // Horizontal Splitter between Calendar Grid and Agenda Panel
+    const spca = document.getElementById('sp-cal-agenda');
+    const agenda = document.getElementById('cal-agenda-panel');
+    
+    if (spca && agenda) {
+      const cachedHeight = localStorage.getItem('sp-agenda-h');
+      if (cachedHeight) {
+        agenda.style.height = cachedHeight + 'px';
+      }
+      
+      let drag = false, sy = 0, h0 = 0;
+      
+      spca.addEventListener('mousedown', e => {
+        e.preventDefault();
+        drag = true;
+        sy = e.clientY;
+        h0 = agenda.offsetHeight;
+        spca.classList.add('on');
+        document.body.style.cursor = 'row-resize';
+        document.body.style.userSelect = 'none';
+      });
+      
+      document.addEventListener('mousemove', e => {
+        if (!drag) return;
+        const dy = e.clientY - sy;
+        
+        const wrap = document.querySelector('.cal-grid-wrap');
+        let maxH = 800; // default maximum fallback
+        if (wrap) {
+          const dow = document.getElementById('cal-dow');
+          const dowH = dow ? dow.offsetHeight : 0;
+          const spH = spca.offsetHeight || 4;
+          // Allow calendar cells to shrink to 12px. For 6 rows, that is 72px.
+          const minGridH = 72;
+          maxH = wrap.offsetHeight - dowH - spH - minGridH - 5;
+          if (maxH < 80) maxH = 80;
+        }
+        
+        const newHeight = Math.max(80, Math.min(maxH, h0 - dy));
+        agenda.style.height = newHeight + 'px';
+        fitCal();
+      });
+      
+      document.addEventListener('mouseup', () => {
+        if (!drag) return;
+        drag = false;
+        spca.classList.remove('on');
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        localStorage.setItem('sp-agenda-h', agenda.offsetHeight);
+      });
+    }
+  }
+
+  /* ── SHARED UTILITIES ── */
+  async function req(url, opt = {}) {
+    if (!AT) {
+      throw new Error('No access token available');
+    }
+    let r = await fetch(url, {
+      ...opt,
+      headers: {
+        Authorization: `Bearer ${AT}`,
+        'Content-Type': 'application/json',
+        ...(opt.headers || {})
+      }
+    });
+    
+    if (r.status === 401) {
+      try {
+        console.log('Access token expired. Refreshing token...');
+        const newAT = await refreshAccessToken();
+        r = await fetch(url, {
+          ...opt,
+          headers: {
+            Authorization: `Bearer ${newAT}`,
+            'Content-Type': 'application/json',
+            ...(opt.headers || {})
+          }
+        });
+      } catch (err) {
+        console.error('Failed to auto-refresh token:', err);
+        onLogout();
+        throw new Error('401 (Authentication failed)');
+      }
+    }
+    
+    if (r.status === 204) return {};
+    if (!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function getContrastColor(hexColor) {
+    if (!hexColor) return '#ffffff';
+    let hex = hexColor.replace('#', '');
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) return '#ffffff';
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 150) ? '#1f2937' : '#ffffff';
+  }
+
+  function getEventDays(e) {
+    let startStr = e.start?.dateTime || e.start?.date || '';
+    let endStr = e.end?.dateTime || e.end?.date || '';
+    if (!startStr) return [];
+    
+    let start = new Date(startStr);
+    let end = new Date(endStr || startStr);
+    
+    let isAllDay = !!e.start?.date;
+    let days = [];
+    let curr = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+    let last = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    
+    const formatLocal = (dt) => {
+      const y = dt.getFullYear();
+      const m = String(dt.getMonth() + 1).padStart(2, '0');
+      const d = String(dt.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    };
+
+    if (isAllDay) {
+      while (curr < last) {
+        days.push(formatLocal(curr));
+        curr.setDate(curr.getDate() + 1);
+      }
+      if (days.length === 0) {
+        days.push(startStr.split('T')[0]);
+      }
+    } else {
+      while (curr <= last) {
+        days.push(formatLocal(curr));
+        curr.setDate(curr.getDate() + 1);
+      }
+      if (days.length > 1 && end.getHours() === 0 && end.getMinutes() === 0 && end.getSeconds() === 0 && end.getMilliseconds() === 0) {
+        days.pop();
+      }
+    }
+    return days;
+  }
+
+  function titleSortKey(t) {
+    if (!t) return '2';
+    const ch = [...t][0];
+    let cat = '0';
+    if (/\p{Nd}/u.test(ch)) {
+      cat = '1';
+    } else if (/\p{L}/u.test(ch)) {
+      cat = '2';
+    }
+    return cat + t;
+  }
+
+  function compareEvents(a, b) {
+    const dateA = getEventDays(a)[0] || '';
+    const dateB = getEventDays(b)[0] || '';
+    if (dateA !== dateB) {
+      return dateA.localeCompare(dateB);
+    }
+    
+    // Groups: 1: Multi-day, 2: 1-day all-day, 3: 1-day timed, 4: Tasks
+    const getGroup = (e) => {
+      if (e._isT) return 4;
+      const len = getEventDays(e).length;
+      if (len > 1) return 1;
+      if (e.start?.date) return 2;
+      return 3;
+    };
+    
+    const gA = getGroup(a);
+    const gB = getGroup(b);
+    if (gA !== gB) {
+      return gA - gB;
+    }
+    
+    if (gA === 1) {
+      // Same start date, both multi-day
+      // Sort all-day events first
+      const isAllDayA = !!a.start?.date;
+      const isAllDayB = !!b.start?.date;
+      if (isAllDayA !== isAllDayB) {
+        return isAllDayA ? -1 : 1;
+      }
+    }
+    
+    if (gA === 3) {
+      // Same start date, both timed
+      // Sort by actual start instant (dateTime)
+      const timeA = a.start?.dateTime || '';
+      const timeB = b.start?.dateTime || '';
+      if (timeA !== timeB) {
+        return timeA < timeB ? -1 : 1;
+      }
+    }
+    
+    // Tie-breaker 1: Title Collation (Emoji/Symbol < Number < Letter)
+    const keyA = titleSortKey(a.summary || '');
+    const keyB = titleSortKey(b.summary || '');
+    if (keyA !== keyB) {
+      return keyA < keyB ? -1 : 1;
+    }
+    
+    // Tie-breaker 2: Event ID
+    const idA = a.id || '';
+    const idB = b.id || '';
+    return idA < idB ? -1 : (idA > idB ? 1 : 0);
+  }
+
+  function loading(id, text) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.innerHTML = `
+        <div class="state">
+          <div class="state-ic"><i data-lucide="loader-2" class="spin"></i></div>
+          <div class="state-tx">${text}</div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+  }
+
+  function setEmpty(id, iconName, text) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.innerHTML = `
+        <div class="state">
+          <div class="state-ic"><i data-lucide="${iconName}"></i></div>
+          <div class="state-tx">${text}</div>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+  }
+
+  function setErr(id, text, retryCallback) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.innerHTML = `
+        <div class="state">
+          <div class="state-ic" style="color:var(--red)"><i data-lucide="alert-triangle"></i></div>
+          <div class="state-tx" style="color:var(--red)">${text}</div>
+          <button class="btn-retry" onclick="${retryCallback.name}()">다시 시도</button>
+        </div>
+      `;
+      lucide.createIcons();
+    }
+  }
+
+  function showToast(msg) {
+    let t = document.getElementById('g-toast');
+    if (!t) {
+      t = document.createElement('div');
+      t.id = 'g-toast';
+      t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,#1a73e8,#0d47a1);color:#fff;padding:12px 20px;border-radius:24px;font-size:14px;font-weight:600;box-shadow:0 4px 20px rgba(26,115,232,0.45);z-index:9999;opacity:0;transition:all 0.3s;white-space:nowrap;pointer-events:none';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(t._hide);
+    t._hide = setTimeout(() => {
+      t.style.opacity = '0';
+      t.style.transform = 'translateX(-50%) translateY(20px)';
+    }, 4000);
+  }
+
+  /* ==========================================================================
+     AUTH.JS - GOOGLE IDENTITY SERVICES OAUTH & SESSION PERSISTENCE
+     ========================================================================== */
+  /* ==========================================================================
+     AUTH.JS - GOOGLE IDENTITY SERVICES OAUTH & SESSION PERSISTENCE
+     ========================================================================== */
+  let _refreshTimer = null;
+  let _refreshingPromise = null;
+
+  function scheduleTokenRefresh() {
+    if (_refreshTimer) clearTimeout(_refreshTimer);
+    
+    const tokenExpires = sessionStorage.getItem('g_token_expires');
+    if (!tokenExpires) return;
+    
+    const timeLeft = parseInt(tokenExpires) - Date.now();
+    const refreshDelay = Math.max(0, timeLeft - 5 * 60 * 1000); // 5 minutes before expiration
+    
+    console.log(`Token refresh scheduled in ${(refreshDelay / 1000 / 60).toFixed(1)} minutes`);
+    
+    _refreshTimer = setTimeout(async () => {
+      try {
+        console.log('Proactively refreshing access token...');
+        await refreshAccessToken();
+      } catch (err) {
+        console.warn('Failed proactive token refresh:', err);
+        _refreshTimer = setTimeout(scheduleTokenRefresh, 30000);
+      }
+    }, refreshDelay);
+  }
+
+  function refreshAccessToken() {
+    if (_refreshingPromise) return _refreshingPromise;
+
+    _refreshingPromise = new Promise((resolve, reject) => {
+      if (!TC) {
+        reject(new Error('Google Client가 준비되지 않았습니다.'));
+        return;
+      }
+      
+      const originalCallback = TC.callback;
+      
+      TC.callback = (response) => {
+        if (response && !response.error) {
+          AT = response.access_token;
+          sessionStorage.setItem('g_access_token', AT);
+          sessionStorage.setItem('g_token_expires', String(Date.now() + 3600 * 1000));
+          sessionStorage.setItem('g_token_scopes', SCOPES);
+          onLogin();
+          resolve(AT);
+        } else {
+          onLogout();
+          reject(new Error(response?.error || '토큰 갱신 실패'));
+        }
+        TC.callback = originalCallback;
+        _refreshingPromise = null;
+      };
+      
+      const email = sessionStorage.getItem('g_user_email') || currentUserEmail;
+      const opts = { prompt: 'none' };
+      if (email) opts.login_hint = email;
+      TC.requestAccessToken(opts); // silent refresh with email login_hint
+    });
+
+    return _refreshingPromise;
+  }
+
+  function onLogout() {
+    AT = null;
+    sessionStorage.removeItem('g_access_token');
+    sessionStorage.removeItem('g_token_expires');
+    stopPoll();
+    if (_refreshTimer) {
+      clearTimeout(_refreshTimer);
+      _refreshTimer = null;
+    }
+    
+    const btnLogin = document.getElementById('btn-login');
+    if (btnLogin) btnLogin.style.display = 'flex';
+    
+    const tagConn = document.getElementById('tag-conn');
+    if (tagConn) tagConn.style.display = 'none';
+    
+    const btnRef = document.getElementById('btn-ref');
+    if (btnRef) btnRef.style.display = 'none';
+    
+    const btnReauth = document.getElementById('btn-reauth');
+    if (btnReauth) btnReauth.style.display = 'none';
+    
+    showToast('⚠️ Google 로그인 세션이 만료되었습니다. 다시 로그인해 주세요.');
+    updateOnlineStatus();
+  }
+
+  function updateOnlineStatus() {
+    const conn = document.getElementById('tag-conn');
+    if (!conn) return;
+    
+    if (!AT) {
+      conn.style.display = 'none';
+      return;
+    }
+    
+    conn.style.display = 'flex';
+    if (navigator.onLine) {
+      conn.classList.remove('disconnected');
+      conn.innerHTML = '<span class="conn-dot"></span>연결됨';
+    } else {
+      conn.classList.add('disconnected');
+      conn.innerHTML = '<span class="conn-dot"></span>연결 끊김';
+      showToast('⚠️ 네트워크 연결이 끊어졌습니다. 오프라인 상태입니다.');
+    }
+  }
+
+  /* ==========================================================================
+     GMAIL COMPOSE & ATTACHMENT COMPONENT
+     ========================================================================== */
+  let contactsList = [];
+
+  function parseEmailHeader(val) {
+    if (!val) return [];
+    const contacts = [];
+    // Split by comma not inside quotes
+    const parts = val.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+    parts.forEach(p => {
+      p = p.trim();
+      if (!p) return;
+      
+      const match = p.match(/^(.*?)\s*<([^>]+)>$/) || p.match(/^<([^>]+)>$/);
+      if (match) {
+        let name = match[1] ? match[1].trim() : '';
+        const email = (match[2] || match[0]).trim();
+        name = name.replace(/^["']|["']$/g, '').trim();
+        contacts.push({ name, email });
+      } else {
+        if (p.includes('@')) {
+          contacts.push({ name: '', email: p });
+        }
+      }
+    });
+    return contacts;
+  }
+
+  async function loadContacts() {
+    if (!AT) return;
+    const map = new Map();
+
+    // 1. Regular Contacts (People API)
+    try {
+      const res1 = await req('https://people.googleapis.com/v1/people/me/connections?personFields=names,emailAddresses&pageSize=1000');
+      const connections = (res1.connections || []).map(person => {
+        const name = person.names?.[0]?.displayName || '';
+        const email = person.emailAddresses?.[0]?.value || '';
+        return { name, email };
+      }).filter(c => c.email);
+      connections.forEach(c => map.set(c.email.toLowerCase(), c));
+      console.log('Loaded regular contacts:', connections.length);
+    } catch (err1) {
+      console.warn('Failed loading regular contacts:', err1);
+    }
+
+    // 2. Other Contacts (People API)
+    try {
+      const res2 = await req('https://people.googleapis.com/v1/otherContacts?readMask=names,emailAddresses&pageSize=1000');
+      const otherContacts = (res2.otherContacts || []).map(person => {
+        const name = person.names?.[0]?.displayName || '';
+        const email = person.emailAddresses?.[0]?.value || '';
+        return { name, email };
+      }).filter(c => c.email);
+      otherContacts.forEach(c => {
+        const key = c.email.toLowerCase();
+        if (!map.has(key)) {
+          map.set(key, c);
+        }
+      });
+      console.log('Loaded other contacts:', otherContacts.length);
+    } catch (errOther) {
+      console.warn('Failed loading otherContacts:', errOther);
+    }
+
+    // 3. Fallback/Hybrid: Fetch emails from Gmail to parse sent/received contacts
+    try {
+      const gmailRes = await req('https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=30');
+      if (gmailRes.messages && gmailRes.messages.length > 0) {
+        const msgDetails = await Promise.all(
+          gmailRes.messages.map(m => 
+            req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=To`).catch(() => null)
+          )
+        );
+        
+        let gmailContactsCount = 0;
+        msgDetails.forEach(msg => {
+          if (!msg || !msg.payload || !msg.payload.headers) return;
+          msg.payload.headers.forEach(h => {
+            const name = h.name.toLowerCase();
+            if (name === 'from' || name === 'to') {
+              const parsed = parseEmailHeader(h.value);
+              parsed.forEach(contact => {
+                if (contact.email) {
+                  const key = contact.email.toLowerCase();
+                  if (!map.has(key)) {
+                    map.set(key, contact);
+                    gmailContactsCount++;
+                  }
+                }
+              });
+            }
+          });
+        });
+        console.log('Extracted unique contacts from recent Gmail messages:', gmailContactsCount);
+      }
+    } catch (errGmail) {
+      console.warn('Failed extracting contacts from Gmail messages:', errGmail);
+    }
+
+    contactsList = Array.from(map.values());
+    console.log('Loaded combined contacts total:', contactsList.length);
+  }
+
+  function handleComposeAC(val) {
+    const acList = document.getElementById('comp-ac-list');
+    if (!acList) return;
+    
+    const query = val.trim().toLowerCase();
+    if (!query) {
+      acList.style.display = 'none';
+      return;
+    }
+    
+    const matches = contactsList.filter(c => 
+      (c.name || '').toLowerCase().includes(query) || 
+      (c.email || '').toLowerCase().includes(query)
+    ).slice(0, 10);
+    
+    if (matches.length === 0) {
+      acList.style.display = 'none';
+      return;
+    }
+    
+    acList.style.display = 'block';
+    acList.innerHTML = matches.map(c => `
+      <div class="comp-ac-item" onclick="selectComposeAC('${ea(c.email)}')">
+        <span class="comp-ac-name">${esc(c.name || '(이름 없음)')}</span>
+        <span class="comp-ac-email">${esc(c.email)}</span>
+      </div>
+    `).join('');
+  }
+
+  function selectComposeAC(email) {
+    const toInput = document.getElementById('comp-to');
+    if (toInput) {
+      toInput.value = email;
+    }
+    const acList = document.getElementById('comp-ac-list');
+    if (acList) {
+      acList.style.display = 'none';
+    }
+  }
+
+  document.addEventListener('click', e => {
+    const acList = document.getElementById('comp-ac-list');
+    if (acList && !e.target.closest('.comp-field')) {
+      acList.style.display = 'none';
+    }
+  });
+
+  let composeFiles = [];
+
+  function openCompose(mode, msgData) {
+    if (!AT) {
+      showToast('⚠️ 구글 로그인 후 편지를 작성할 수 있습니다.');
+      return;
+    }
+    const win = document.getElementById('compose-win');
+    if (!win) return;
+    
+    win.style.display = 'flex';
+    win.classList.remove('minimized');
+    win.classList.remove('maximized');
+    
+    const toInp = document.getElementById('comp-to');
+    const subjInp = document.getElementById('comp-subj');
+    const textInp = document.getElementById('comp-text');
+    
+    document.getElementById('comp-file-input').value = '';
+    composeFiles = [];
+    renderComposeAtts();
+    
+    if (!mode) {
+      toInp.value = '';
+      subjInp.value = '';
+      textInp.value = '';
+      return;
+    }
+    
+    const hd = msgData?.payload?.headers || [];
+    const fromStr = hd.find(h => h.name === 'From')?.value || '';
+    const toStr = hd.find(h => h.name === 'To')?.value || '';
+    const subjStr = hd.find(h => h.name === 'Subject')?.value || '(제목 없음)';
+    const dateStr = hd.find(h => h.name === 'Date')?.value || '';
+    
+    const extractEmail = (str) => {
+      const m = str.match(/<([^>]+)>/);
+      return m ? m[1] : str.trim();
+    };
+    const fromEmail = extractEmail(fromStr);
+    
+    const plainTextBody = getBodyTextOnly(msgData?.payload) || '';
+    const quoteHeader = `\n\n\n-------- 원본 메시지 --------\n보낸사람: ${fromStr}\n받는사람: ${toStr}\n날짜: ${dateStr}\n제목: ${subjStr}\n\n${plainTextBody}`;
+    
+    if (mode === 'reply') {
+      toInp.value = fromEmail;
+      subjInp.value = subjStr.startsWith('Re:') ? subjStr : 'Re: ' + subjStr;
+      textInp.value = quoteHeader;
+    } else if (mode === 'replyAll') {
+      const allRecips = [fromEmail, extractEmail(toStr)].filter(Boolean).join(', ');
+      toInp.value = allRecips;
+      subjInp.value = subjStr.startsWith('Re:') ? subjStr : 'Re: ' + subjStr;
+      textInp.value = quoteHeader;
+    } else if (mode === 'forward') {
+      toInp.value = '';
+      subjInp.value = subjStr.startsWith('Fwd:') ? subjStr : 'Fwd: ' + subjStr;
+      textInp.value = quoteHeader;
+    }
+  }
+
+  function getBodyTextOnly(p) {
+    if (!p) return '';
+    if (p.mimeType === 'text/plain' && p.body?.data) return decB(p.body.data);
+    if (p.parts) {
+      for (const part of p.parts) {
+        const t = getBodyTextOnly(part);
+        if (t) return t;
+      }
+    }
+    if (p.body?.data) return decB(p.body.data).replace(/<[^>]+>/g, '');
+    return '';
+  }
+
+  function replyMsg(mode) {
+    if (!selMsg) return;
+    openCompose(mode, selMsg);
+  }
+
+  function closeCompose() {
+    const win = document.getElementById('compose-win');
+    if (win) win.style.display = 'none';
+  }
+
+  function minCompose() {
+    const win = document.getElementById('compose-win');
+    if (win) win.classList.toggle('minimized');
+  }
+
+  function maxCompose() {
+    const win = document.getElementById('compose-win');
+    if (win) win.classList.toggle('maximized');
+  }
+
+  function triggerFileAttach() {
+    document.getElementById('comp-file-input')?.click();
+  }
+
+  function handleFileAttach(input) {
+    const files = Array.from(input.files || []);
+    composeFiles = composeFiles.concat(files);
+    renderComposeAtts();
+    input.value = '';
+  }
+
+  function removeComposeAtt(idx) {
+    composeFiles.splice(idx, 1);
+    renderComposeAtts();
+  }
+
+  function renderComposeAtts() {
+    const attsDiv = document.getElementById('comp-atts');
+    if (!attsDiv) return;
+    
+    if (composeFiles.length === 0) {
+      attsDiv.style.display = 'none';
+      return;
+    }
+    
+    attsDiv.style.display = 'flex';
+    attsDiv.innerHTML = composeFiles.map((file, idx) => {
+      const sz = file.size < 1024 ? file.size + ' B' 
+               : file.size < 1048576 ? (file.size / 1024).toFixed(1) + ' KB' 
+               : (file.size / 1048576).toFixed(1) + ' MB';
+      return `
+        <div class="comp-att-item">
+          <i data-lucide="file-check" style="width:14px;height:14px;color:var(--t2)"></i>
+          <span class="comp-att-name" title="${esc(file.name)}">${esc(file.name)}</span>
+          <span class="comp-att-size">${sz}</span>
+          <button class="comp-att-del" onclick="removeComposeAtt(${idx})" title="삭제">
+            <i data-lucide="x" style="width:12px;height:12px"></i>
+          </button>
+        </div>
+      `;
+    }).join('');
+    
+    lucide.createIcons();
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result.split(',')[1];
+        resolve(base64);
+      };
+      reader.onerror = error => reject(error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function buildMimeMessage(to, subject, text, files) {
+    const boundary = "----=_Part_Boundary_" + Date.now().toString(16);
+    const encodedSubject = btoa(unescape(encodeURIComponent(subject)));
+    const encodedText = btoa(unescape(encodeURIComponent(text)));
+    
+    let email = [
+      `To: ${to}`,
+      `Subject: =?UTF-8?B?${encodedSubject}?=`,
+      'MIME-Version: 1.0',
+      `Content-Type: multipart/mixed; boundary="${boundary}"`,
+      '',
+      `--${boundary}`,
+      'Content-Type: text/plain; charset="UTF-8"',
+      'Content-Transfer-Encoding: base64',
+      '',
+      encodedText,
+      ''
+    ];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      try {
+        const b64Data = await fileToBase64(file);
+        const chunkedData = b64Data.match(/.{1,76}/g).join('\r\n');
+        email = email.concat([
+          `--${boundary}`,
+          `Content-Type: ${file.type || 'application/octet-stream'}; name="${file.name}"`,
+          `Content-Disposition: attachment; filename="${file.name}"`,
+          'Content-Transfer-Encoding: base64',
+          '',
+          chunkedData,
+          ''
+        ]);
+      } catch (err) {
+        console.error('Failed encoding attachment:', file.name, err);
+      }
+    }
+
+    email.push(`--${boundary}--`);
+    return email.join('\r\n');
+  }
+
+  async function sendComposeMail() {
+    const to = (document.getElementById('comp-to')?.value || '').trim();
+    const subject = (document.getElementById('comp-subj')?.value || '').trim();
+    const text = document.getElementById('comp-text')?.value || '';
+    
+    if (!to) {
+      alert('받는 사람 이메일 주소를 입력해 주세요.');
+      return;
+    }
+    if (!to.includes('@')) {
+      alert('올바른 이메일 주소를 입력해 주세요.');
+      return;
+    }
+    
+    const sendBtn = document.querySelector('.comp-btn-send');
+    const originalHtml = sendBtn.innerHTML;
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = '<span>전송 중...</span>';
+    
+    try {
+      const rawMime = await buildMimeMessage(to, subject, text, composeFiles);
+      
+      const encodedMessage = btoa(unescape(encodeURIComponent(rawMime)))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+        
+      const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${AT}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          raw: encodedMessage
+        })
+      });
+      
+      if (!response.ok) {
+        const textErr = await response.text();
+        throw new Error(response.status + ': ' + textErr);
+      }
+      
+      showToast('📬 메일을 성공적으로 발송했습니다.');
+      closeCompose();
+      if (gLabel === 'SENT') {
+        loadGmail();
+      }
+      loadLabelCounts();
+    } catch (err) {
+      alert('메일 발송 실패: ' + err.message);
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = originalHtml;
+    }
+  }
+
+  function tryGoogle() {
+    if (typeof google !== 'undefined' && google.accounts) {
+      TC = google.accounts.oauth2.initTokenClient({
+        client_id: CID,
+        scope: SCOPES,
+        callback: response => {
+          if (!response.error) {
+            AT = response.access_token;
+            sessionStorage.setItem('g_access_token', AT);
+            sessionStorage.setItem('g_token_expires', String(Date.now() + 3600 * 1000));
+            sessionStorage.setItem('g_token_scopes', SCOPES);
+            onLogin();
+          } else {
+            showToast('❌ 로그인 오류: ' + response.error);
+          }
+        }
+      });
+    } else {
+      setTimeout(tryGoogle, 150);
+    }
+  }
+
+  function signIn() {
+    if (TC) {
+      TC.requestAccessToken({ prompt: 'consent' });
+    } else {
+      showToast('⚠️ Google SDK가 아직 준비되지 않았습니다. 잠시 후 다시 시도해 주세요.');
+    }
+  }
+
+  function onLogin() {
+    const btnLogin = document.getElementById('btn-login');
+    if (btnLogin) btnLogin.style.display = 'none';
+    
+    const tagConn = document.getElementById('tag-conn');
+    if (tagConn) tagConn.style.display = 'flex';
+    
+    const btnRef = document.getElementById('btn-ref');
+    if (btnRef) btnRef.style.display = 'flex';
+    
+    const btnReauth = document.getElementById('btn-reauth');
+    if (btnReauth) btnReauth.style.display = 'none';
+    
+    scheduleTokenRefresh();
+    updateOnlineStatus();
+    loadAll();
+  }
+
+  async function fetchUserEmail() {
+    try {
+      const profile = await req('https://gmail.googleapis.com/gmail/v1/users/me/profile');
+      if (profile && profile.emailAddress) {
+        currentUserEmail = profile.emailAddress;
+        sessionStorage.setItem('g_user_email', currentUserEmail);
+        console.log('Logged in user:', currentUserEmail);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch user email:', err);
+    }
+  }
+
+  async function loadAll() {
+    try {
+      await fetchUserEmail(); // Fetch user email for refresh hint
+      loadContacts(); // Load contacts for autocomplete asynchronously in the background
+      await loadCalColors();
+      loadTasks();
+      loadCalendar();
+      loadGmail();
+      loadLabelCounts();
+      startPoll();
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+      showToast('⚠️ 일부 데이터를 불러오는데 실패했습니다.');
+    }
+  }
+
+  function startPoll() {
+    if (_pollTimer) clearInterval(_pollTimer);
+    _pollTimer = setInterval(pollMail, 60000);
+  }
+
+  function stopPoll() {
+    if (_pollTimer) {
+      clearInterval(_pollTimer);
+      _pollTimer = null;
+    }
+  }
+
+  async function pollMail() {
+    if (!AT) return;
+    try {
+      const data = await req('https://gmail.googleapis.com/gmail/v1/users/me/labels/INBOX');
+      const newUnread = data.messagesUnread || 0;
+      
+      if (newUnread > _lastInboxUnread) {
+        const diff = newUnread - _lastInboxUnread;
+        showToast(`📬 새 메일 ${diff}개가 도착했습니다!`);
+        if (gLabel === 'INBOX') loadGmail();
+        loadLabelCounts();
+      } else {
+        loadLabelCounts();
+      }
+      _lastInboxUnread = newUnread;
+    } catch (err) {
+      console.warn('Poller failed:', err);
+    }
+  }
+
+  /* ==========================================================================
+     TASKS.JS - GOOGLE TASKS API MANAGEMENT
+     ========================================================================== */
+  function togTForm(s) {
+    const form = document.getElementById('t-form-' + s);
+    if (form) {
+      form.classList.toggle('on');
+    }
+  }
+
+  async function loadTasks() {
+    loading('t-list-d', '태스크 불러오는 중...');
+    loading('t-list-m', '태스크 불러오는 중...');
+    
+    try {
+      const lists = await req('https://tasks.googleapis.com/tasks/v1/users/@me/lists');
+      if (!lists.items || lists.items.length === 0) {
+        setEmpty('t-list-d', 'check-square', '등록된 태스크가 없습니다.');
+        setEmpty('t-list-m', 'check-square', '등록된 태스크가 없습니다.');
+        return;
+      }
+      
+      TLid = lists.items[0].id;
+      const r = await req(`https://tasks.googleapis.com/tasks/v1/lists/${TLid}/tasks?showCompleted=true&maxResults=100`);
+      allT = r.items || [];
+      
+      renderTasks();
+      addTasksToCal();
+    } catch (err) {
+      console.error(err);
+      setErr('t-list-d', '태스크를 불러올 수 없습니다.', loadTasks);
+      setErr('t-list-m', '태스크를 불러올 수 없습니다.', loadTasks);
+    }
+  }
+
+  function renderTasks() {
+    const activeTasks = allT.filter(t => t.status !== 'completed');
+    const doneTasks = allT.filter(t => t.status === 'completed');
+    const activeCount = activeTasks.length;
+    
+    ['t-badge', 't-badge-m'].forEach(id => {
+      const badge = document.getElementById(id);
+      if (badge) {
+        badge.textContent = activeCount;
+        badge.style.background = activeCount ? 'var(--yellow)' : 'var(--t3)';
+      }
+    });
+    
+    let html = '';
+    
+    if (activeTasks.length === 0 && doneTasks.length === 0) {
+      html = `
+        <div class="state">
+          <div class="state-ic"><i data-lucide="party-popper"></i></div>
+          <div class="state-tx">모든 할 일을 완료했습니다!</div>
+        </div>
+      `;
+    } else {
+      activeTasks.forEach(t => { html += tHtml(t, false); });
+      
+      if (doneTasks.length > 0) {
+        html += `<div class="sec-lbl">완료됨 (${doneTasks.length})</div>`;
+        doneTasks.forEach(t => { html += tHtml(t, true); });
+      }
+    }
+    
+    ['t-list-d', 't-list-m'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.innerHTML = html;
+      }
+    });
+    
+    lucide.createIcons();
+  }
+
+  function tHtml(t, done) {
+    const due = t.due ? new Date(t.due).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) : '';
+    const over = t.due && !done && new Date(t.due) < new Date().setHours(0, 0, 0, 0);
+    
+    return `
+      <div class="t-item">
+        <input type="checkbox" ${done ? 'checked' : ''} onchange="${done ? `unco('${t.id}')` : `co('${t.id}')`}" title="완료 처리"/>
+        <div class="t-info">
+          <div class="t-txt${done ? ' done' : ''}">${esc(t.title)}</div>
+          ${due ? `
+            <div class="t-meta" style="color:${over ? 'var(--red)' : 'var(--t3)'}">
+              <i data-lucide="calendar"></i> 
+              <span>${due}${over ? ' (기한 초과)' : ''}</span>
+            </div>
+          ` : ''}
+          ${t.notes ? `
+            <div class="t-meta">
+              <i data-lucide="align-left"></i> 
+              <span>${esc(t.notes)}</span>
+            </div>
+          ` : ''}
+        </div>
+        <button class="t-del" onclick="delT('${t.id}')" title="삭제"><i data-lucide="trash-2"></i></button>
+      </div>
+    `;
+  }
+
+  async function addTask(s) {
+    const inputEl = document.getElementById('t-inp-' + s);
+    const title = inputEl.value.trim();
+    if (!title || !TLid) return;
+    
+    const due = document.getElementById('t-due-' + s)?.value;
+    const notes = document.getElementById('t-note-' + s)?.value?.trim();
+    
+    const body = { title: title };
+    if (due) body.due = new Date(due + 'T00:00:00').toISOString();
+    if (notes) body.notes = notes;
+    
+    inputEl.value = '';
+    const form = document.getElementById('t-form-' + s);
+    if (form) {
+      form.classList.remove('on');
+      const dueInp = document.getElementById('t-due-' + s);
+      const noteInp = document.getElementById('t-note-' + s);
+      if (dueInp) dueInp.value = '';
+      if (noteInp) noteInp.value = '';
+    }
+    
+    try {
+      const newTask = await req(`https://tasks.googleapis.com/tasks/v1/lists/${TLid}/tasks`, {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+      allT.unshift(newTask);
+      renderTasks();
+      addTasksToCal();
+    } catch (err) {
+      console.error(err);
+      showToast('⚠️ 태스크 추가에 실패했습니다.');
+    }
+  }
+
+  async function co(id) {
+    try {
+      await req(`https://tasks.googleapis.com/tasks/v1/lists/${TLid}/tasks/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'completed' })
+      });
+      allT = allT.map(t => t.id === id ? { ...t, status: 'completed' } : t);
+      renderTasks();
+      addTasksToCal();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function unco(id) {
+    try {
+      await req(`https://tasks.googleapis.com/tasks/v1/lists/${TLid}/tasks/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'needsAction', completed: null })
+      });
+      allT = allT.map(t => t.id === id ? { ...t, status: 'needsAction' } : t);
+      renderTasks();
+      addTasksToCal();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function delT(id) {
+    try {
+      await fetch(`https://tasks.googleapis.com/tasks/v1/lists/${TLid}/tasks/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${AT}` }
+      });
+      allT = allT.filter(t => t.id !== id);
+      renderTasks();
+      addTasksToCal();
+    } catch (err) {
+      console.error(err);
+      showToast('⚠️ 태스크 삭제에 실패했습니다.');
+    }
+  }
+
+  function addTasksToCal() {
+    calEvs = calEvs.filter(e => !e._isT);
+    allT.filter(t => t.due).forEach(t => {
+      const ds = t.due.split('T')[0];
+      calEvs.push({
+        id: 't-' + t.id,
+        summary: t.title,
+        start: { date: ds },
+        end: { date: ds },
+        _col: '#2563eb',
+        _cal: '태스크',
+        _isT: true,
+        _completed: t.status === 'completed'
+      });
+    });
+    renderCalGrid();
+  }
+
+  /* ==========================================================================
+     CALENDAR.JS - GOOGLE CALENDAR & AGENDA VIEW
+     ========================================================================== */
+  async function loadCalColors() {
+    try {
+      const [cols, list] = await Promise.all([
+        req('https://www.googleapis.com/calendar/v3/colors'),
+        req('https://www.googleapis.com/calendar/v3/users/me/calendarList')
+      ]);
+      
+      Object.entries(cols.event || {}).forEach(([id, c]) => {
+        const ec = ECOLS.find(e => e.id === id);
+        if (ec) ec.hex = c.background;
+      });
+      
+      calList = list.items || [];
+      calCM = {};
+      calList.forEach(c => {
+        calCM[c.id] = c.backgroundColor || '#2563eb';
+      });
+    } catch (err) {
+      console.warn('Colors loading failed, falling back:', err);
+    }
+    loadCalFilter();
+    renderCalFilterList();
+  }
+
+  function loadCalFilter() {
+    try {
+      calFilter = JSON.parse(localStorage.getItem('g-cal-filter') || '{}');
+    } catch {
+      calFilter = {};
+    }
+  }
+
+  function saveCalFilter() {
+    localStorage.setItem('g-cal-filter', JSON.stringify(calFilter));
+  }
+
+  function toggleCalFilterPanel() {
+    const panel = document.getElementById('cal-filter-panel');
+    if (!panel) return;
+    panel.classList.toggle('on');
+    if (panel.classList.contains('on')) renderCalFilterList();
+  }
+
+  function renderCalFilterList() {
+    const list = document.getElementById('cal-filter-list');
+    if (!list) return;
+    
+    if (!calList.length) {
+      list.innerHTML = '<div style="padding:10px 16px;font-size:12px;color:var(--t3)">로그인 후 필터가 표시됩니다.</div>';
+      return;
+    }
+    
+    list.innerHTML = '';
+    calList.forEach(cal => {
+      const enabled = calFilter[cal.id] !== false;
+      const color = cal.backgroundColor || '#2563eb';
+      
+      const label = document.createElement('label');
+      label.className = 'cal-filter-item';
+      
+      const dot = document.createElement('span');
+      dot.className = 'cal-fi-dot';
+      dot.style.background = color;
+      
+      const name = document.createElement('span');
+      name.className = 'cal-fi-name';
+      name.textContent = cal.summary || cal.id;
+      
+      const chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.className = 'cal-fi-chk';
+      chk.checked = enabled;
+      chk.addEventListener('change', function () {
+        setCalFilter(cal.id, this.checked);
+      });
+      
+      label.appendChild(dot);
+      label.appendChild(name);
+      label.appendChild(chk);
+      list.appendChild(label);
+    });
+  }
+
+  function setCalFilter(calId, enabled) {
+    if (enabled) {
+      delete calFilter[calId];
+    } else {
+      calFilter[calId] = false;
+    }
+    saveCalFilter();
+    loadCalendar();
+  }
+
+  document.addEventListener('click', e => {
+    const panel = document.getElementById('cal-filter-panel');
+    const btn = document.getElementById('btn-cal-filter');
+    if (panel && panel.classList.contains('on') && !panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+      panel.classList.remove('on');
+    }
+  });
+
+  function calNav(d) {
+    calM += d;
+    if (calM > 11) { calM = 0; calY++; }
+    if (calM < 0) { calM = 11; calY--; }
+    renderCalGrid();
+    loadCalendar();
+  }
+
+  function calToday() {
+    calY = new Date().getFullYear();
+    calM = new Date().getMonth();
+    renderCalGrid();
+    loadCalendar();
+  }
+
+  function renderCalGrid() {
+    const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+    const today = new Date();
+    const first = new Date(calY, calM, 1);
+    const last = new Date(calY, calM + 1, 0);
+    
+    document.getElementById('cal-lbl').textContent = `${calY}년 ${calM + 1}월`;
+    document.getElementById('cal-dow').innerHTML = DAYS.map(d => `<div class="cal-dow-cell">${d}</div>`).join('');
+    
+    let html = '';
+    
+    for (let i = 0; i < first.getDay(); i++) {
+      const d = new Date(calY, calM, 1 - first.getDay() + i);
+      const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      html += `
+        <div class="cal-day other" onclick="showDay('${ds}')" data-date="${ds}">
+          <div class="cal-dn">${d.getDate()}</div>
+          <div class="cal-events-inner"></div>
+        </div>
+      `;
+    }
+    
+    for (let d = 1; d <= last.getDate(); d++) {
+      const ds = `${calY}-${String(calM + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const isToday = d === today.getDate() && calM === today.getMonth() && calY === today.getFullYear();
+      
+      html += `
+        <div class="cal-day${isToday ? ' today-c' : ''}" onclick="showDay('${ds}')" data-date="${ds}">
+          <div class="cal-dn">${d}</div>
+          <div class="cal-events-inner"></div>
+        </div>
+      `;
+    }
+    
+    const rem = (first.getDay() + last.getDate()) % 7;
+    if (rem > 0) {
+      for (let i = 1; i <= 7 - rem; i++) {
+        const d = new Date(calY, calM + 1, i);
+        const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        html += `
+          <div class="cal-day other" onclick="showDay('${ds}')" data-date="${ds}">
+            <div class="cal-dn">${i}</div>
+            <div class="cal-events-inner"></div>
+          </div>
+        `;
+      }
+    }
+    
+    document.getElementById('cal-grid').innerHTML = html;
+    fitCal();
+    renderAgenda();
+  }
+
+  function fillCalendarEvents(cellHeight) {
+    const grid = document.getElementById('cal-grid');
+    if (!grid) return;
+    const cells = grid.querySelectorAll('.cal-day');
+    if (!cells.length) return;
+    const rows = Math.ceil(cells.length / 7);
+    if (cellHeight === undefined) {
+      cellHeight = Math.max(12, Math.floor(grid.offsetHeight / rows));
+    }
+    
+    // Collect all dates from grid cells
+    const gridDates = [];
+    cells.forEach(cell => {
+      gridDates.push(cell.getAttribute('data-date') || '');
+    });
+    
+    // Slots allocation maps
+    const slotsMap = {};
+    const maxSlotMap = {};
+    gridDates.forEach(d => {
+      if (d) {
+        slotsMap[d] = {};
+        maxSlotMap[d] = -1;
+      }
+    });
+    
+    // Process week by week for continuous layout slotting
+    for (let w = 0; w < rows; w++) {
+      const weekDates = [];
+      for (let i = 0; i < 7; i++) {
+        weekDates.push(gridDates[w * 7 + i] || '');
+      }
+      
+      // Get all events overlapping this week
+      const weekEvs = calEvs.filter(e => {
+        const eDays = getEventDays(e);
+        return eDays.some(d => weekDates.includes(d));
+      });
+      
+      weekEvs.sort(compareEvents);
+      
+      // Track occupied slots for this week: daySlots[col][slotIndex] = true
+      const daySlots = Array.from({ length: 7 }, () => []);
+      
+      weekEvs.forEach(e => {
+        const eDays = getEventDays(e);
+        const occupiedCols = [];
+        for (let i = 0; i < 7; i++) {
+          if (eDays.includes(weekDates[i])) {
+            occupiedCols.push(i);
+          }
+        }
+        
+        let s = 0;
+        while (true) {
+          let conflict = false;
+          for (const col of occupiedCols) {
+            if (daySlots[col][s] === true) {
+              conflict = true;
+              break;
+            }
+          }
+          if (!conflict) break;
+          s++;
+        }
+        
+        occupiedCols.forEach(col => {
+          daySlots[col][s] = true;
+          const dateStr = weekDates[col];
+          const key = e.id || e.summary || '';
+          slotsMap[dateStr][key] = s;
+          if (s > maxSlotMap[dateStr]) {
+            maxSlotMap[dateStr] = s;
+          }
+        });
+      });
+    }
+    
+    // Render events inside cell segments
+    cells.forEach((cell, cellIdx) => {
+      const ds = cell.getAttribute('data-date');
+      if (!ds) return;
+      const inner = cell.querySelector('.cal-events-inner');
+      if (!inner) return;
+      
+      if (cell.classList.contains('other')) {
+        inner.innerHTML = '';
+        return;
+      }
+      
+      const dayOfWeek = cellIdx % 7; // 0 = Sun, 6 = Sat
+      const dayEvs = calEvs.filter(e => getEventDays(e).includes(ds));
+      
+      let html = '';
+      if (cellHeight < 55) {
+        if (dayEvs.length > 0) {
+          const dots = dayEvs.map(e => {
+            const color = e._col || '#2563eb';
+            return `<span class="day-dot" style="background:${color}"></span>`;
+          }).join('');
+          html = `<div class="day-dots-row">${dots}</div>`;
+        }
+      } else {
+        const headerHeight = 34;
+        const eventHeight = 18;
+        const moreHeight = 14;
+        const remainingHeight = cellHeight - headerHeight;
+        
+        const maxSlot = maxSlotMap[ds];
+        let showMore = false;
+        let limit = maxSlot + 1;
+        
+        if ((maxSlot + 1) * 20 > remainingHeight) {
+          showMore = true;
+          limit = Math.floor((remainingHeight - moreHeight) / 20);
+          if (limit < 1) limit = 1;
+        }
+        
+        for (let s = 0; s < limit; s++) {
+          const ev = dayEvs.find(e => slotsMap[ds][e.id || e.summary] === s);
+          if (ev) {
+            if (ev._isT) {
+              const compClass = ev._completed ? ' completed' : '';
+              const dotClass = ev._completed ? 'task-dot completed' : 'task-dot';
+              html += `<div class="cal-ev task-ev${compClass}" style="margin-left:4px; margin-right:4px;"><span class="${dotClass}"></span>${esc(ev.summary || '')}</div>`;
+            } else {
+              const bg = ev._col || '#2563eb';
+              const fg = getContrastColor(bg);
+              
+              const eDays = getEventDays(ev);
+              const idx = eDays.indexOf(ds);
+              const isStart = (idx === 0);
+              const isEnd = (idx === eDays.length - 1);
+              
+              // Only display text on start day or week boundary (Sunday)
+              const showText = isStart || (dayOfWeek === 0);
+              
+              let borderLeft = 'border-top-left-radius: 4px; border-bottom-left-radius: 4px;';
+              let borderRight = 'border-top-right-radius: 4px; border-bottom-right-radius: 4px;';
+              let marginLeft = 'margin-left: 4px;';
+              let marginRight = 'margin-right: 4px;';
+              
+              if (!isStart && dayOfWeek !== 0) {
+                borderLeft = 'border-top-left-radius: 0; border-bottom-left-radius: 0;';
+                marginLeft = 'margin-left: 0;';
+              }
+              if (!isEnd && dayOfWeek !== 6) {
+                borderRight = 'border-top-right-radius: 0; border-bottom-right-radius: 0;';
+                marginRight = 'margin-right: 0;';
+              }
+              
+              const styles = `${borderLeft} ${borderRight} ${marginLeft} ${marginRight}`;
+              
+              html += `<div class="cal-ev" style="background:${bg}; color:${fg}; ${styles}">${showText ? esc(ev.summary || '일정') : '&nbsp;'}</div>`;
+            }
+          } else {
+            html += `<div class="cal-ev-spacer" style="height:18px; margin-bottom:2px;"></div>`;
+          }
+        }
+        
+        if (showMore) {
+          const hiddenCount = dayEvs.filter(e => slotsMap[ds][e.id || e.summary] >= limit).length;
+          if (hiddenCount > 0) {
+            html += `<div class="cal-more">+${hiddenCount}개 더 보기</div>`;
+          }
+        }
+      }
+      inner.innerHTML = html;
+    });
+  }
+
+  function fitCal() {
+    if (window.innerWidth < 768) return;
+    const wrap = document.querySelector('.cal-grid-wrap');
+    const dow = document.getElementById('cal-dow');
+    const grid = document.getElementById('cal-grid');
+    const sp = document.getElementById('sp-cal-agenda');
+    const agenda = document.getElementById('cal-agenda-panel');
+    if (!wrap || !grid) return;
+    
+    const wrapH = wrap.offsetHeight;
+    if (!wrapH) return;
+    
+    const dowH = dow ? dow.offsetHeight : 0;
+    const spH = sp ? sp.offsetHeight : 4;
+    let agendaH = agenda ? agenda.offsetHeight : 180;
+    
+    const cells = grid.querySelectorAll('.cal-day');
+    if (!cells.length) return;
+    const rows = Math.ceil(cells.length / 7);
+    const minGridH = rows * 12;
+    
+    if (wrapH - dowH - spH - agendaH < minGridH) {
+      agendaH = Math.max(80, wrapH - dowH - spH - minGridH);
+      if (agenda) agenda.style.height = agendaH + 'px';
+    }
+    
+    const availableH = wrapH - dowH - spH - agendaH;
+    const cellHeight = Math.max(12, Math.floor(availableH / rows));
+    
+    grid.style.gridTemplateRows = `repeat(${rows}, ${cellHeight}px)`;
+    
+    fillCalendarEvents(cellHeight);
+  }
+
+  async function loadCalendar() {
+    try {
+      const first = new Date(calY, calM, 1);
+      const last = new Date(calY, calM + 1, 0);
+      const gridStart = new Date(calY, calM, 1 - first.getDay());
+      
+      const rem = (first.getDay() + last.getDate()) % 7;
+      const trailDays = rem > 0 ? (7 - rem) : 0;
+      const gridEnd = new Date(calY, calM + 1, trailDays);
+      gridEnd.setHours(23, 59, 59, 999);
+      
+      const from = gridStart.toISOString();
+      const to = gridEnd.toISOString();
+      
+      calEvs = calEvs.filter(e => e._isT);
+      
+      const src = calList.length ? calList : [{ id: 'primary', backgroundColor: '#2563eb', summary: '기본 캘린더' }];
+      
+      for (const cal of src) {
+        if (calFilter[cal.id] === false) continue;
+        try {
+          const data = await req(`https://www.googleapis.com/calendar/v3/calendars/${enc(cal.id)}/events?timeMin=${enc(from)}&timeMax=${enc(to)}&singleEvents=true&orderBy=startTime&maxResults=100`);
+          
+          (data.items || []).forEach(e => {
+            let col = calCM[cal.id] || '#2563eb';
+            if (e.colorId) {
+              const ec = ECOLS.find(x => x.id === e.colorId);
+              if (ec?.hex) col = ec.hex;
+            }
+            const writable = cal.accessRole === 'writer' || cal.accessRole === 'owner' || cal.id === 'primary';
+            calEvs.push({ ...e, _col: col, _cal: cal.summary, _calId: cal.id, _writable: writable });
+          });
+        } catch (err) {
+          console.warn(`Failed loading events for calendar ${cal.id}:`, err);
+        }
+      }
+      
+      calEvs.sort(compareEvents);
+      renderCalGrid();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function renderAgenda() {
+    const agendaListEl = document.getElementById('agenda-list');
+    if (!agendaListEl) return;
+    
+    if (!AT) {
+      agendaListEl.innerHTML = `
+        <div class="state-mini">
+          <i data-lucide="lock"></i>
+          <span>로그인 후 일정이 표시됩니다.</span>
+        </div>
+      `;
+      lucide.createIcons();
+      return;
+    }
+    
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const upcoming = calEvs.filter(e => {
+      const eDays = getEventDays(e);
+      if (eDays.length === 0) return false;
+      const lastDay = eDays[eDays.length - 1];
+      return lastDay >= todayStr;
+    });
+    
+    upcoming.sort(compareEvents);
+    
+    if (upcoming.length === 0) {
+      agendaListEl.innerHTML = `
+        <div class="state-mini">
+          <i data-lucide="calendar-heart"></i>
+          <span>다가오는 일정이 없습니다.</span>
+        </div>
+      `;
+      lucide.createIcons();
+      return;
+    }
+    
+    let html = '';
+    upcoming.slice(0, 10).forEach(e => {
+      const isAllDay = !e.start?.dateTime;
+      const timeVal = isAllDay ? '종일' : ft(e.start.dateTime);
+      const dateVal = new Date(e.start.dateTime || e.start.date).toLocaleDateString('ko-KR', {
+        month: 'short', day: 'numeric', weekday: 'short'
+      });
+      const color = e._col || '#2563eb';
+      
+      const isCompleted = e._isT && e._completed;
+      const cardOpacity = isCompleted ? 'opacity: 0.6;' : '';
+      const titleStyle = isCompleted ? 'text-decoration: line-through; opacity: 0.8;' : '';
+      
+      html += `
+        <div class="agenda-card" style="border-left-color: ${color}; ${cardOpacity}">
+          <div class="agenda-time">
+            <div>${dateVal}</div>
+            <div style="opacity: 0.8; font-weight: 500;">${timeVal}</div>
+          </div>
+          <div class="agenda-title" style="${titleStyle}">${esc(e.summary || '(제목 없음)')}</div>
+          ${e._cal ? `<span class="agenda-calname">${esc(e._cal)}</span>` : ''}
+        </div>
+      `;
+    });
+    
+    agendaListEl.innerHTML = html;
+    lucide.createIcons();
+  }
+
+  function showDay(ds) {
+    pDay = ds;
+    pEvs = calEvs.filter(e => getEventDays(e).includes(ds) && !e._isT);
+    
+    document.getElementById('ev-ph-ttl').textContent = new Date(ds + 'T00:00:00').toLocaleDateString('ko-KR', {
+      month: 'long', day: 'numeric', weekday: 'long'
+    });
+    
+    renderEP();
+    document.getElementById('ev-panel').classList.add('on');
+  }
+
+  function renderEP() {
+    const evBody = document.getElementById('ev-body');
+    if (!evBody) return;
+    
+    if (pEvs.length === 0) {
+      evBody.innerHTML = `<div class="ev-none">이 날은 일정이 없습니다.</div>`;
+      return;
+    }
+    
+    evBody.innerHTML = pEvs.map((e, i) => `
+      <div class="ev-card" id="evc${i}" style="background:${e._col}10; border-color:${e._col}">
+        <div class="ev-card-title">${esc(e.summary || '(제목 없음)')}</div>
+        <div class="ev-card-sub">
+          <i data-lucide="clock"></i>
+          <span>${!e.start?.dateTime ? '종일' : `${ft(e.start.dateTime)} — ${ft(e.end.dateTime)}`}${e._cal ? ` · ${esc(e._cal)}` : ''}</span>
+        </div>
+        ${e.location ? `
+          <div class="ev-card-sub">
+            <i data-lucide="map-pin"></i>
+            <span>${esc(e.location)}</span>
+          </div>
+        ` : ''}
+        ${e.description ? `
+          <div class="ev-card-sub" style="align-items:flex-start">
+            <i data-lucide="align-left" style="margin-top:2px"></i>
+            <span style="font-size:11.5px; line-height:1.4">${esc(e.description.slice(0, 80))}${e.description.length > 80 ? '...' : ''}</span>
+          </div>
+        ` : ''}
+        <div class="ev-card-acts">
+          ${e._writable ? `
+            <button class="btn-ev" onclick="event.stopPropagation();showEF(${i})">
+              <i data-lucide="edit-3"></i><span>수정</span>
+            </button>
+            <button class="btn-ev del" onclick="event.stopPropagation();delEv(${i})">
+              <i data-lucide="trash-2"></i><span>삭제</span>
+            </button>
+          ` : `
+            <span style="font-size:11px;color:var(--t3);display:flex;align-items:center;gap:4px;padding:4px 0">
+              <i data-lucide="lock" style="width:12px;height:12px"></i>읽기 전용 일정
+            </span>
+          `}
+        </div>
+      </div>
+    `).join('');
+    
+    lucide.createIcons();
+  }
+
+  function closeEP() {
+    document.getElementById('ev-panel').classList.remove('on');
+  }
+
+  document.addEventListener('click', e => {
+    const panel = document.getElementById('ev-panel');
+    if (!panel || !panel.classList.contains('on')) return;
+    if (e.target.closest('#ev-panel') || e.target.closest('.cal-day') || e.target.closest('.btn-new-ev') || e.target.closest('.btn-ev')) return;
+    closeEP();
+  });
+
+  function showEF(idx) {
+    _efi = idx;
+    const isEdit = idx >= 0;
+    const ev = isEdit ? pEvs[idx] : null;
+    const allDay = isEdit ? !ev?.start?.dateTime : true;
+    
+    _efCal = isEdit ? (ev?._calId || 'primary') : (calList[0]?.id || 'primary');
+    _efOrigCal = _efCal;
+    _efEvId = isEdit ? ev?.id : null;
+    _efColor = isEdit ? (ev?.colorId || '') : '';
+    
+    const allDayDt = isEdit ? (ev?.start?.date || pDay) : pDay;
+    const title = isEdit ? (ev?.summary || '') : '';
+    const startV = isEdit ? toLDT(ev?.start?.dateTime) : (pDay + 'T09:00');
+    const endV = isEdit ? toLDT(ev?.end?.dateTime) : (pDay + 'T10:00');
+    const loc = isEdit ? (ev?.location || '') : '';
+    const desc = isEdit ? (ev?.description || '') : '';
+    
+    const writeCals = calList.filter(c => c.accessRole === 'writer' || c.accessRole === 'owner' || c.id === 'primary');
+    const curCal = writeCals.find(c => c.id === _efCal) || writeCals[0] || { backgroundColor: '#2563eb', summary: '기본 캘린더' };
+    const calOpts = writeCals.map(c => `
+      <div class="ev-cal-opt" onclick="event.stopPropagation();selEfCal('${ea(c.id)}','${ea(c.summary)}','${c.backgroundColor || '#2563eb'}')">
+        <span class="ev-cdot" style="background:${c.backgroundColor || '#2563eb'}"></span>
+        <span>${esc(c.summary)}</span>
+      </div>
+    `).join('') || '<div class="ev-cal-opt">기본 캘린더</div>';
+    
+    const chips = ECOLS.map(c => {
+      const bg = c.hex || (curCal.backgroundColor || '#2563eb');
+      const sel = c.id === _efColor;
+      return `
+        <div class="ev-chip${sel ? ' sel' : ''}" onclick="event.stopPropagation();selEfColor('${c.id}',this)" style="background:${bg};${!c.hex ? 'border:2px dashed var(--t3)' : ''}">
+          ${sel ? '<span style="font-size:9px;color:#fff;font-weight:700">✓</span>' : ''}
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('ev-ph-ttl').textContent = isEdit ? '일정 수정' : '새 일정';
+    document.getElementById('ev-body').innerHTML = `
+      <div class="ev-form">
+        <input class="ef-inp" id="ef-ttl" placeholder="제목 (필수)" value="${esc(title)}" style="font-size:14px;font-weight:600;padding:8px 12px"/>
+        <div class="ef-sect">
+          <div class="ef-row">
+            <span class="ef-lbl">종일</span>
+            <input type="checkbox" class="ef-chk" id="ef-ad" ${allDay ? 'checked' : ''} onchange="togAD()"/>
+          </div>
+          <div id="ef-dw" style="${allDay ? '' : 'display:none'}">
+            <div class="ef-row">
+              <span class="ef-lbl">날짜</span>
+              <input type="date" class="ef-sel" id="ef-dt" value="${allDayDt}"/>
+            </div>
+          </div>
+          <div id="ef-tw" style="${allDay ? 'display:none' : 'flex'};flex-direction:column;gap:6px">
+            <div class="ef-row">
+              <span class="ef-lbl">시작</span>
+              <input type="datetime-local" class="ef-sel" id="ef-st" value="${startV}"/>
+            </div>
+            <div class="ef-row">
+              <span class="ef-lbl">종료</span>
+              <input type="datetime-local" class="ef-sel" id="ef-et" value="${endV}"/>
+            </div>
+          </div>
+          <div class="ef-row">
+            <span class="ef-lbl">반복</span>
+            <select class="ef-sel" id="ef-rep">
+              <option value="">반복 없음</option>
+              <option value="RRULE:FREQ=DAILY">매일</option>
+              <option value="RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR">주중 (월~금)</option>
+              <option value="RRULE:FREQ=WEEKLY">매주</option>
+              <option value="RRULE:FREQ=MONTHLY">매월</option>
+              <option value="RRULE:FREQ=YEARLY">매년</option>
+            </select>
+          </div>
+        </div>
+        <div class="ef-sect">
+          <div class="ef-row"><span class="ef-lbl">📍 장소</span><input class="ef-inp" id="ef-loc" placeholder="장소 입력..." value="${esc(loc)}"/></div>
+          <div class="ef-row"><span class="ef-lbl">📝 설명</span><textarea class="ef-inp" id="ef-desc" placeholder="상세 설명 입력..." rows="3" style="resize:vertical">${esc(desc)}</textarea></div>
+        </div>
+        <div class="ef-sect">
+          <div class="ef-row"><span class="ef-lbl">👥 초대</span><input class="ef-inp" id="ef-gs" placeholder="이메일 입력 (쉼표 구분)"/></div>
+          <div class="ef-row">
+            <span class="ef-lbl">🔔 알림</span>
+            <select class="ef-sel" id="ef-nm" style="width:70px;flex:none"><option value="popup">팝업</option><option value="email">메일</option></select>
+            <input type="number" class="ef-inp" id="ef-nmin" value="10" min="0" style="width:60px;flex:none"/>
+            <span style="font-size:12px;color:var(--t3)">분 전</span>
+          </div>
+        </div>
+        <div class="ef-sect" style="position:relative">
+          <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:4px">${isEdit ? '📅 캘린더 변경' : '📅 캘린더 선택'}</div>
+          <div class="ev-cal-btn" onclick="event.stopPropagation();togEfCal()">
+            <span class="ev-cdot" id="ef-cdot" style="background:${curCal.backgroundColor || '#2563eb'}"></span>
+            <span id="ef-cname" style="font-size:12.5px;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(curCal.summary || '기본')}</span>
+            <span style="font-size:10px;color:var(--t3)">▼</span>
+          </div>
+          <div class="ev-cal-list" id="ef-clist">${calOpts}</div>
+        </div>
+        <div class="ef-sect">
+          <div style="font-size:11px;color:var(--t3);font-weight:700;margin-bottom:6px">🎨 이벤트 색상</div>
+          <div class="ev-chips">${chips}</div>
+        </div>
+        <div style="display:flex;gap:8px;padding-top:4px">
+          <button class="btn-ev-save" onclick="event.stopPropagation();saveEF()" style="flex:1">💾 저장</button>
+          <button class="btn-ev-cancel" onclick="event.stopPropagation();showDay(pDay)" style="flex:1">취소</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function togAD() {
+    const ad = document.getElementById('ef-ad')?.checked;
+    const dw = document.getElementById('ef-dw');
+    const tw = document.getElementById('ef-tw');
+    if (dw) dw.style.display = ad ? '' : 'none';
+    if (tw) tw.style.display = ad ? 'none' : 'flex';
+  }
+
+  function togEfCal() {
+    const list = document.getElementById('ef-clist');
+    if (!list) return;
+    list.style.display = getComputedStyle(list).display === 'none' ? 'block' : 'none';
+  }
+
+  document.addEventListener('click', e => {
+    const list = document.getElementById('ef-clist');
+    if (list && list.style.display === 'block' && !e.target.closest('.ev-cal-btn')) {
+      list.style.display = 'none';
+    }
+  });
+
+  function selEfCal(id, name, col) {
+    _efCal = id;
+    const dot = document.getElementById('ef-cdot');
+    const nameEl = document.getElementById('ef-cname');
+    const list = document.getElementById('ef-clist');
+    
+    if (dot) dot.style.background = col;
+    if (nameEl) nameEl.textContent = name;
+    if (list) list.style.display = 'none';
+  }
+
+  function selEfColor(id, el) {
+    _efColor = id;
+    document.querySelectorAll('.ev-chip').forEach(chip => {
+      chip.classList.remove('sel');
+      chip.innerHTML = '';
+    });
+    if (el) {
+      el.classList.add('sel');
+      el.innerHTML = '<span style="font-size:9px;color:#fff;font-weight:700">✓</span>';
+    }
+  }
+
+  function ea(s) {
+    return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+
+  function toLDT(iso) {
+    if (!iso) return '';
+    try {
+      const d = new Date(iso);
+      return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    } catch {
+      return '';
+    }
+  }
+
+  async function saveEF() {
+    const isEdit = _efi >= 0;
+    const title = (document.getElementById('ef-ttl')?.value || '').trim();
+    if (!title) {
+      alert('제목을 입력해주세요.');
+      return;
+    }
+    
+    const ad = document.getElementById('ef-ad')?.checked;
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const location = document.getElementById('ef-loc')?.value?.trim();
+    const description = document.getElementById('ef-desc')?.value?.trim();
+    const gs = document.getElementById('ef-gs')?.value?.trim();
+    const rep = document.getElementById('ef-rep')?.value;
+    const nm = document.getElementById('ef-nm')?.value || 'popup';
+    const nmin = parseInt(document.getElementById('ef-nmin')?.value || '10');
+    
+    const body = { summary: title };
+    if (_efColor) body.colorId = _efColor;
+    
+    body.location = location || '';
+    body.description = description || '';
+    if (gs) {
+      body.attendees = gs.split(',').map(g => ({ email: g.trim() })).filter(g => g.email.includes('@'));
+    } else {
+      body.attendees = [];
+    }
+    if (rep) {
+      body.recurrence = [rep];
+    } else {
+      body.recurrence = null;
+    }
+    if (!isNaN(nmin)) {
+      body.reminders = { useDefault: false, overrides: [{ method: nm, minutes: nmin }] };
+    } else {
+      body.reminders = { useDefault: true };
+    }
+    
+    if (ad) {
+      const dt = document.getElementById('ef-dt')?.value || pDay;
+      const startDate = new Date(dt + 'T00:00:00');
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 1);
+      
+      const formatLocal = (dt) => {
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth() + 1).padStart(2, '0');
+        const d = String(dt.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      };
+      
+      body.start = { date: dt, dateTime: null };
+      body.end = { date: formatLocal(endDate), dateTime: null };
+    } else {
+      const sv = document.getElementById('ef-st')?.value;
+      const ev = document.getElementById('ef-et')?.value;
+      if (!sv || !ev) {
+        alert('시간을 입력해주세요.');
+        return;
+      }
+      if (new Date(sv) >= new Date(ev)) {
+        alert('종료 시간이 시작 시간보다 늦어야 합니다.');
+        return;
+      }
+      body.start = { dateTime: new Date(sv).toISOString(), timeZone: tz, date: null };
+      body.end = { dateTime: new Date(ev).toISOString(), timeZone: tz, date: null };
+    }
+    
+    try {
+      let activeEvId = _efEvId;
+      let activeCal = _efCal || 'primary';
+      
+      if (isEdit && _efOrigCal && _efOrigCal !== activeCal) {
+        const moveUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(_efOrigCal)}/events/${encodeURIComponent(activeEvId)}/move?destination=${encodeURIComponent(activeCal)}`;
+        const rMove = await fetch(moveUrl, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${AT}`
+          }
+        });
+        if (!rMove.ok) {
+          const text = await rMove.text();
+          throw new Error('캘린더 이동 실패: ' + rMove.status + ' - ' + text);
+        }
+        const movedEv = await rMove.json();
+        activeEvId = movedEv.id;
+      }
+      
+      const ce = encodeURIComponent(activeCal);
+      const url = isEdit 
+        ? `https://www.googleapis.com/calendar/v3/calendars/${ce}/events/${encodeURIComponent(activeEvId)}`
+        : `https://www.googleapis.com/calendar/v3/calendars/${ce}/events`;
+        
+      const r = await fetch(url, {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: {
+          Authorization: `Bearer ${AT}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      
+      if (!r.ok) {
+        const text = await r.text();
+        throw new Error(r.status + ': ' + text);
+      }
+      
+      await loadCalendar();
+      pEvs = calEvs.filter(e => getEventDays(e).includes(pDay) && !e._isT);
+      renderEP();
+    } catch (err) {
+      alert((isEdit ? '수정' : '저장') + ' 실패: ' + err.message);
+    }
+  }
+
+  async function delEv(i) {
+    const e = pEvs[i];
+    if (!confirm(`"${e.summary || '이 일정'}"을 삭제하시겠습니까?`)) return;
+    
+    try {
+      const r = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(e._calId || 'primary')}/events/${encodeURIComponent(e.id)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${AT}` }
+      });
+      if (!r.ok && r.status !== 204) throw new Error(r.status);
+      
+      calEvs = calEvs.filter(ev => ev.id !== e.id);
+      pEvs = pEvs.filter((_, idx) => idx !== i);
+      renderCalGrid();
+      renderEP();
+    } catch (err) {
+      alert('삭제 실패: ' + err.message);
+    }
+  }
+
+  function ft(iso) {
+    try {
+      return new Date(iso).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '';
+    }
+  }
+
+  function enc(s) {
+    return encodeURIComponent(s);
+  }
+
+  /* ==========================================================================
+     GMAIL.JS - GOOGLE GMAIL CLIENT WITH SECURITY SANITIZATION & ADVANCED ACTIONS
+     ========================================================================== */
+  let gUserLabels = [];
+
+  async function fetchUserLabels() {
+    try {
+      const data = await req('https://gmail.googleapis.com/gmail/v1/users/me/labels');
+      if (data.labels) {
+        gUserLabels = data.labels;
+      }
+    } catch (err) {
+      console.warn('Failed fetching user labels:', err);
+    }
+  }
+
+  async function selLabel(lbl, el) {
+    document.querySelectorAll('.glbl').forEach(g => g.classList.remove('on'));
+    el.classList.add('on');
+    
+    gLabel = lbl;
+    clearSel();
+    closeReader();
+    
+    const srch = document.getElementById('g-srch');
+    if (srch) srch.value = '';
+    
+    const tb = document.getElementById('btn-empty-trash');
+    if (tb) tb.style.display = lbl === 'TRASH' ? 'flex' : 'none';
+    
+    const btnBatchSpam = document.getElementById('btn-batch-spam');
+    const btnBatchUnspam = document.getElementById('btn-batch-unspam');
+    if (btnBatchSpam && btnBatchUnspam) {
+      btnBatchSpam.style.display = lbl === 'SPAM' ? 'none' : 'flex';
+      btnBatchUnspam.style.display = lbl === 'SPAM' ? 'flex' : 'none';
+    }
+    
+    await loadGmail();
+  }
+
+  async function loadGmail() {
+    loading('g-list', '메일 불러오는 중...');
+    fetchUserLabels();
+    try {
+      const data = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=${gLabel}&maxResults=25`);
+      if (!data.messages || data.messages.length === 0) {
+        setEmpty('g-list', 'mail', '메일이 없습니다.');
+        return;
+      }
+      
+      const details = await Promise.all(
+        data.messages.map(m => req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`))
+      );
+      gMsgs = details;
+      renderList();
+    } catch (err) {
+      console.error(err);
+      setErr('g-list', '메일을 불러올 수 없습니다.', loadGmail);
+    }
+  }
+
+  async function searchMail() {
+    const q = document.getElementById('g-srch').value.trim();
+    if (!q) return;
+    loading('g-list', '검색 중...');
+    
+    try {
+      const data = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${enc(q)}&maxResults=25`);
+      if (!data.messages || data.messages.length === 0) {
+        setEmpty('g-list', 'search', '검색 결과가 없습니다.');
+        return;
+      }
+      
+      const details = await Promise.all(
+        data.messages.map(m => req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`))
+      );
+      gMsgs = details;
+      renderList();
+    } catch (err) {
+      console.error(err);
+      setErr('g-list', '메일 검색에 실패했습니다.', loadGmail);
+    }
+  }
+
+  function renderList() {
+    const lblCountEl = document.getElementById('g-lbl');
+    if (lblCountEl) {
+      lblCountEl.textContent = `Gmail (${gMsgs.length})`;
+    }
+    
+    if (gMsgs.length === 0) {
+      setEmpty('g-list', 'mail', '메일이 없습니다.');
+      return;
+    }
+    
+    let html = '';
+    gMsgs.forEach((m, i) => {
+      const hd = m.payload?.headers || [];
+      const from = hd.find(h => h.name === 'From')?.value || '';
+      const subj = hd.find(h => h.name === 'Subject')?.value || '(제목 없음)';
+      const date = hd.find(h => h.name === 'Date')?.value || '';
+      
+      const unread = m.labelIds?.includes('UNREAD');
+      const isSel = selIds.has(m.id);
+      const name = from.replace(/<[^>]+>/, '').trim() || from;
+      const init = (name[0] || '?').toUpperCase();
+      
+      html += `
+        <div class="erow${unread ? ' unread' : ''}${isSel ? ' sel-row' : ''}" id="er${i}">
+          <div class="e-chk" onclick="togSel(event,'${m.id}',${i})">
+            <input type="checkbox" ${isSel ? 'checked' : ''}/>
+          </div>
+          <div class="av" style="background:${AVCOLS[init.charCodeAt(0) % AVCOLS.length]}" onclick="openMsg(${i})">
+            ${esc(init)}
+          </div>
+          <div class="e-meta" onclick="openMsg(${i})">
+            <div class="e-top">
+              <span class="e-from${unread ? ' fw' : ''}">${esc(name)}</span>
+              <span class="e-date">${esc(fmtDate(date))}</span>
+            </div>
+            <div class="e-subj${unread ? ' fw' : ''}">${esc(subj)}</div>
+            <div class="e-snip">${esc(m.snippet || '')}</div>
+          </div>
+          ${unread ? '<div class="udot"></div>' : ''}
+        </div>
+      `;
+    });
+    
+    document.getElementById('g-list').innerHTML = html;
+    updSelBar();
+    lucide.createIcons();
+  }
+
+  function togSel(e, id, i) {
+    e.stopPropagation();
+    if (selIds.has(id)) {
+      selIds.delete(id);
+    } else {
+      selIds.add(id);
+    }
+    
+    updSelBar();
+    const row = document.getElementById('er' + i);
+    if (row) {
+      row.classList.toggle('sel-row', selIds.has(id));
+      const chk = row.querySelector('input[type=checkbox]');
+      if (chk) chk.checked = selIds.has(id);
+    }
+  }
+
+  function updSelBar() {
+    const count = selIds.size;
+    document.getElementById('sel-bar').classList.toggle('on', count > 0);
+    document.getElementById('sel-cnt').textContent = `${count}개 선택`;
+    
+    const chkAll = document.getElementById('chk-all');
+    if (chkAll) {
+      chkAll.checked = count > 0 && count === gMsgs.length;
+      chkAll.indeterminate = count > 0 && count < gMsgs.length;
+    }
+    
+    const labelSub = document.getElementById('g-sel-cnt');
+    if (labelSub) {
+      labelSub.textContent = gMsgs.length ? `${gMsgs.length}개 중 ${count}개 선택` : '';
+    }
+  }
+
+  function selectAll(c) {
+    if (c) {
+      gMsgs.forEach(m => selIds.add(m.id));
+    } else {
+      selIds.clear();
+    }
+    updSelBar();
+    renderList();
+  }
+
+  function clearSel() {
+    selIds.clear();
+    updSelBar();
+    renderList();
+  }
+
+  async function batchDel() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    const inTrash = gLabel === 'TRASH';
+    
+    if (!confirm(inTrash ? `${ids.length}개의 메일을 영구 삭제하시겠습니까? 복구할 수 없습니다.` : `${ids.length}개의 메일을 휴지통으로 이동하시겠습니까?`)) return;
+    
+    try {
+      if (inTrash) {
+        await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchDelete', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids })
+        });
+      } else {
+        await Promise.all(ids.map(id => fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${id}/trash`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${AT}` }
+        })));
+      }
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('삭제 실패: ' + err.message);
+    }
+  }
+
+  async function batchRead() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    
+    try {
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, removeLabelIds: ['UNREAD'] })
+      });
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      console.error('Batch read modify failed:', err);
+    }
+  }
+
+  async function batchUnread() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    try {
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, addLabelIds: ['UNREAD'] })
+      });
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('안읽음 처리 실패: ' + err.message);
+    }
+  }
+
+  async function batchStar() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    try {
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, addLabelIds: ['STARRED'] })
+      });
+      showToast(`⭐ ${ids.length}개 메일에 중요 표시를 했습니다.`);
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('중요 표시 실패: ' + err.message);
+    }
+  }
+
+  async function batchSpam() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    try {
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, addLabelIds: ['SPAM'], removeLabelIds: ['INBOX'] })
+      });
+      showToast(`🚨 ${ids.length}개 메일을 스팸함으로 이동했습니다.`);
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('스팸 이동 실패: ' + err.message);
+    }
+  }
+
+  async function batchUnmarkSpam() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    try {
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, removeLabelIds: ['SPAM'], addLabelIds: ['INBOX'] })
+      });
+      showToast(`✅ ${ids.length}개 메일을 스팸 해제했습니다.`);
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('스팸 해제 실패: ' + err.message);
+    }
+  }
+
+  /* Mail Move Dropdown logic */
+  function toggleBatchMoveMenu(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('g-batch-move-menu');
+    if (!menu) return;
+    const isShow = menu.style.display === 'block';
+    closeAllMoveMenus();
+    if (!isShow) {
+      renderMoveMenuList('g-batch-move-menu', true);
+      menu.style.display = 'block';
+    }
+  }
+
+  function toggleSingleMoveMenu(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('g-single-move-menu');
+    if (!menu) return;
+    const isShow = menu.style.display === 'block';
+    closeAllMoveMenus();
+    if (!isShow) {
+      renderMoveMenuList('g-single-move-menu', false);
+      menu.style.display = 'block';
+    }
+  }
+
+  function closeAllMoveMenus() {
+    document.querySelectorAll('.g-move-menu').forEach(m => m.style.display = 'none');
+  }
+
+  document.addEventListener('click', () => {
+    closeAllMoveMenus();
+  });
+
+  function renderMoveMenuList(containerId, isBatch) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    
+    const mainTargets = [
+      { id: 'INBOX', name: '받은편지함', icon: 'inbox' },
+      { id: 'STARRED', name: '중요편지함', icon: 'star' },
+      { id: 'SPAM', name: '스팸함', icon: 'alert-triangle' },
+      { id: 'TRASH', name: '휴지통', icon: 'trash-2' }
+    ];
+    
+    let html = `<div class="g-move-hd">위치 이동</div>`;
+    mainTargets.forEach(t => {
+      html += `
+        <div class="g-move-item" onclick="execMove('${t.id}', ${isBatch})">
+          <i data-lucide="${t.icon}"></i>
+          <span>${esc(t.name)}</span>
+        </div>
+      `;
+    });
+    
+    const customLabels = gUserLabels.filter(l => l.type === 'user');
+    if (customLabels.length > 0) {
+      html += `<div class="g-move-hd" style="margin-top:6px; border-top:1px solid var(--bd); padding-top:6px;">사용자 라벨</div>`;
+      customLabels.forEach(l => {
+        html += `
+          <div class="g-move-item" onclick="execMove('${ea(l.id)}', ${isBatch})">
+            <i data-lucide="tag"></i>
+            <span>${esc(l.name)}</span>
+          </div>
+        `;
+      });
+    }
+    
+    el.innerHTML = html;
+    lucide.createIcons();
+  }
+
+  async function execMove(targetLabelId, isBatch) {
+    closeAllMoveMenus();
+    const ids = isBatch ? [...selIds] : (selMsg ? [selMsg.id] : []);
+    if (!ids.length) return;
+    
+    try {
+      const body = {
+        ids,
+        addLabelIds: [targetLabelId]
+      };
+      
+      if (gLabel && gLabel !== targetLabelId) {
+        body.removeLabelIds = [gLabel];
+      }
+      
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      showToast(`✨ ${ids.length}개 메일을 이동했습니다.`);
+      
+      if (!isBatch) {
+        closeReader();
+      } else {
+        clearSel();
+      }
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('메일 이동 실패: ' + err.message);
+    }
+  }
+
+  async function emptyTrash() {
+    if (!confirm('휴지통을 완전히 비우시겠습니까? 복구할 수 없습니다.')) return;
+    loading('g-list', '비우는 중...');
+    
+    try {
+      let pt = '', ids = [];
+      do {
+        const data = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=TRASH&maxResults=500${pt ? '&pageToken=' + pt : ''}`);
+        ids = [...ids, ...(data.messages || []).map(m => m.id)];
+        pt = data.nextPageToken || '';
+      } while (pt);
+      
+      if (ids.length === 0) {
+        loadGmail();
+        return;
+      }
+      
+      for (let i = 0; i < ids.length; i += 500) {
+        await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchDelete', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids: ids.slice(i, i + 500) })
+        });
+      }
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      console.error(err);
+      setErr('g-list', '휴지통 비우기에 실패했습니다.', emptyTrash);
+    }
+  }
+
+  async function loadLabelCounts() {
+    for (const lbl of ['INBOX', 'STARRED', 'SENT', 'SPAM', 'TRASH']) {
+      try {
+        const d = await req(`https://gmail.googleapis.com/gmail/v1/users/me/labels/${lbl}`);
+        const u = d.messagesUnread || 0;
+        if (lbl === 'INBOX' && _lastInboxUnread === 0) {
+          _lastInboxUnread = u;
+        }
+        const el = document.getElementById('lcnt-' + lbl);
+        if (el) {
+          el.textContent = u > 99 ? '99+' : u;
+          el.style.display = u > 0 ? '' : 'none';
+        }
+      } catch (err) {
+        console.warn(`Label counts fail for ${lbl}`);
+      }
+    }
+  }
+
+  async function openMsg(i) {
+    document.querySelectorAll('.erow').forEach(r => r.classList.remove('sel-row'));
+    const targetRow = document.getElementById('er' + i);
+    if (targetRow) targetRow.classList.add('sel-row');
+    
+    try {
+      const full = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${gMsgs[i].id}?format=full`);
+      selMsg = full;
+      
+      const hd = full.payload?.headers || [];
+      document.getElementById('r-subj').textContent = hd.find(h => h.name === 'Subject')?.value || '(제목 없음)';
+      
+      const from = hd.find(h => h.name === 'From')?.value || '';
+      const to = hd.find(h => h.name === 'To')?.value || '';
+      const date = hd.find(h => h.name === 'Date')?.value || '';
+      
+      document.getElementById('r-from').innerHTML = `
+        <b>보낸사람:</b> ${esc(from)}<br>
+        <b>받는사람:</b> ${esc(to)}<br>
+        <b>날짜:</b> ${esc(date)}
+      `;
+      
+      const rawBody = getBody(full.payload) || '<p style="padding:16px;color:#999">본문 없음</p>';
+      
+      const sanitizedBody = (typeof DOMPurify !== 'undefined') 
+        ? DOMPurify.sanitize(rawBody, { ADD_ATTR: ['target'], FORCE_BODY: true }) 
+        : rawBody;
+      
+      const wrappedDocument = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <meta name="color-scheme" content="only light">
+          <base target="_blank">
+          <style>
+            :root { color-scheme: only light; }
+            html, body { margin:0; padding:0; background:#fff!important; color:#202124!important; }
+            body { padding:12px; font-family:sans-serif; font-size:14px; line-height:1.6; }
+            img { max-width:100%!important; height:auto!important; }
+            a { color:#2563eb; text-decoration: underline; }
+            pre { white-space:pre-wrap; font-family:inherit; word-break:break-word; }
+          </style>
+        </head>
+        <body>
+          ${sanitizedBody}
+        </body>
+        </html>
+      `;
+      
+      const oldFrame = document.getElementById('r-frame');
+      if (oldFrame) {
+        const newFrame = document.createElement('iframe');
+        newFrame.className = 'r-frame';
+        newFrame.id = 'r-frame';
+        newFrame.sandbox = 'allow-popups allow-popups-to-escape-sandbox';
+        newFrame.srcdoc = wrappedDocument;
+        
+        const parent = oldFrame.parentNode;
+        if (parent) {
+          parent.replaceChild(newFrame, oldFrame);
+        }
+      }
+      
+      document.getElementById('r-ph').style.display = 'none';
+      
+      const contentWrap = document.getElementById('r-content');
+      if (contentWrap) contentWrap.style.display = 'flex';
+      
+      document.getElementById('g-reader').classList.add('on');
+      document.querySelector('.gmail-wrap')?.classList.add('reading');
+      
+      _curMsgId = full.id;
+      _curAtts = getAttachments(full.payload);
+      renderAttachments(_curAtts);
+      
+      const spamBtn = document.getElementById('btn-spam-act');
+      if (spamBtn) {
+        const isSpam = full.labelIds?.includes('SPAM');
+        spamBtn.innerHTML = isSpam ? `<i data-lucide="check-circle"></i>스팸 해제` : `<i data-lucide="alert-circle"></i>스팸`;
+        spamBtn.onclick = isSpam ? unmarkSpam : markSpam;
+      }
+      
+      if (full.labelIds?.includes('UNREAD')) {
+        await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${full.id}/modify`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ removeLabelIds: ['UNREAD'] })
+        });
+        gMsgs[i] = { ...gMsgs[i], labelIds: (gMsgs[i].labelIds || []).filter(l => l !== 'UNREAD') };
+        renderList();
+        
+        const newRow = document.getElementById('er' + i);
+        if (newRow) newRow.classList.add('sel-row');
+      }
+    } catch (err) {
+      console.error('Failed opening email:', err);
+      showToast('⚠️ 이메일을 여는 중 오류가 발생했습니다.');
+    }
+  }
+
+  function getAttachments(payload) {
+    const atts = [];
+    function scan(p) {
+      if (!p) return;
+      if (p.filename && p.filename.length > 0 && p.body?.attachmentId) {
+        atts.push({
+          id: p.body.attachmentId,
+          filename: p.filename,
+          mimeType: p.mimeType || 'application/octet-stream',
+          size: p.body.size || 0
+        });
+      }
+      (p.parts || []).forEach(scan);
+    }
+    scan(payload);
+    return atts;
+  }
+
+  function renderAttachments(atts) {
+    const div = document.getElementById('r-atts');
+    if (!div) return;
+    if (!atts.length) {
+      div.style.display = 'none';
+      return;
+    }
+    
+    div.style.display = 'block';
+    div.style.cssText = 'margin-top:12px; padding-top:12px; border-top:1px solid var(--bd);';
+    
+    let html = `<div style="font-size:11.5px;color:var(--t3);font-weight:700;margin-bottom:8px; display:flex; align-items:center; gap:4px;"><i data-lucide="paperclip" style="width:14px;height:14px"></i>첨부파일 ${atts.length}개</div>`;
+    
+    atts.forEach((att, idx) => {
+      const icon = att.mimeType.includes('pdf') ? 'file-text' 
+                 : att.mimeType.includes('image') ? 'image' 
+                 : att.mimeType.includes('zip') || att.mimeType.includes('compress') ? 'folder-archive' 
+                 : att.mimeType.includes('word') || att.mimeType.includes('document') ? 'file-edit' 
+                 : att.mimeType.includes('sheet') || att.mimeType.includes('excel') ? 'bar-chart-2' 
+                 : att.mimeType.includes('video') ? 'video' 
+                 : att.mimeType.includes('audio') ? 'music' : 'file';
+                 
+      const sz = att.size < 1024 ? att.size + ' B' 
+               : att.size < 1048576 ? (att.size / 1024).toFixed(1) + ' KB' 
+               : (att.size / 1048576).toFixed(1) + ' MB';
+               
+      html += `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;background:var(--hover);margin-bottom:6px">
+          <i data-lucide="${icon}" style="color:var(--t2)"></i>
+          <span style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t1);font-weight:500;">${esc(att.filename)}</span>
+          <span style="font-size:10.5px;color:var(--t3);flex-shrink:0">${sz}</span>
+          <button onclick="downloadAtt(${idx})" style="background:var(--blue);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;font-weight:700;flex-shrink:0; display:flex; align-items:center; gap:3px;">
+            <i data-lucide="download" style="width:12px;height:12px"></i>저장
+          </button>
+        </div>
+      `;
+    });
+    
+    div.innerHTML = html;
+    lucide.createIcons();
+  }
+
+  async function downloadAtt(idx) {
+    const att = _curAtts[idx];
+    if (!att) return;
+    try {
+      const data = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${_curMsgId}/attachments/${att.id}`);
+      const b64 = data.data.replace(/-/g, '+').replace(/_/g, '/');
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) {
+        bytes[i] = bin.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: att.mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = att.filename;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (err) {
+      alert('다운로드 실패: ' + err.message);
+    }
+  }
+
+  function getBody(p) {
+    if (!p) return null;
+    if (p.body?.data) return decB(p.body.data);
+    if (p.parts) {
+      const htmlPart = p.parts.find(x => x.mimeType === 'text/html');
+      if (htmlPart?.body?.data) return decB(htmlPart.body.data);
+      
+      const plainPart = p.parts.find(x => x.mimeType === 'text/plain');
+      if (plainPart?.body?.data) {
+        return `<pre style="white-space:pre-wrap;font:14px/1.5 sans-serif;padding:14px">${esc(decB(plainPart.body.data))}</pre>`;
+      }
+      
+      for (const x of p.parts) {
+        const b = getBody(x);
+        if (b) return b;
+      }
+    }
+    return null;
+  }
+
+  function decB(s) {
+    try {
+      return decodeURIComponent(atob(s.replace(/-/g, '+').replace(/_/g, '/')).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    } catch {
+      return atob(s.replace(/-/g, '+').replace(/_/g, '/'));
+    }
+  }
+
+  function closeReader() {
+    selMsg = null;
+    _curMsgId = '';
+    _curAtts = [];
+    
+    document.getElementById('g-reader').classList.remove('on');
+    document.getElementById('r-ph').style.display = 'flex';
+    document.getElementById('r-content').style.display = 'none';
+    document.querySelector('.gmail-wrap')?.classList.remove('reading');
+    
+    const attDiv = document.getElementById('r-atts');
+    if (attDiv) attDiv.style.display = 'none';
+  }
+
+  async function deleteMsg() {
+    if (!selMsg) return;
+    
+    if (gLabel === 'TRASH') {
+      await permDeleteMsg();
+    } else {
+      if (!confirm('메일을 휴지통으로 이동하시겠습니까?')) return;
+      try {
+        const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/trash`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${AT}` }
+        });
+        if (!r.ok) throw new Error(r.status);
+        closeReader();
+        loadGmail();
+        loadLabelCounts();
+      } catch (err) {
+        alert('삭제 실패: ' + err.message);
+      }
+    }
+  }
+
+  async function permDeleteMsg() {
+    if (!selMsg) return;
+    if (!confirm('이 메일을 영구 삭제하시겠습니까? 복구할 수 없습니다.')) return;
+    try {
+      const r = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${AT}` }
+      });
+      if (!r.ok && r.status !== 204) throw new Error(r.status);
+      closeReader();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('영구 삭제 실패: ' + err.message);
+    }
+  }
+
+  async function unmarkSpam() {
+    if (!selMsg) return;
+    try {
+      await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ removeLabelIds: ['SPAM'], addLabelIds: ['INBOX'] })
+      });
+      closeReader();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('스팸 해제 실패: ' + err.message);
+    }
+  }
+
+  async function markSpam() {
+    if (!selMsg) return;
+    try {
+      await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addLabelIds: ['SPAM'], removeLabelIds: ['INBOX'] })
+      });
+      closeReader();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('스팸 이동 실패: ' + err.message);
+    }
+  }
+
+  async function markRead() {
+    if (!selMsg) return;
+    try {
+      await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ removeLabelIds: ['UNREAD'] })
+      });
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      console.error('Mark read failed:', err);
+    }
+  }
+
+  async function markUnread() {
+    if (!selMsg) return;
+    try {
+      await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addLabelIds: ['UNREAD'] })
+      });
+      closeReader();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('안읽음 표시 실패: ' + err.message);
+    }
+  }
+
+  async function toggleStar() {
+    if (!selMsg) return;
+    const isStarred = selMsg.labelIds?.includes('STARRED');
+    try {
+      await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(isStarred ? { removeLabelIds: ['STARRED'] } : { addLabelIds: ['STARRED'] })
+      });
+      selMsg = {
+        ...selMsg,
+        labelIds: isStarred ? selMsg.labelIds.filter(l => l !== 'STARRED') : [...(selMsg.labelIds || []), 'STARRED']
+      };
+      showToast(isStarred ? '⭐ 중요 편지함에서 제외되었습니다.' : '⭐ 중요 메일로 등록되었습니다.');
+    } catch (err) {
+      console.error('Toggle star failed:', err);
+    }
+  }
+
+  function fmtDate(dateString) {
+    try {
+      const d = new Date(dateString);
+      const timeDiff = Date.now() - d.getTime();
+      if (timeDiff < 86400000) {
+        return d.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+      } else {
+        return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
+      }
+    } catch {
+      return '';
+    }
+  }
+  </script>
+
+  <!-- Floating Compose Email Window -->
+  <div class="compose-win" id="compose-win" style="display:none">
+    <div class="comp-hd" onclick="minCompose()">
+      <span class="comp-title">새 메일 작성</span>
+      <div class="comp-hd-acts">
+        <button class="comp-btn-min" onclick="event.stopPropagation();minCompose()" title="최소화"><i data-lucide="minus"></i></button>
+        <button class="comp-btn-max" onclick="event.stopPropagation();maxCompose()" title="최대화"><i data-lucide="maximize-2"></i></button>
+        <button class="comp-btn-close" onclick="event.stopPropagation();closeCompose()" title="닫기"><i data-lucide="x"></i></button>
+      </div>
+    </div>
+    <div class="comp-body">
+      <div class="comp-field">
+        <span class="comp-lbl">받는 사람</span>
+        <input type="text" class="comp-inp" id="comp-to" placeholder="이메일 주소..." autocomplete="off" oninput="handleComposeAC(this.value)" onfocus="handleComposeAC(this.value)"/>
+        <div class="comp-ac-list" id="comp-ac-list"></div>
+      </div>
+      <div class="comp-field">
+        <span class="comp-lbl">제목</span>
+        <input type="text" class="comp-inp" id="comp-subj" placeholder="제목을 입력하세요"/>
+      </div>
+      <div class="comp-body-text">
+        <textarea class="comp-txt" id="comp-text" placeholder="내용을 작성하세요..."></textarea>
+      </div>
+      <!-- Attachment preview list -->
+      <div class="comp-atts" id="comp-atts" style="display:none"></div>
+    </div>
+    <div class="comp-ft">
+      <button class="comp-btn-send" onclick="sendComposeMail()">
+        <i data-lucide="send"></i><span>보내기</span>
+      </button>
+      <button class="comp-btn-clip" onclick="triggerFileAttach()" title="파일 첨부">
+        <i data-lucide="paperclip"></i>
+      </button>
+      <input type="file" id="comp-file-input" style="display:none" multiple onchange="handleFileAttach(this)"/>
+    </div>
+  </div>
+
+</body>
+</html>
