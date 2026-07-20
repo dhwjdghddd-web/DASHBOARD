@@ -1425,11 +1425,18 @@
   .sel-bar {
     display: none;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
+    gap: 4px;
+    padding: 6px 10px;
     background: var(--cal-td);
     border-bottom: 1px solid var(--bd);
     flex-shrink: 0;
+    overflow-x: auto;
+    white-space: nowrap !important;
+    scrollbar-width: none;
+  }
+
+  .sel-bar::-webkit-scrollbar {
+    display: none;
   }
 
   .sel-bar.on {
@@ -1437,15 +1444,13 @@
     animation: slideDown 0.2s ease;
   }
 
-  @keyframes slideDown {
-    from { transform: translateY(-100%); }
-    to { transform: translateY(0); }
-  }
-
   .sel-cnt {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     color: var(--blue);
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    margin-right: 2px;
   }
 
   .btn-sdel {
@@ -1453,13 +1458,13 @@
     color: #fff;
     border: none;
     border-radius: 6px;
-    padding: 4px 10px;
+    padding: 4px 7px;
     cursor: pointer;
     font-size: 11px;
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
   }
@@ -1469,13 +1474,13 @@
     color: var(--t2);
     border: 1px solid var(--bd);
     border-radius: 6px;
-    padding: 4px 10px;
+    padding: 4px 7px;
     cursor: pointer;
     font-size: 11px;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
   }
@@ -1487,6 +1492,8 @@
     color: var(--t3);
     font-size: 16px;
     margin-left: auto;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
   }
 
   .g-list {
@@ -2411,7 +2418,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.1</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.2</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
