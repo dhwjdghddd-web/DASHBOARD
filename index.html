@@ -1519,17 +1519,75 @@
   }
 
   .e-chk {
-    width: 18px;
+    width: 44px;
+    height: 100%;
+    margin-left: -12px;
+    padding: 0 12px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
   }
 
   .e-chk input {
-    width: 15px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     cursor: pointer;
     accent-color: var(--blue);
+    pointer-events: none;
+  }
+
+  .g-move-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .g-move-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 100;
+    background: var(--bg);
+    border: 1px solid var(--bd);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+    min-width: 170px;
+    max-height: 240px;
+    overflow-y: auto;
+    padding: 6px 0;
+  }
+
+  .g-move-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--t1);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .g-move-item:hover {
+    background: var(--hover);
+    color: var(--blue);
+  }
+
+  .g-move-item i {
+    width: 14px;
+    height: 14px;
+    color: var(--t2);
+  }
+
+  .g-move-hd {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--t3);
+    padding: 4px 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .av {
@@ -2342,7 +2400,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.1.4</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.0</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -2547,6 +2605,14 @@
               <div class="sel-bar" id="sel-bar">
                 <span class="sel-cnt" id="sel-cnt">0개</span>
                 <button class="btn-sread" onclick="batchRead()"><i data-lucide="check-check"></i>읽음</button>
+                <button class="btn-sread" onclick="batchUnread()"><i data-lucide="mail"></i>안읽음</button>
+                <button class="btn-sread" onclick="batchStar()"><i data-lucide="star"></i>중요</button>
+                <button class="btn-sread" id="btn-batch-spam" onclick="batchSpam()"><i data-lucide="alert-circle"></i>스팸</button>
+                <button class="btn-sread" id="btn-batch-unspam" onclick="batchUnmarkSpam()" style="display:none"><i data-lucide="check-circle"></i>스팸해제</button>
+                <div class="g-move-wrap">
+                  <button class="btn-sread" onclick="toggleBatchMoveMenu(event)"><i data-lucide="folder-output"></i>이동 <i data-lucide="chevron-down" style="width:12px;height:12px"></i></button>
+                  <div class="g-move-menu" id="g-batch-move-menu" style="display:none"></div>
+                </div>
                 <button class="btn-sdel" onclick="batchDel()"><i data-lucide="trash-2"></i>삭제</button>
                 <button class="btn-sx" onclick="clearSel()"><i data-lucide="x"></i></button>
               </div>
@@ -2570,8 +2636,15 @@
                   <div class="r-subj" id="r-subj"></div>
                   <div class="r-from" id="r-from"></div>
                   <div class="r-acts">
+                    <button class="btn-act" onclick="replyMsg('reply')"><i data-lucide="reply"></i>답장</button>
+                    <button class="btn-act" onclick="replyMsg('replyAll')"><i data-lucide="reply-all"></i>전체답장</button>
+                    <button class="btn-act" onclick="replyMsg('forward')"><i data-lucide="forward"></i>전달</button>
                     <button class="btn-act" onclick="toggleStar()"><i data-lucide="star"></i>중요</button>
-                    <button class="btn-act" onclick="markRead()"><i data-lucide="eye"></i>읽음</button>
+                    <button class="btn-act" onclick="markUnread()"><i data-lucide="mail"></i>안읽음</button>
+                    <div class="g-move-wrap">
+                      <button class="btn-act" onclick="toggleSingleMoveMenu(event)"><i data-lucide="folder-output"></i>이동 <i data-lucide="chevron-down" style="width:12px;height:12px"></i></button>
+                      <div class="g-move-menu" id="g-single-move-menu" style="display:none"></div>
+                    </div>
                     <button class="btn-act" id="btn-spam-act" onclick="markSpam()"><i data-lucide="alert-circle"></i>스팸</button>
                     <button class="btn-act danger" onclick="deleteMsg()"><i data-lucide="trash-2"></i>삭제</button>
                   </div>
@@ -3434,7 +3507,7 @@
 
   let composeFiles = [];
 
-  function openCompose() {
+  function openCompose(mode, msgData) {
     if (!AT) {
       showToast('⚠️ 구글 로그인 후 편지를 작성할 수 있습니다.');
       return;
@@ -3446,12 +3519,68 @@
     win.classList.remove('minimized');
     win.classList.remove('maximized');
     
-    document.getElementById('comp-to').value = '';
-    document.getElementById('comp-subj').value = '';
-    document.getElementById('comp-text').value = '';
+    const toInp = document.getElementById('comp-to');
+    const subjInp = document.getElementById('comp-subj');
+    const textInp = document.getElementById('comp-text');
+    
     document.getElementById('comp-file-input').value = '';
     composeFiles = [];
     renderComposeAtts();
+    
+    if (!mode) {
+      toInp.value = '';
+      subjInp.value = '';
+      textInp.value = '';
+      return;
+    }
+    
+    const hd = msgData?.payload?.headers || [];
+    const fromStr = hd.find(h => h.name === 'From')?.value || '';
+    const toStr = hd.find(h => h.name === 'To')?.value || '';
+    const subjStr = hd.find(h => h.name === 'Subject')?.value || '(제목 없음)';
+    const dateStr = hd.find(h => h.name === 'Date')?.value || '';
+    
+    const extractEmail = (str) => {
+      const m = str.match(/<([^>]+)>/);
+      return m ? m[1] : str.trim();
+    };
+    const fromEmail = extractEmail(fromStr);
+    
+    const plainTextBody = getBodyTextOnly(msgData?.payload) || '';
+    const quoteHeader = `\n\n\n-------- 원본 메시지 --------\n보낸사람: ${fromStr}\n받는사람: ${toStr}\n날짜: ${dateStr}\n제목: ${subjStr}\n\n${plainTextBody}`;
+    
+    if (mode === 'reply') {
+      toInp.value = fromEmail;
+      subjInp.value = subjStr.startsWith('Re:') ? subjStr : 'Re: ' + subjStr;
+      textInp.value = quoteHeader;
+    } else if (mode === 'replyAll') {
+      const allRecips = [fromEmail, extractEmail(toStr)].filter(Boolean).join(', ');
+      toInp.value = allRecips;
+      subjInp.value = subjStr.startsWith('Re:') ? subjStr : 'Re: ' + subjStr;
+      textInp.value = quoteHeader;
+    } else if (mode === 'forward') {
+      toInp.value = '';
+      subjInp.value = subjStr.startsWith('Fwd:') ? subjStr : 'Fwd: ' + subjStr;
+      textInp.value = quoteHeader;
+    }
+  }
+
+  function getBodyTextOnly(p) {
+    if (!p) return '';
+    if (p.mimeType === 'text/plain' && p.body?.data) return decB(p.body.data);
+    if (p.parts) {
+      for (const part of p.parts) {
+        const t = getBodyTextOnly(part);
+        if (t) return t;
+      }
+    }
+    if (p.body?.data) return decB(p.body.data).replace(/<[^>]+>/g, '');
+    return '';
+  }
+
+  function replyMsg(mode) {
+    if (!selMsg) return;
+    openCompose(mode, selMsg);
   }
 
   function closeCompose() {
@@ -4806,8 +4935,21 @@
   }
 
   /* ==========================================================================
-     GMAIL.JS - GOOGLE GMAIL CLIENT WITH SECURITY SANITIZATION
+     GMAIL.JS - GOOGLE GMAIL CLIENT WITH SECURITY SANITIZATION & ADVANCED ACTIONS
      ========================================================================== */
+  let gUserLabels = [];
+
+  async function fetchUserLabels() {
+    try {
+      const data = await req('https://gmail.googleapis.com/gmail/v1/users/me/labels');
+      if (data.labels) {
+        gUserLabels = data.labels;
+      }
+    } catch (err) {
+      console.warn('Failed fetching user labels:', err);
+    }
+  }
+
   async function selLabel(lbl, el) {
     document.querySelectorAll('.glbl').forEach(g => g.classList.remove('on'));
     el.classList.add('on');
@@ -4822,11 +4964,19 @@
     const tb = document.getElementById('btn-empty-trash');
     if (tb) tb.style.display = lbl === 'TRASH' ? 'flex' : 'none';
     
+    const btnBatchSpam = document.getElementById('btn-batch-spam');
+    const btnBatchUnspam = document.getElementById('btn-batch-unspam');
+    if (btnBatchSpam && btnBatchUnspam) {
+      btnBatchSpam.style.display = lbl === 'SPAM' ? 'none' : 'flex';
+      btnBatchUnspam.style.display = lbl === 'SPAM' ? 'flex' : 'none';
+    }
+    
     await loadGmail();
   }
 
   async function loadGmail() {
     loading('g-list', '메일 불러오는 중...');
+    fetchUserLabels();
     try {
       const data = await req(`https://gmail.googleapis.com/gmail/v1/users/me/messages?labelIds=${gLabel}&maxResults=25`);
       if (!data.messages || data.messages.length === 0) {
@@ -4894,7 +5044,7 @@
       html += `
         <div class="erow${unread ? ' unread' : ''}${isSel ? ' sel-row' : ''}" id="er${i}">
           <div class="e-chk" onclick="togSel(event,'${m.id}',${i})">
-            <input type="checkbox" ${isSel ? 'checked' : ''} onclick="togSel(event,'${m.id}',${i})"/>
+            <input type="checkbox" ${isSel ? 'checked' : ''}/>
           </div>
           <div class="av" style="background:${AVCOLS[init.charCodeAt(0) % AVCOLS.length]}" onclick="openMsg(${i})">
             ${esc(init)}
@@ -5013,6 +5163,183 @@
     }
   }
 
+  async function batchUnread() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    try {
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, addLabelIds: ['UNREAD'] })
+      });
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('안읽음 처리 실패: ' + err.message);
+    }
+  }
+
+  async function batchStar() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    try {
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, addLabelIds: ['STARRED'] })
+      });
+      showToast(`⭐ ${ids.length}개 메일에 중요 표시를 했습니다.`);
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('중요 표시 실패: ' + err.message);
+    }
+  }
+
+  async function batchSpam() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    try {
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, addLabelIds: ['SPAM'], removeLabelIds: ['INBOX'] })
+      });
+      showToast(`🚨 ${ids.length}개 메일을 스팸함으로 이동했습니다.`);
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('스팸 이동 실패: ' + err.message);
+    }
+  }
+
+  async function batchUnmarkSpam() {
+    const ids = [...selIds];
+    if (!ids.length) return;
+    try {
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, removeLabelIds: ['SPAM'], addLabelIds: ['INBOX'] })
+      });
+      showToast(`✅ ${ids.length}개 메일을 스팸 해제했습니다.`);
+      clearSel();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('스팸 해제 실패: ' + err.message);
+    }
+  }
+
+  /* Mail Move Dropdown logic */
+  function toggleBatchMoveMenu(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('g-batch-move-menu');
+    if (!menu) return;
+    const isShow = menu.style.display === 'block';
+    closeAllMoveMenus();
+    if (!isShow) {
+      renderMoveMenuList('g-batch-move-menu', true);
+      menu.style.display = 'block';
+    }
+  }
+
+  function toggleSingleMoveMenu(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('g-single-move-menu');
+    if (!menu) return;
+    const isShow = menu.style.display === 'block';
+    closeAllMoveMenus();
+    if (!isShow) {
+      renderMoveMenuList('g-single-move-menu', false);
+      menu.style.display = 'block';
+    }
+  }
+
+  function closeAllMoveMenus() {
+    document.querySelectorAll('.g-move-menu').forEach(m => m.style.display = 'none');
+  }
+
+  document.addEventListener('click', () => {
+    closeAllMoveMenus();
+  });
+
+  function renderMoveMenuList(containerId, isBatch) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    
+    const mainTargets = [
+      { id: 'INBOX', name: '받은편지함', icon: 'inbox' },
+      { id: 'STARRED', name: '중요편지함', icon: 'star' },
+      { id: 'SPAM', name: '스팸함', icon: 'alert-triangle' },
+      { id: 'TRASH', name: '휴지통', icon: 'trash-2' }
+    ];
+    
+    let html = `<div class="g-move-hd">위치 이동</div>`;
+    mainTargets.forEach(t => {
+      html += `
+        <div class="g-move-item" onclick="execMove('${t.id}', ${isBatch})">
+          <i data-lucide="${t.icon}"></i>
+          <span>${esc(t.name)}</span>
+        </div>
+      `;
+    });
+    
+    const customLabels = gUserLabels.filter(l => l.type === 'user');
+    if (customLabels.length > 0) {
+      html += `<div class="g-move-hd" style="margin-top:6px; border-top:1px solid var(--bd); padding-top:6px;">사용자 라벨</div>`;
+      customLabels.forEach(l => {
+        html += `
+          <div class="g-move-item" onclick="execMove('${ea(l.id)}', ${isBatch})">
+            <i data-lucide="tag"></i>
+            <span>${esc(l.name)}</span>
+          </div>
+        `;
+      });
+    }
+    
+    el.innerHTML = html;
+    lucide.createIcons();
+  }
+
+  async function execMove(targetLabelId, isBatch) {
+    closeAllMoveMenus();
+    const ids = isBatch ? [...selIds] : (selMsg ? [selMsg.id] : []);
+    if (!ids.length) return;
+    
+    try {
+      const body = {
+        ids,
+        addLabelIds: [targetLabelId]
+      };
+      
+      if (gLabel && gLabel !== targetLabelId) {
+        body.removeLabelIds = [gLabel];
+      }
+      
+      await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      
+      showToast(`✨ ${ids.length}개 메일을 이동했습니다.`);
+      
+      if (!isBatch) {
+        closeReader();
+      } else {
+        clearSel();
+      }
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('메일 이동 실패: ' + err.message);
+    }
+  }
+
   async function emptyTrash() {
     if (!confirm('휴지통을 완전히 비우시겠습니까? 복구할 수 없습니다.')) return;
     loading('g-list', '비우는 중...');
@@ -5088,7 +5415,6 @@
       
       const rawBody = getBody(full.payload) || '<p style="padding:16px;color:#999">본문 없음</p>';
       
-      // DOMPurify 로딩 지연에 대비한 방어 코드
       const sanitizedBody = (typeof DOMPurify !== 'undefined') 
         ? DOMPurify.sanitize(rawBody, { ADD_ATTR: ['target'], FORCE_BODY: true }) 
         : rawBody;
@@ -5116,7 +5442,6 @@
         </html>
       `;
       
-      // 브라우저의 iframe srcdoc 렌더링 버그(하얀 화면 굳음) 해결을 위해 iframe 엘리먼트를 새로 만듭니다.
       const oldFrame = document.getElementById('r-frame');
       if (oldFrame) {
         const newFrame = document.createElement('iframe');
@@ -5376,6 +5701,22 @@
       loadLabelCounts();
     } catch (err) {
       console.error('Mark read failed:', err);
+    }
+  }
+
+  async function markUnread() {
+    if (!selMsg) return;
+    try {
+      await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${selMsg.id}/modify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ addLabelIds: ['UNREAD'] })
+      });
+      closeReader();
+      loadGmail();
+      loadLabelCounts();
+    } catch (err) {
+      alert('안읽음 표시 실패: ' + err.message);
     }
   }
 
