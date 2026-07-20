@@ -325,14 +325,31 @@
   }
 
   .view {
-    flex: 1;
-    height: 100%;
+    flex: 1 1 0%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     background: var(--panel);
     min-width: 0;
     max-width: 100%;
+    height: 100%;
+  }
+
+  #view-tasks {
+    flex: 1 1 0%;
+    min-width: 220px;
+  }
+
+  #view-calendar {
+    flex: 1.2 1.2 0%;
+    min-width: 280px;
+  }
+
+  #view-gmail {
+    flex: 1.2 1.2 0%;
+    min-width: 280px;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   /* ==========================================================================
@@ -2436,7 +2453,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.5</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.7</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -2906,18 +2923,20 @@
     }
   }
 
-  /* ── SPLITTERS RESIZING ── */
-  function initSplitters() {
+    /* ── SPLITTERS RESIZING WITH RATIO PRESERVATION ── */
     const spv = document.getElementById('sp-v');
     const sb = document.querySelector('.sidebar');
     
     if (spv && sb) {
-      const sw = localStorage.getItem('sp-sw');
-      if (sw) sb.style.width = sw + 'px';
+      const rt = localStorage.getItem('sp-rt');
+      if (rt && window.innerWidth >= 768) {
+        sb.style.flex = `${rt} ${rt} 0%`;
+      }
       
       let drag = false, sx = 0, sw0 = 0;
       
       spv.addEventListener('mousedown', e => {
+        if (window.innerWidth < 768) return;
         e.preventDefault();
         drag = true;
         sx = e.clientX;
@@ -2929,7 +2948,12 @@
       
       document.addEventListener('mousemove', e => {
         if (!drag) return;
-        sb.style.width = Math.max(160, Math.min(480, sw0 + (e.clientX - sx))) + 'px';
+        const mainWidth = document.querySelector('.body')?.clientWidth || window.innerWidth;
+        const d = e.clientX - sx;
+        const newSw = Math.max(160, Math.min(mainWidth * 0.45, sw0 + d));
+        const ratioSb = ((newSw / mainWidth) * 3.4).toFixed(3);
+        sb.style.flex = `${ratioSb} ${ratioSb} 0%`;
+        sb.style.width = 'auto';
       });
       
       document.addEventListener('mouseup', () => {
@@ -2938,7 +2962,9 @@
         spv.classList.remove('on');
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
-        localStorage.setItem('sp-sw', sb.offsetWidth);
+        const mainWidth = document.querySelector('.body')?.clientWidth || window.innerWidth;
+        const rt = ((sb.offsetWidth / mainWidth) * 3.4).toFixed(3);
+        localStorage.setItem('sp-rt', rt);
       });
     }
     
@@ -2947,18 +2973,16 @@
     const gm = document.getElementById('view-gmail');
     
     if (sph && cal && gm) {
-      const sc = localStorage.getItem('sp-cw');
-      const sg = localStorage.getItem('sp-gw');
+      const rc = localStorage.getItem('sp-rc');
+      const rg = localStorage.getItem('sp-rg');
       
-      if (sc && sg && window.innerWidth >= 768) {
-        cal.style.width = sc + 'px';
-        cal.style.flex = 'none';
-        gm.style.width = sg + 'px';
-        gm.style.flex = 'none';
+      if (rc && rg && window.innerWidth >= 768) {
+        cal.style.flex = `${rc} ${rc} 0%`;
+        gm.style.flex = `${rg} ${rg} 0%`;
       }
       
       let drag = false, sx2 = 0, cw0 = 0, gw0 = 0;
-      const MINSZ = 240;
+      const MINSZ = 220;
       
       sph.addEventListener('mousedown', e => {
         if (window.innerWidth < 768) return;
@@ -2974,11 +2998,18 @@
       
       document.addEventListener('mousemove', e => {
         if (!drag) return;
+        const mainWidth = cal.parentElement?.clientWidth || window.innerWidth;
         const d = e.clientX - sx2;
-        cal.style.width = Math.max(MINSZ, cw0 + d) + 'px';
-        cal.style.flex = 'none';
-        gm.style.width = Math.max(MINSZ, gw0 - d) + 'px';
-        gm.style.flex = 'none';
+        const newCw = Math.max(MINSZ, cw0 + d);
+        const newGw = Math.max(MINSZ, gw0 - d);
+        
+        const ratioCal = ((newCw / mainWidth) * 3.4).toFixed(3);
+        const ratioGm = ((newGw / mainWidth) * 3.4).toFixed(3);
+        
+        cal.style.flex = `${ratioCal} ${ratioCal} 0%`;
+        cal.style.width = 'auto';
+        gm.style.flex = `${ratioGm} ${ratioGm} 0%`;
+        gm.style.width = 'auto';
         fitCal();
       });
       
@@ -2988,8 +3019,11 @@
         sph.classList.remove('on');
         document.body.style.cursor = '';
         document.body.style.userSelect = '';
-        localStorage.setItem('sp-cw', cal.offsetWidth);
-        localStorage.setItem('sp-gw', gm.offsetWidth);
+        const mainWidth = cal.parentElement?.clientWidth || window.innerWidth;
+        const rc = ((cal.offsetWidth / mainWidth) * 3.4).toFixed(3);
+        const rg = ((gm.offsetWidth / mainWidth) * 3.4).toFixed(3);
+        localStorage.setItem('sp-rc', rc);
+        localStorage.setItem('sp-rg', rg);
       });
     }
 
