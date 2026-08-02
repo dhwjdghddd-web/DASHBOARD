@@ -2453,7 +2453,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.3.3</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.3.4</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -4767,24 +4767,32 @@
             <span class="ef-lbl">종일</span>
             <input type="checkbox" class="ef-chk" id="ef-ad" ${allDay ? 'checked' : ''} onchange="togAD()"/>
           </div>
-          <div id="ef-dw" style="${allDay ? 'display:flex;flex-direction:column;gap:8px' : 'display:none'}">
-            <div class="ef-row" style="width:100%;">
-              <span class="ef-lbl">시작일</span>
-              <input type="date" class="ef-sel" id="ef-dt-start" value="${allDayStartDt}" style="flex:1;width:100%;min-width:0;box-sizing:border-box;"/>
+          <div id="ef-dw" style="${allDay ? 'display:flex;flex-direction:column;gap:8px;' : 'display:none;'}">
+            <div style="display:flex;flex-direction:column;gap:4px;width:100%;">
+              <span style="font-size:11.5px;font-weight:700;color:var(--t3);display:flex;align-items:center;gap:4px;">
+                <i data-lucide="calendar" style="width:13px;height:13px;color:var(--blue)"></i> 시작일
+              </span>
+              <input type="date" class="ef-sel" id="ef-dt-start" value="${allDayStartDt}" style="width:100%;box-sizing:border-box;min-width:0;padding:7px 10px;font-size:12.5px;background:var(--inp);color:var(--t1);border:1.5px solid var(--bd);border-radius:8px;outline:none;"/>
             </div>
-            <div class="ef-row" style="width:100%;">
-              <span class="ef-lbl">종료일</span>
-              <input type="date" class="ef-sel" id="ef-dt-end" value="${allDayEndDt}" style="flex:1;width:100%;min-width:0;box-sizing:border-box;"/>
+            <div style="display:flex;flex-direction:column;gap:4px;width:100%;">
+              <span style="font-size:11.5px;font-weight:700;color:var(--t3);display:flex;align-items:center;gap:4px;">
+                <i data-lucide="calendar-check" style="width:13px;height:13px;color:var(--blue)"></i> 종료일
+              </span>
+              <input type="date" class="ef-sel" id="ef-dt-end" value="${allDayEndDt}" style="width:100%;box-sizing:border-box;min-width:0;padding:7px 10px;font-size:12.5px;background:var(--inp);color:var(--t1);border:1.5px solid var(--bd);border-radius:8px;outline:none;"/>
             </div>
           </div>
-          <div id="ef-tw" style="${allDay ? 'display:none' : 'flex'};flex-direction:column;gap:6px">
-            <div class="ef-row">
-              <span class="ef-lbl">시작</span>
-              <input type="datetime-local" class="ef-sel" id="ef-st" value="${startV}"/>
+          <div id="ef-tw" style="${allDay ? 'display:none' : 'display:flex;flex-direction:column;gap:8px;'}">
+            <div style="display:flex;flex-direction:column;gap:4px;width:100%;">
+              <span style="font-size:11.5px;font-weight:700;color:var(--t3);display:flex;align-items:center;gap:4px;">
+                <i data-lucide="clock" style="width:13px;height:13px;color:var(--blue)"></i> 시작 시간
+              </span>
+              <input type="datetime-local" class="ef-sel" id="ef-st" value="${startV}" style="width:100%;box-sizing:border-box;min-width:0;padding:7px 10px;font-size:12.5px;background:var(--inp);color:var(--t1);border:1.5px solid var(--bd);border-radius:8px;outline:none;"/>
             </div>
-            <div class="ef-row">
-              <span class="ef-lbl">종료</span>
-              <input type="datetime-local" class="ef-sel" id="ef-et" value="${endV}"/>
+            <div style="display:flex;flex-direction:column;gap:4px;width:100%;">
+              <span style="font-size:11.5px;font-weight:700;color:var(--t3);display:flex;align-items:center;gap:4px;">
+                <i data-lucide="clock" style="width:13px;height:13px;color:var(--blue)"></i> 종료 시간
+              </span>
+              <input type="datetime-local" class="ef-sel" id="ef-et" value="${endV}" style="width:100%;box-sizing:border-box;min-width:0;padding:7px 10px;font-size:12.5px;background:var(--inp);color:var(--t1);border:1.5px solid var(--bd);border-radius:8px;outline:none;"/>
             </div>
           </div>
           <div class="ef-row">
