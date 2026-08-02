@@ -2453,7 +2453,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.3.5</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.3.7</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -4763,10 +4763,17 @@
       <div class="ev-form">
         <input class="ef-inp" id="ef-ttl" placeholder="제목 (필수)" value="${esc(title)}" style="font-size:14px;font-weight:600;padding:8px 12px"/>
         <div class="ef-sect">
-          <div class="ef-row">
-            <span class="ef-lbl">종일</span>
-            <input type="checkbox" class="ef-chk" id="ef-ad" ${allDay ? 'checked' : ''} onchange="togAD()"/>
+          <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);padding-bottom:8px;margin-bottom:4px;">
+            <span style="font-size:12px;font-weight:700;color:var(--t1);display:flex;align-items:center;gap:6px;">
+              <i data-lucide="clock" style="width:14px;height:14px;color:var(--blue)"></i>
+              <span>일시 및 기간 설정</span>
+            </span>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--t2);cursor:pointer;user-select:none;">
+              <input type="checkbox" class="ef-chk" id="ef-ad" ${allDay ? 'checked' : ''} onchange="togAD()"/>
+              <span>종일</span>
+            </label>
           </div>
+          
           <div id="ef-dw" style="${allDay ? 'display:flex;flex-direction:column;gap:8px;' : 'display:none;'}">
             <div style="display:flex;flex-direction:column;gap:4px;width:100%;">
               <span style="font-size:11.5px;font-weight:700;color:var(--t3);display:flex;align-items:center;gap:4px;">
@@ -4781,6 +4788,7 @@
               <input type="date" class="ef-sel" id="ef-dt-end" value="${allDayEndDt}" style="width:100%;box-sizing:border-box;min-width:0;padding:7px 10px;font-size:12.5px;background:var(--inp);color:var(--t1);border:1.5px solid var(--bd);border-radius:8px;outline:none;"/>
             </div>
           </div>
+          
           <div id="ef-tw" style="${allDay ? 'display:none;' : 'display:flex;flex-direction:column;gap:8px;'}">
             <div style="display:flex;flex-direction:column;gap:4px;width:100%;">
               <span style="font-size:11.5px;font-weight:700;color:var(--t3);display:flex;align-items:center;gap:4px;">
@@ -4845,8 +4853,16 @@
     const ad = document.getElementById('ef-ad')?.checked;
     const dw = document.getElementById('ef-dw');
     const tw = document.getElementById('ef-tw');
-    if (dw) dw.style.display = ad ? 'flex' : 'none';
-    if (tw) tw.style.display = ad ? 'none' : 'flex';
+    if (dw) {
+      dw.style.display = ad ? 'flex' : 'none';
+      dw.style.flexDirection = 'column';
+      dw.style.gap = '8px';
+    }
+    if (tw) {
+      tw.style.display = ad ? 'none' : 'flex';
+      tw.style.flexDirection = 'column';
+      tw.style.gap = '8px';
+    }
   }
 
   function togEfCal() {
