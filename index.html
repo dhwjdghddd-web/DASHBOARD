@@ -2453,7 +2453,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.3.2</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.3.3</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -3990,8 +3990,18 @@
       activeTasks.forEach(t => { html += tHtml(t, false); });
       
       if (doneTasks.length > 0) {
-        html += `<div class="sec-lbl">완료됨 (${doneTasks.length})</div>`;
+        html += `
+          <div class="t-done-toggle" onclick="toggleDoneTasks(this)" style="margin-top:14px; padding:8px 12px; background:var(--hover); border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-size:12px; font-weight:700; color:var(--t2); user-select:none; transition:background 0.15s ease;">
+            <span style="display:flex; align-items:center; gap:6px;">
+              <i data-lucide="check-circle-2" style="width:14px;height:14px;color:var(--green)"></i>
+              <span>완료된 항목 (${doneTasks.length})</span>
+            </span>
+            <i data-lucide="chevron-down" class="done-chevron" style="width:14px;height:14px;transition:transform 0.2s ease;"></i>
+          </div>
+          <div class="t-done-list" style="display:none; margin-top:6px; flex-direction:column; gap:4px;">
+        `;
         doneTasks.forEach(t => { html += tHtml(t, true); });
+        html += `</div>`;
       }
     }
     
@@ -4003,6 +4013,17 @@
     });
     
     lucide.createIcons();
+  }
+
+  function toggleDoneTasks(btnEl) {
+    const listEl = btnEl.nextElementSibling;
+    if (!listEl) return;
+    const isHidden = getComputedStyle(listEl).display === 'none';
+    listEl.style.display = isHidden ? 'flex' : 'none';
+    const chevron = btnEl.querySelector('.done-chevron');
+    if (chevron) {
+      chevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
   }
 
   function tHtml(t, done) {
@@ -4746,14 +4767,14 @@
             <span class="ef-lbl">종일</span>
             <input type="checkbox" class="ef-chk" id="ef-ad" ${allDay ? 'checked' : ''} onchange="togAD()"/>
           </div>
-          <div id="ef-dw" style="${allDay ? 'display:flex;flex-direction:column;gap:6px' : 'display:none'}">
-            <div class="ef-row">
+          <div id="ef-dw" style="${allDay ? 'display:flex;flex-direction:column;gap:8px' : 'display:none'}">
+            <div class="ef-row" style="width:100%;">
               <span class="ef-lbl">시작일</span>
-              <input type="date" class="ef-sel" id="ef-dt-start" value="${allDayStartDt}"/>
+              <input type="date" class="ef-sel" id="ef-dt-start" value="${allDayStartDt}" style="flex:1;width:100%;min-width:0;box-sizing:border-box;"/>
             </div>
-            <div class="ef-row">
+            <div class="ef-row" style="width:100%;">
               <span class="ef-lbl">종료일</span>
-              <input type="date" class="ef-sel" id="ef-dt-end" value="${allDayEndDt}"/>
+              <input type="date" class="ef-sel" id="ef-dt-end" value="${allDayEndDt}" style="flex:1;width:100%;min-width:0;box-sizing:border-box;"/>
             </div>
           </div>
           <div id="ef-tw" style="${allDay ? 'display:none' : 'flex'};flex-direction:column;gap:6px">
