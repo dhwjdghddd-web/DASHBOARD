@@ -2453,7 +2453,7 @@
   <header class="hd">
     <div class="hd-l">
       <i data-lucide="layout-dashboard" class="hd-icon"></i>
-      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.2.8</span></span>
+      <span class="hd-title" style="display:flex; align-items:center; gap:6px;">Google Dashboard <span class="app-version" style="font-size:11px; color:var(--t3); font-weight:600; background:var(--hover); padding:2px 6px; border-radius:4px; margin-left:4px;">v1.3.1</span></span>
       <span class="hd-date" id="hdate"></span>
     </div>
     <div class="hd-r">
@@ -4924,6 +4924,7 @@
     try {
       let activeEvId = _efEvId;
       let activeCal = _efCal || 'primary';
+      let moveSuccess = false;
       
       if (isEdit && _efOrigCal && _efOrigCal !== activeCal) {
         const moveUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(_efOrigCal)}/events/${encodeURIComponent(activeEvId)}/move?destination=${encodeURIComponent(activeCal)}`;
@@ -4933,12 +4934,37 @@
             Authorization: `Bearer ${AT}`
           }
         });
-        if (!rMove.ok) {
+        if (rMove.ok) {
+          const movedEv = await rMove.json();
+          activeEvId = movedEv.id || activeEvId;
+          moveSuccess = true;
+        } else {
           const text = await rMove.text();
-          throw new Error('캘린더 이동 실패: ' + rMove.status + ' - ' + text);
+          if (text.includes('cannotChangeOrganizer') || rMove.status === 400) {
+            console.warn('Move failed via move API, fallback to copy & delete for invited events.');
+            const newUrl = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(activeCal)}/events`;
+            const rNew = await fetch(newUrl, {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${AT}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+            });
+            if (rNew.ok) {
+              await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(_efOrigCal)}/events/${encodeURIComponent(activeEvId)}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${AT}` }
+              });
+              await loadCalendar();
+              pEvs = calEvs.filter(e => getEventDays(e).includes(pDay) && !e._isT);
+              renderEP();
+              showToast('✨ 캘린더 이동이 완료되었습니다.');
+              return;
+            } else {
+              activeCal = _efOrigCal;
+            }
+          } else {
+            throw new Error('캘린더 이동 실패: ' + rMove.status + ' - ' + text);
+          }
         }
-        const movedEv = await rMove.json();
-        activeEvId = movedEv.id;
       }
       
       const ce = encodeURIComponent(activeCal);
@@ -4957,12 +4983,17 @@
       
       if (!r.ok) {
         const text = await r.text();
-        throw new Error(r.status + ': ' + text);
+        if (moveSuccess || text.includes('cannotChangeOrganizer')) {
+          console.warn('PATCH failed after move or cannotChangeOrganizer, but move succeeded:', text);
+        } else {
+          throw new Error(r.status + ': ' + text);
+        }
       }
       
       await loadCalendar();
       pEvs = calEvs.filter(e => getEventDays(e).includes(pDay) && !e._isT);
       renderEP();
+      showToast(isEdit ? '✨ 일정이 수정되었습니다.' : '✨ 일정이 생성되었습니다.');
     } catch (err) {
       alert((isEdit ? '수정' : '저장') + ' 실패: ' + err.message);
     }
